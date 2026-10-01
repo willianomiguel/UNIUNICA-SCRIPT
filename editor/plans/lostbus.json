@@ -1,0 +1,137 @@
+{
+  "source": "lostbus.mp4",
+  "credit": "Vídeo original: \"Lost Bus Devlog 1\" — Guz013 (CC BY-SA 4.0). Música: \"Funky Chunk\" — Kevin MacLeod (incompetech.com, CC BY 4.0).",
+  "webcam_face": [60, 0, 160, 160],
+  "regions": {
+    "app": [190, 95, 1090, 613],
+    "game": [385, 172, 570, 321],
+    "code": [0, 380, 560, 140],
+    "logo": [340, 200, 600, 338]
+  },
+  "badge": "DEVLOG #1 · LOST BUS",
+  "segments": [
+    {
+      "from": "Literalmente eu não imaginava",
+      "to": "questão do ônibus.",
+      "region": "game",
+      "sticker": {
+        "text": "EM 1 DIA",
+        "at": "rápido"
+      }
+    },
+    {
+      "from": "eu consegui fazer praticamente",
+      "to": "um dia,",
+      "region": "game"
+    },
+    {
+      "from": "Godot está sendo",
+      "to": "de utilizar.",
+      "region": "logo"
+    },
+    {
+      "from": "como dá pra ver,",
+      "to": "acho maravilhoso.",
+      "region": "game"
+    },
+    {
+      "from": "Então, se você ver",
+      "to": "faz parte do ônibus,",
+      "region": "game"
+    },
+    {
+      "from": "Então, pra qualquer direção",
+      "to": "também caminhar.",
+      "region": "game"
+    },
+    {
+      "from": "Agora dá pra dirigir,",
+      "to": "funcionando normal,",
+      "region": "game",
+      "sticker": {
+        "text": "FUNCIONANDO",
+        "at": "funcionando"
+      }
+    },
+    {
+      "from": "O maior problema foi",
+      "to": "maior problema foi",
+      "region": "code",
+      "sticker": {
+        "text": "O BUG",
+        "at": "problema"
+      },
+      "after": 220
+    },
+    {
+      "from": "não ter essa linha,",
+      "to": "não ter essa linha,",
+      "region": "code"
+    },
+    {
+      "from": "Essa linha aqui, 39.",
+      "to": "Essa linha aqui, 39.",
+      "region": "code"
+    },
+    {
+      "from": "quando eu entro no ônibus,",
+      "to": "que rotacionam.",
+      "region": "game",
+      "after": 220
+    },
+    {
+      "from": "Eu tô movendo esse",
+      "to": "vai pra frente.",
+      "region": "game"
+    },
+    {
+      "from": "mas aparentemente só",
+      "to": "mas aparentemente só",
+      "region": "game"
+    },
+    {
+      "from": "multiplicar a transformação",
+      "to": "do parente dele,",
+      "region": "code"
+    },
+    {
+      "from": "Já faz funcionar.",
+      "to": "Já faz funcionar.",
+      "region": "game",
+      "sticker": {
+        "text": "RESOLVIDO",
+        "at": "funcionar."
+      }
+    },
+    {
+      "from": "Agora o meu objetivo",
+      "to": "conseguir dirigir.",
+      "region": "app"
+    },
+    {
+      "from": "e aí eu começo",
+      "to": "sair do ônibus.",
+      "region": "app"
+    }
+  ],
+  "highlight": [
+    "rápido",
+    "1",
+    "dia",
+    "fácil",
+    "maravilhoso",
+    "dirigir",
+    "funcionando",
+    "problema",
+    "linha",
+    "39",
+    "funcionar",
+    "objetivo",
+    "mapa",
+    "NPCs"
+  ],
+  "cta": {
+    "title": "SIGA O PROJETO",
+    "subtitle": "Devlog #2 chegando"
+  }
+}

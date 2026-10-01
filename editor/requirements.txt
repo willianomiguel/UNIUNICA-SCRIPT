@@ -1,0 +1,6 @@
+faster-whisper
+transformers
+num2words
+pillow
+numpy
+# torch e torchaudio (CPU): pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
