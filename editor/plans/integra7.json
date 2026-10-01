@@ -1,0 +1,35 @@
+{
+  "source": "integra7.mov",
+  "layout": "talking_head",
+  "face_center": [0.5, 0.36],
+  "punch": [1.0, 1.14, 1.06, 1.2],
+  "caption_y": 1330,
+  "segments": [
+    {"from": "Cara, você só perde", "to": "É surreal demais."}
+  ],
+  "highlight": ["IntegraTube.", "24", "monetizados", "automatizo", "15", "20", "único", "clique.", "vídeo", "surreal", "aula", "saiba", "mais"],
+  "overlays": [
+    {"type": "title", "text": "INTEGRATUBE", "at": "IntegraTube.", "pos": [540, 300], "dur": 1.4, "size": 100},
+    {"type": "stat", "big": "24", "small": "CANAIS MONETIZADOS", "at": "24 canais", "pos": [540, 330], "dur": 2.6},
+    {"type": "stat", "big": "15–20", "small": "VÍDEOS POR DIA", "at": "15 a 20", "pos": [540, 330], "dur": 2.4},
+    {"type": "chips", "at": "gera roteiro,", "until": "Então, você joga", "y": 140, "cols": 2, "row_h": 108, "size": 56,
+     "items": [
+       {"text": "ROTEIRO", "at": "roteiro,"},
+       {"text": "NARRAÇÃO", "at": "narração,"},
+       {"text": "TÍTULO", "at": "título,"},
+       {"text": "DESCRIÇÃO", "at": "descrição,"},
+       {"text": "THUMBNAIL", "at": "thumbnail,"},
+       {"text": "IMAGENS", "at": "todas as imagens do seu"}
+     ]},
+    {"type": "title", "text": "1 CLIQUE", "at": "único clique.", "pos": [540, 480], "dur": 1.2, "size": 90},
+    {"type": "chips", "at": "joga o seu roteiro,", "until": "Personagem andando,", "y": 170, "cols": 3, "arrows": true, "size": 58,
+     "items": [
+       {"text": "ROTEIRO", "at": "seu roteiro,"},
+       {"text": "IMAGENS", "at": "gerar todas as imagens,"},
+       {"text": "VÍDEO", "at": "em vídeo, consegue"}
+     ]},
+    {"type": "title", "text": "SURREAL", "at": "É surreal, cara,", "pos": [540, 330], "dur": 1.2, "size": 110},
+    {"type": "title", "text": "AULA NA PRÁTICA", "at": "uma aula agora", "pos": [540, 330], "dur": 2.4, "size": 76},
+    {"type": "cta", "text": "SAIBA MAIS", "at": "Clica aqui em saiba mais", "pos": [540, 1600]}
+  ]
+}
