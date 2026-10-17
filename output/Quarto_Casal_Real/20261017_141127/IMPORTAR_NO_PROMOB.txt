@@ -1,0 +1,29 @@
+COMO LEVAR ESTE PROJETO PARA O PROMOB  (Quarto_Casal_Real)
+=========================================================
+
+Caminho 1 — Projeto com paredes (Novo Promob >= 5.60.39.0) [recomendado p/ ambiente]
+  1. Abra o SketchUp (2017+). Janela > Console Ruby, digite:
+       load "/home/user/UNIUNICA-SCRIPT/output/Quarto_Casal_Real/20261017_141127/Quarto_Casal_Real_sketchup.rb"
+     (se esta pasta foi copiada para outro lugar, use o caminho atual dela,
+      sempre com barras normais "/")
+     -> será criado Quarto_Casal_Real.skp nesta pasta (versão SketchUp 2016).
+  2. No Promob: Arquivo > Importar Projeto > Caminho > filtro "Arquivos do SketchUp (*.skp)"
+     > selecione Quarto_Casal_Real.skp > Avançar > escolha/cadastre o cliente.
+  3. Na tela de relacionamento de camadas:
+       Paredes            <- etiqueta "Paredes"
+       Piso               <- etiqueta "Piso"
+       Itens de Decoração <- etiqueta "Itens de Decoracao"
+  4. Aguarde a notificação de conversão concluída e clique nela para abrir o projeto.
+  Resultado esperado: paredes nativas do Promob + módulos como ITENS DE DECORAÇÃO
+  (geometria; NÃO são módulos de biblioteca de fabricante, sem orçamento por item).
+
+Caminho 2 — Geometria 3D no projeto aberto (qualquer Promob com "Importar Arquivo 3D")
+  Botão "Importar - Arquivo 3D" na barra superior > escolha um arquivo:
+     Quarto_Casal_Real_moveis.obj  (todos os módulos, sem parede/piso, origem 0,0,0)
+     modulos/*.obj           (um módulo por arquivo, origem no canto esq./traseiro/inferior)
+     Quarto_Casal_Real.3ds / .dxf  (alternativas; 3DS lê só materiais, DXF não lê polilinhas)
+  Escolha "Vincular" (cópia salva no projeto). Posicione cada módulo pela coordenada X
+  indicada em manifest.json (campo modules[].position).
+
+Arquivos experimentais (NÃO são importáveis por menu documentado):
+  Quarto_Casal_Real.pmob  — malha no formato binário de conteúdo Promob (engenharia reversa).

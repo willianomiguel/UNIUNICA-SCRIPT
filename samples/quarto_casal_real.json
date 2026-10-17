@@ -1,0 +1,45 @@
+{
+  "project_name": "Quarto_Casal_Real",
+  "units": "mm",
+  "room": {
+    "type": "rectangular_room",
+    "width": 3600,
+    "length": 4000,
+    "ceiling_height": 2700,
+    "wall_thickness": 150,
+    "openings": [
+      { "type": "door",   "wall": "C", "x": 2700, "width": 800,  "height": 2100 },
+      { "type": "window", "wall": "B", "x": 1600, "width": 1200, "height": 1200, "sill": 1000 }
+    ]
+  },
+  "materials": {
+    "carcass": "MDP Branco TX 15mm",
+    "front": "MDP Branco TX 18mm",
+    "back": "HDF Branco 3mm",
+    "back_thickness": 3
+  },
+  "countertop": false,
+  "cabinet_modules": [
+    { "type": "wall_panel", "wall": "A", "x": 1100, "width": 1400, "depth": 30, "height": 600, "elevation": 450,
+      "front_material": "Courino Branco", "label": "Cabeceira estofada Reta Luxo Dupla (Flamingo Design)",
+      "source": "https://www.madeiramadeira.com.br/-861906.html (1400 x 600 x 30)" },
+    { "type": "bed", "wall": "A", "x": 1110, "wall_offset": 30, "width": 1380, "depth": 1880, "height": 540,
+      "label": "Cama box casal c/ colchao Union (Ortobom)",
+      "source": "https://www.buscape.com.br/cama/cama-box-casal-com-colchao-union-ortobom (1380 x 1880; altura 540 a confirmar)" },
+    { "type": "nightstand", "wall": "A", "x": 570, "width": 520, "depth": 450, "height": 620, "plinth": 60, "drawers": 2,
+      "front_material": "MDP Branco TX Espelhado", "label": "Criado-mudo 807E 2 gavetas (Foscarini)",
+      "source": "https://www.madeiramadeira.com.br/-472601.html (520 x 680 x 450)" },
+    { "type": "nightstand", "wall": "A", "x": 2510, "width": 520, "depth": 450, "height": 620, "plinth": 60, "drawers": 2,
+      "front_material": "MDP Branco TX Espelhado", "label": "Criado-mudo 807E 2 gavetas (Foscarini)",
+      "source": "https://www.madeiramadeira.com.br/-472601.html (520 x 680 x 450)" },
+    { "type": "wardrobe", "wall": "C", "x": 0, "width": 2490, "depth": 500, "height": 2250, "plinth": 100,
+      "doors": 6, "drawers": 4, "label": "Guarda-roupa casal H555 6 portas 4 gavetas c/ pes (Kappesberg)",
+      "source": "https://www.buscape.com.br/guarda-roupas-armario/guarda-roupa-casal-6-portas-4-gavetas-com-espelho-h555-4e-pes-kappesberg (2490 x 2350 x 500)" },
+    { "type": "dresser", "wall": "D", "x": 1500, "width": 1265, "depth": 510, "height": 950, "plinth": 60, "drawers": 4,
+      "label": "Comoda Americana 4 gavetas (Henn)",
+      "source": "https://www.casasbahia.com.br/comoda-4-gavetas-1-porta-americano-moveis-henn/p/1500536506 (1265 x 1010 x 510; modelo real tem 1 porta)" },
+    { "type": "desk", "wall": "B", "x": 2000, "width": 1200, "depth": 600, "height": 730,
+      "front_material": "MDP Sevilha", "label": "Escrivaninha 120 cm CR25312 (Multimoveis)",
+      "source": "https://www.madeiramadeira.com.br/-825303706.html (1200 x 730 x 600)" }
+  ]
+}

@@ -1,0 +1,441 @@
+{
+  "generator": "promob_auto_generator 0.1.0",
+  "project_name": "Quarto_Casal_Real",
+  "units": "mm",
+  "axes": {
+    "files": "mão direita; X da esquerda para a direita (visto de dentro do ambiente); Z para cima; parede em +Y, ambiente em -Y",
+    "positions_below": "position = (x ao longo da parede, afastamento da parede, z) na parede 'wall'; bbox_arquivo = coordenadas reais no arquivo"
+  },
+  "room": {
+    "type": "rectangular_room",
+    "width": 3600.0,
+    "length": 4000.0,
+    "ceiling_height": 2700.0,
+    "wall_thickness": 150.0,
+    "openings": [
+      {
+        "type": "door",
+        "x": 2700.0,
+        "width": 800.0,
+        "height": 2100.0,
+        "sill": 0.0,
+        "wall": "C"
+      },
+      {
+        "type": "window",
+        "x": 1600.0,
+        "width": 1200.0,
+        "height": 1200.0,
+        "sill": 1000.0,
+        "wall": "B"
+      }
+    ],
+    "walls": [
+      {
+        "wall": "A",
+        "length": 3600.0,
+        "x0": -150.0,
+        "x1": 3750.0,
+        "frame": [
+          [
+            0.0,
+            4000.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "openings": []
+      },
+      {
+        "wall": "B",
+        "length": 4000.0,
+        "x0": 0.0,
+        "x1": 4000.0,
+        "frame": [
+          [
+            3600.0,
+            4000.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "openings": [
+          {
+            "type": "window",
+            "x": 1600.0,
+            "width": 1200.0,
+            "height": 1200.0,
+            "sill": 1000.0,
+            "wall": "B"
+          }
+        ]
+      },
+      {
+        "wall": "C",
+        "length": 3600.0,
+        "x0": -150.0,
+        "x1": 3750.0,
+        "frame": [
+          [
+            3600.0,
+            0.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "openings": [
+          {
+            "type": "door",
+            "x": 2700.0,
+            "width": 800.0,
+            "height": 2100.0,
+            "sill": 0.0,
+            "wall": "C"
+          }
+        ]
+      },
+      {
+        "wall": "D",
+        "length": 4000.0,
+        "x0": 0.0,
+        "x1": 4000.0,
+        "frame": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "openings": []
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": "M01_wall_panel",
+      "type": "wall_panel",
+      "label": "Cabeceira estofada Reta Luxo Dupla (Flamingo Design)",
+      "wall": "A",
+      "position": [
+        1100.0,
+        0.0,
+        450.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          1100.0,
+          3970.0,
+          450.0
+        ],
+        "max": [
+          2500.0,
+          4000.0,
+          1050.0
+        ]
+      },
+      "source": "https://www.madeiramadeira.com.br/-861906.html (1400 x 600 x 30)",
+      "width": 1400.0,
+      "depth": 30.0,
+      "height": 600.0,
+      "parts": 1
+    },
+    {
+      "id": "M02_bed",
+      "type": "bed",
+      "label": "Cama box casal c/ colchao Union (Ortobom)",
+      "wall": "A",
+      "position": [
+        1110.0,
+        30.0,
+        0.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          1110.0,
+          2090.0,
+          0.0
+        ],
+        "max": [
+          2490.0,
+          3970.0,
+          660.0
+        ]
+      },
+      "source": "https://www.buscape.com.br/cama/cama-box-casal-com-colchao-union-ortobom (1380 x 1880; altura 540 a confirmar)",
+      "width": 1380.0,
+      "depth": 1880.0,
+      "height": 540.0,
+      "parts": 5
+    },
+    {
+      "id": "M03_nightstand",
+      "type": "nightstand",
+      "label": "Criado-mudo 807E 2 gavetas (Foscarini)",
+      "wall": "A",
+      "position": [
+        570.0,
+        0.0,
+        60.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          570.0,
+          3512.0,
+          0.0
+        ],
+        "max": [
+          1090.0,
+          4000.0,
+          680.0
+        ]
+      },
+      "source": "https://www.madeiramadeira.com.br/-472601.html (520 x 680 x 450)",
+      "width": 520.0,
+      "depth": 450.0,
+      "height": 620.0,
+      "parts": 20
+    },
+    {
+      "id": "M04_nightstand",
+      "type": "nightstand",
+      "label": "Criado-mudo 807E 2 gavetas (Foscarini)",
+      "wall": "A",
+      "position": [
+        2510.0,
+        0.0,
+        60.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          2510.0,
+          3512.0,
+          0.0
+        ],
+        "max": [
+          3030.0,
+          4000.0,
+          680.0
+        ]
+      },
+      "source": "https://www.madeiramadeira.com.br/-472601.html (520 x 680 x 450)",
+      "width": 520.0,
+      "depth": 450.0,
+      "height": 620.0,
+      "parts": 20
+    },
+    {
+      "id": "M05_wardrobe",
+      "type": "wardrobe",
+      "label": "Guarda-roupa casal H555 6 portas 4 gavetas c/ pes (Kappesberg)",
+      "wall": "C",
+      "position": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          1110.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          3600.0,
+          538.0,
+          2350.0
+        ]
+      },
+      "source": "https://www.buscape.com.br/guarda-roupas-armario/guarda-roupa-casal-6-portas-4-gavetas-com-espelho-h555-4e-pes-kappesberg (2490 x 2350 x 500)",
+      "width": 2490.0,
+      "depth": 500.0,
+      "height": 2250.0,
+      "parts": 34
+    },
+    {
+      "id": "M06_dresser",
+      "type": "dresser",
+      "label": "Comoda Americana 4 gavetas (Henn)",
+      "wall": "D",
+      "position": [
+        1500.0,
+        0.0,
+        60.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          0.0,
+          1500.0,
+          0.0
+        ],
+        "max": [
+          548.0,
+          2765.0,
+          1010.0
+        ]
+      },
+      "source": "https://www.casasbahia.com.br/comoda-4-gavetas-1-porta-americano-moveis-henn/p/1500536506 (1265 x 1010 x 510; modelo real tem 1 porta)",
+      "width": 1265.0,
+      "depth": 510.0,
+      "height": 950.0,
+      "parts": 34
+    },
+    {
+      "id": "M07_desk",
+      "type": "desk",
+      "label": "Escrivaninha 120 cm CR25312 (Multimoveis)",
+      "wall": "B",
+      "position": [
+        2000.0,
+        0.0,
+        0.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          3000.0,
+          800.0,
+          0.0
+        ],
+        "max": [
+          3600.0,
+          2000.0,
+          730.0
+        ]
+      },
+      "source": "https://www.madeiramadeira.com.br/-825303706.html (1200 x 730 x 600)",
+      "width": 1200.0,
+      "depth": 600.0,
+      "height": 730.0,
+      "parts": 4
+    }
+  ],
+  "warnings": [],
+  "files": {
+    "ir": [
+      "Quarto_Casal_Real_ir.json"
+    ],
+    "cutlist": [
+      "Quarto_Casal_Real_lista_corte.csv"
+    ],
+    "preview": [
+      "Quarto_Casal_Real_vista_parede_A.svg",
+      "Quarto_Casal_Real_vista_parede_B.svg",
+      "Quarto_Casal_Real_vista_parede_C.svg",
+      "Quarto_Casal_Real_vista_parede_D.svg"
+    ],
+    "obj": [
+      "Quarto_Casal_Real.obj",
+      "Quarto_Casal_Real.mtl",
+      "Quarto_Casal_Real_moveis.obj",
+      "Quarto_Casal_Real_moveis.mtl"
+    ],
+    "3ds": [
+      "Quarto_Casal_Real.3ds"
+    ],
+    "dxf": [
+      "Quarto_Casal_Real.dxf"
+    ],
+    "dae": [
+      "Quarto_Casal_Real.dae"
+    ],
+    "pmob_experimental": [
+      "Quarto_Casal_Real.pmob"
+    ],
+    "skp_script": [
+      "Quarto_Casal_Real_sketchup.rb"
+    ],
+    "module_obj": [
+      "modulos/M01_wall_panel.obj",
+      "modulos/M01_wall_panel.mtl",
+      "modulos/M02_bed.obj",
+      "modulos/M02_bed.mtl",
+      "modulos/M03_nightstand.obj",
+      "modulos/M03_nightstand.mtl",
+      "modulos/M04_nightstand.obj",
+      "modulos/M04_nightstand.mtl",
+      "modulos/M05_wardrobe.obj",
+      "modulos/M05_wardrobe.mtl",
+      "modulos/M06_dresser.obj",
+      "modulos/M06_dresser.mtl",
+      "modulos/M07_desk.obj",
+      "modulos/M07_desk.mtl"
+    ],
+    "module_3ds": [
+      "modulos/M01_wall_panel.3ds",
+      "modulos/M02_bed.3ds",
+      "modulos/M03_nightstand.3ds",
+      "modulos/M04_nightstand.3ds",
+      "modulos/M05_wardrobe.3ds",
+      "modulos/M06_dresser.3ds",
+      "modulos/M07_desk.3ds"
+    ]
+  },
+  "triangles_per_file": {
+    "Quarto_Casal_Real.obj": 1536,
+    "Quarto_Casal_Real.mtl": 1536,
+    "Quarto_Casal_Real_moveis.obj": 1416,
+    "Quarto_Casal_Real_moveis.mtl": 1416,
+    "Quarto_Casal_Real.3ds": 1416,
+    "Quarto_Casal_Real.dxf": 1536,
+    "Quarto_Casal_Real.dae": 1536,
+    "Quarto_Casal_Real.pmob": 1536,
+    "modulos/M01_wall_panel.obj": 12,
+    "modulos/M01_wall_panel.mtl": 12,
+    "modulos/M01_wall_panel.3ds": 12,
+    "modulos/M02_bed.obj": 60,
+    "modulos/M02_bed.mtl": 60,
+    "modulos/M02_bed.3ds": 60,
+    "modulos/M03_nightstand.obj": 240,
+    "modulos/M03_nightstand.mtl": 240,
+    "modulos/M03_nightstand.3ds": 240,
+    "modulos/M04_nightstand.obj": 240,
+    "modulos/M04_nightstand.mtl": 240,
+    "modulos/M04_nightstand.3ds": 240,
+    "modulos/M05_wardrobe.obj": 408,
+    "modulos/M05_wardrobe.mtl": 408,
+    "modulos/M05_wardrobe.3ds": 408,
+    "modulos/M06_dresser.obj": 408,
+    "modulos/M06_dresser.mtl": 408,
+    "modulos/M06_dresser.3ds": 408,
+    "modulos/M07_desk.obj": 48,
+    "modulos/M07_desk.mtl": 48,
+    "modulos/M07_desk.3ds": 48
+  },
+  "promob_face_limit": 25000
+}

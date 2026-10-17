@@ -1,0 +1,20 @@
+# Cabeceira_estofada_Reta_Luxo_Dupla__Flamingo_Design_
+# Gerado por promob_auto_generator - unidades: mm
+mtllib M01_wall_panel.mtl
+o M01_wall_panel
+g M01_wall_panel_Painel
+usemtl Courino_Branco
+v 0.000 30.000 0.000
+v 1400.000 30.000 0.000
+v 1400.000 0.000 0.000
+v 0.000 0.000 0.000
+v 0.000 30.000 600.000
+v 1400.000 30.000 600.000
+v 1400.000 0.000 600.000
+v 0.000 0.000 600.000
+f 2 3 4 1
+f 8 7 6 5
+f 5 6 2 1
+f 6 7 3 2
+f 7 8 4 3
+f 8 5 1 4

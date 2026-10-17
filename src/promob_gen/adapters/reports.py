@@ -9,7 +9,7 @@ from ..mesh import part_color
 from ..model import Project
 
 PANEL_ROLES = {"side", "bottom", "top", "rail", "back", "shelf", "door", "drawer_front",
-               "drawer_box", "plinth", "panel", "countertop"}
+               "drawer_box", "plinth", "panel", "countertop", "divider"}
 
 
 def write_ir(project: Project, path: Path) -> list[Path]:
@@ -31,9 +31,10 @@ def write_cutlist(project: Project, path: Path) -> list[Path]:
     return [Path(path)]
 
 
-def write_elevation_svg(project: Project, path: Path) -> list[Path]:
-    """Vista frontal (plano XZ) para conferência visual rápida de posições e cotas."""
-    L = project.room["wall_length"]
+def write_elevation_svg(project: Project, path: Path, wall: str = "A") -> list[Path]:
+    """Vista frontal de uma parede (plano local x-z), vista de dentro do ambiente."""
+    info = next(w for w in project.room["walls"] if w["wall"] == wall)
+    L = info["length"]
     H = project.room["ceiling_height"]
     pad, s = 60, 0.25
     W, Hpx = L * s + 2 * pad, H * s + 2 * pad + 40
@@ -48,12 +49,13 @@ def write_elevation_svg(project: Project, path: Path) -> list[Path]:
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.0f}" height="{Hpx:.0f}" '
            f'viewBox="0 0 {W:.0f} {Hpx:.0f}" font-family="sans-serif" font-size="10">',
            f'<rect width="100%" height="100%" fill="#fff"/>',
-           f'<text x="{pad}" y="20" font-size="13">{project.name} — vista frontal (mm)</text>',
+           f'<text x="{pad}" y="20" font-size="13">{project.name} — parede {wall} (mm)</text>',
            rect(0, 0, L, H, "#f3efe8")]
-    for o in project.room.get("openings", []):
+    for o in info["openings"]:
         out.append(rect(o["x"], o["sill"], o["width"], o["height"], "#bfe0ff", "#3a7bd5"))
-    front_roles = {"door", "drawer_front", "panel", "countertop", "plinth", "handle"}
-    for m in project.modules:
+    front_roles = {"door", "drawer_front", "panel", "countertop", "plinth", "handle", "upholstery", "mattress"}
+    mods = sorted((m for m in project.modules if m.wall == wall), key=lambda m: -m.position[1])
+    for m in mods:
         lo, hi = m.bbox
         for p in m.parts:
             if p.role in front_roles:

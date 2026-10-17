@@ -249,3 +249,54 @@ def test_sketchup_script_with_stub(full_run):
     assert sum(1 for e in top if e["class"] == "Instance" and e["layer"] == "Itens de Decoracao") == 7
     assert rep["stats"]["pushpull"] == 1  # uma janela perfurada
     assert rep["saved"][1] == 16 and rep["saved"][0].endswith("Cozinha_Linear_3600.skp")
+
+
+# ------------------------------------------------------------ quarto (4 paredes)
+
+ROOM = ROOT / "samples" / "quarto_casal_real.json"
+
+
+@pytest.fixture(scope="module")
+def room_run(tmp_path_factory):
+    m = generate(load_spec(ROOM), tmp_path_factory.mktemp("quarto"))
+    return m, Path(m["run_dir"])
+
+
+def test_room_world_positions():
+    p = build_project(load_spec(ROOM))
+    bb = {m.type + str(i): m.world_bbox for i, m in enumerate(p.modules)}
+    wardrobe = next(m for m in p.modules if m.type == "wardrobe").world_bbox
+    assert wardrobe[0][1] == pytest.approx(0)                     # parede C (y = 0)
+    assert wardrobe[1][0] == pytest.approx(3600)                  # x da parede C conta a partir da direita
+    assert wardrobe[1][2] == pytest.approx(2350)                  # 2250 + pés 100 = altura do produto
+    dresser = next(m for m in p.modules if m.type == "dresser").world_bbox
+    assert dresser[0][0] == pytest.approx(0) and dresser[0][1] == pytest.approx(1500)   # parede D
+    desk = next(m for m in p.modules if m.type == "desk").world_bbox
+    assert desk[1][0] == pytest.approx(3600) and desk[1][1] == pytest.approx(2000)      # parede B
+    bed = next(m for m in p.modules if m.type == "bed").world_bbox
+    assert bed[1][1] == pytest.approx(4000 - 30)                  # encostada na cabeceira
+    assert not p.warnings, p.warnings                             # sem colisões
+    assert len(bb) == 7
+
+
+def test_room_obj_normals_and_cutlist(room_run):
+    _, d = room_run
+    verts, groups = _obj_groups(d / "Quarto_Casal_Real.obj")
+    for g, fs in groups.items():
+        assert _signed_volume(verts, fs) > 0, g
+    rows = (d / "Quarto_Casal_Real_lista_corte.csv").read_text(encoding="utf-8-sig").splitlines()
+    assert not any(";bed;" in r for r in rows)                    # cama não entra na lista de corte
+    assert any(";wardrobe;Divisória" in r for r in rows)
+
+
+def test_room_sketchup_script_with_stub(room_run):
+    if not shutil.which("ruby"):
+        pytest.skip("ruby não instalado")
+    _, d = room_run
+    res = subprocess.run(["ruby", str(ROOT / "tests" / "sketchup_stub.rb"), str(d / "Quarto_Casal_Real_sketchup.rb")],
+                         capture_output=True, text=True, check=True)
+    rep = json.loads(res.stdout.strip().splitlines()[-1])
+    walls = [e["name"] for e in rep["top_level"] if e["layer"] == "Paredes"]
+    assert walls == ["Parede A", "Parede B", "Parede C", "Parede D"]   # um grupo retangular por parede
+    assert rep["stats"]["pushpull"] == 2                               # porta + janela
+    assert sum(1 for e in rep["top_level"] if e["class"] == "Instance") == 7

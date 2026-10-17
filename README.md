@@ -70,9 +70,25 @@ PYTHONPATH=src python -m promob_gen samples/poc_cozinha_01.json --out output
 - `tall_cabinet`
 - `filler`
 
+**Móveis de quarto:**
+
+- `wardrobe`: guarda-roupa com divisórias, maleiro, cabideiro e gavetas internas.
+- `nightstand`: criado-mudo.
+- `dresser`: cômoda.
+- `desk`: escrivaninha.
+- `wall_panel`: cabeceira ou painel de TV.
+- `bed`: cama. É referência de layout e fica fora da lista de corte.
+
+**Ambientes:**
+
+- `linear_kitchen`: uma parede.
+- `rectangular_room`: `width` × `length`, com 4 paredes. A é o fundo, B a direita, C a frente e D a esquerda, vistas de dentro.
+  - Portas, janelas e móveis recebem `"wall": "A".."D"` e, opcionalmente, `"x"` (posição ao longo da parede).
+  - Exemplo completo com produtos reais e links: `samples/quarto_casal_real.json`.
+
 **Opcionais:**
 
-- Por módulo: `doors`, `drawers`, `shelves`, `elevation`, `label`.
+- Por módulo: `doors`, `drawers`, `shelves`, `elevation`, `label`, `wall`, `x`, `plinth`, `wall_offset`, `front_material`, `carcass_material`, `source`.
 - No nível do projeto: `materials`, `plinth_height`, `wall_cabinet_elevation`, `countertop`, `gap`.
 
 **Convenções:**
@@ -94,7 +110,7 @@ Cada pasta gerada traz um `IMPORTAR_NO_PROMOB.txt` com os comandos exatos.
 ## Testes
 
 ```bash
-python -m pytest tests            # 21 testes
+python -m pytest tests            # 24 testes
 MOOBLENDER_PATH=/caminho/clone/mooblender python -m pytest tests   # inclui round-trip do .pmob
 ```
 
@@ -132,7 +148,7 @@ samples/  tests/  tools/  docs/  output/ (exemplos gerados)  logs/
 - **Validação no Promob:** nenhuma foi executada.
 - **Módulos:** não são nativos nem de biblioteca, portanto não entram no orçamento por item nem na lista de corte do Promob. A lista de corte vem do CSV do gerador.
 - **Arquivo .skp:** é gerado pelo SketchUp a partir do script. Escrever `.skp` diretamente exige o SketchUp C SDK (Windows/macOS).
-- **Ambientes:** só cozinha linear em uma parede. Ainda não há L, U, quartos ou closets.
+- **Ambientes:** cozinha linear (1 parede) e ambiente retangular (4 paredes). Ainda não há cozinha em L/U automática, nem paredes não ortogonais.
 - **Orientação de frente/fundo no Promob (eixo Y):** ainda não confirmada.
 - **Arquivo `.pmob`:** os valores de VERSION são suposições, e não há menu documentado do Promob para importá-lo.
 

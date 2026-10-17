@@ -8,7 +8,11 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-SUPPORTED_ROOMS = {"linear_kitchen"}
+SUPPORTED_ROOMS = {
+    "linear_kitchen",    # uma parede (A), ambiente à frente dela
+    "rectangular_room",  # quatro paredes A (fundo), B (direita), C (frente), D (esquerda)
+}
+WALLS = ("A", "B", "C", "D")
 SUPPORTED_MODULES = {
     "base_cabinet",      # balcão com porta(s) e prateleira
     "drawer_cabinet",    # balcão gaveteiro
@@ -16,15 +20,31 @@ SUPPORTED_MODULES = {
     "wall_cabinet",      # aéreo
     "tall_cabinet",      # torre / paneleiro
     "filler",            # tapa-vão / complemento
+    "wardrobe",          # guarda-roupa (portas de giro, divisórias, maleiro, cabideiro)
+    "nightstand",        # criado-mudo
+    "dresser",           # cômoda
+    "desk",              # escrivaninha / mesa
+    "wall_panel",        # painel (TV, cabeceira) fixado na parede
+    "bed",               # cama (referência de layout; item solto, fora da lista de corte)
 }
+# Linha "aérea" (posicionada desviando de torres e janelas); o resto é linha de piso
+UPPER_TYPES = {"wall_cabinet"}
+TALL_TYPES = {"tall_cabinet", "wardrobe"}
 
 # Limites práticos de marcenaria (mm). Ajustáveis.
 LIMITS = {
     "width": (100, 1200),
-    "depth": (100, 700),
+    "depth": (15, 700),
     "height": (100, 2500),
     "wall_length": (500, 20000),
     "ceiling_height": (2000, 4500),
+}
+TYPE_LIMITS = {
+    "wardrobe": {"width": (400, 3600), "height": (1200, 2700)},
+    "bed": {"width": (700, 2200), "depth": (1700, 2300), "height": (150, 1000)},
+    "wall_panel": {"width": (100, 3600), "depth": (15, 60)},
+    "desk": {"width": (500, 2400)},
+    "dresser": {"width": (300, 2000)},
 }
 
 
@@ -57,26 +77,46 @@ class ModuleSpec:
     shelves: int | None = None
     elevation: float | None = None  # altura do piso até a base do módulo
     label: str | None = None
+    wall: str = "A"                 # parede onde o módulo encosta
+    x: float | None = None          # posição ao longo da parede (None = automático)
+    plinth: float | None = None     # rodapé próprio (None = plinth_height do projeto)
+    wall_offset: float = 0.0        # afastamento da parede (ex.: cama à frente da cabeceira)
+    front_material: str | None = None    # acabamento próprio das frentes (None = materials.front)
+    carcass_material: str | None = None  # acabamento próprio da caixa (None = materials.carcass)
+    source: str | None = None            # referência do produto (URL/catálogo), só informativa
 
 
 @dataclass
 class Room:
     type: str
-    wall_length: float
+    wall_length: float          # linear_kitchen: comprimento da parede A
     ceiling_height: float
     wall_thickness: float = 150.0
     start_offset: float = 0.0  # distância do canto esquerdo até o 1º módulo
     openings: list["Opening"] = field(default_factory=list)
+    width: float = 0.0          # rectangular_room: medida interna ao longo de A/C (X)
+    length: float = 0.0         # rectangular_room: medida interna ao longo de B/D (Y)
+
+    @property
+    def walls(self) -> tuple[str, ...]:
+        return ("A",) if self.type == "linear_kitchen" else WALLS
+
+    def wall_len(self, wall: str) -> float:
+        """Comprimento interno da parede (de canto a canto, visto de dentro)."""
+        if self.type == "linear_kitchen":
+            return self.wall_length
+        return self.width if wall in ("A", "C") else self.length
 
 
 @dataclass
 class Opening:
-    """Abertura na parede (porta/janela). x = distância do canto esquerdo."""
+    """Abertura na parede (porta/janela). x = distância do canto esquerdo da parede, vista de dentro."""
     type: str      # door | window
     x: float
     width: float
     height: float
     sill: float = 0.0  # altura do peitoril (0 para portas)
+    wall: str = "A"
 
 
 @dataclass
@@ -104,15 +144,16 @@ def _num(d: dict, key: str, errors: list[str], ctx: str, required=True, default=
     if isinstance(v, bool) or not isinstance(v, (int, float)):
         errors.append(f"{ctx}: '{key}' deve ser numérico (recebido {v!r})")
         return default
-    if v < 0 or (v == 0 and key not in ("start_offset", "gap", "elevation", "sill", "x")):
+    if v < 0 or (v == 0 and key not in ("start_offset", "gap", "elevation", "sill", "x", "plinth", "wall_offset")):
         errors.append(f"{ctx}: '{key}' deve ser > 0 (recebido {v})")
     return float(v)
 
 
-def _check_limit(value, key, ctx, errors):
-    if value is None or key not in LIMITS:
+def _check_limit(value, key, ctx, errors, overrides=None):
+    limits = {**LIMITS, **(overrides or {})}
+    if value is None or key not in limits:
         return
-    lo, hi = LIMITS[key]
+    lo, hi = limits[key]
     if not lo <= value <= hi:
         errors.append(f"{ctx}: '{key}'={value:g} fora do intervalo {lo}–{hi} mm")
 
@@ -141,17 +182,29 @@ def parse_spec(data: dict) -> ProjectSpec:
         rtype = r.get("type")
         if rtype not in SUPPORTED_ROOMS:
             errors.append(f"room.type {rtype!r} não suportado; use um de {sorted(SUPPORTED_ROOMS)}")
-        wl = _num(r, "wall_length", errors, "room")
+        is_rect = rtype == "rectangular_room"
+        wl = rw = rl = None
+        if is_rect:
+            rw = _num(r, "width", errors, "room")
+            rl = _num(r, "length", errors, "room")
+            _check_limit(rw, "wall_length", "room.width", errors)
+            _check_limit(rl, "wall_length", "room.length", errors)
+        else:
+            wl = _num(r, "wall_length", errors, "room")
+            _check_limit(wl, "wall_length", "room", errors)
         ch = _num(r, "ceiling_height", errors, "room")
         wt = _num(r, "wall_thickness", errors, "room", required=False, default=150.0)
         so = _num(r, "start_offset", errors, "room", required=False, default=0.0)
-        _check_limit(wl, "wall_length", "room", errors)
         _check_limit(ch, "ceiling_height", "room", errors)
-        room = Room(rtype, wl or 0, ch or 0, wt or 150.0, so or 0.0)
+        room = Room(rtype, wl or 0, ch or 0, wt or 150.0, so or 0.0, width=rw or 0, length=rl or 0)
         for j, o in enumerate(r.get("openings", []) or []):
             octx = f"room.openings[{j}]"
             if not isinstance(o, dict) or o.get("type") not in ("door", "window"):
                 errors.append(f"{octx}: deve ser objeto com type 'door' ou 'window'")
+                continue
+            ow_wall = o.get("wall", "A")
+            if ow_wall not in room.walls:
+                errors.append(f"{octx}: wall {ow_wall!r} inválida; use uma de {list(room.walls)}")
                 continue
             ox = _num(o, "x", errors, octx)
             ow = _num(o, "width", errors, octx)
@@ -159,9 +212,9 @@ def parse_spec(data: dict) -> ProjectSpec:
             osill = _num(o, "sill", errors, octx, required=False, default=0.0) or 0.0
             if None in (ox, ow, oh):
                 continue
-            if ox + ow > (wl or 0) or osill + oh > (ch or 0):
-                errors.append(f"{octx}: abertura sai dos limites da parede")
-            room.openings.append(Opening(o["type"], ox, ow, oh, osill))
+            if ox + ow > room.wall_len(ow_wall) or osill + oh > (ch or 0):
+                errors.append(f"{octx}: abertura sai dos limites da parede {ow_wall}")
+            room.openings.append(Opening(o["type"], ox, ow, oh, osill, ow_wall))
 
     m = data.get("materials", {}) or {}
     materials = Materials(**{k: v for k, v in m.items() if k in Materials.__dataclass_fields__})
@@ -183,22 +236,29 @@ def parse_spec(data: dict) -> ProjectSpec:
         dp = _num(md, "depth", errors, ctx)
         h = _num(md, "height", errors, ctx)
         for k, v in (("width", w), ("depth", dp), ("height", h)):
-            _check_limit(v, k, ctx, errors)
+            _check_limit(v, k, ctx, errors, TYPE_LIMITS.get(t))
+        mwall = md.get("wall", "A")
+        if room and mwall not in room.walls:
+            errors.append(f"{ctx}: wall {mwall!r} inválida; use uma de {list(room.walls)}")
+        mx = _num(md, "x", errors, ctx, required=False, default=None)
+        mplinth = _num(md, "plinth", errors, ctx, required=False, default=None)
+        moff = _num(md, "wall_offset", errors, ctx, required=False, default=0.0) or 0.0
         ints = {}
         for k in ("doors", "drawers", "shelves"):
             if k in md:
                 v = md[k]
-                if not isinstance(v, int) or isinstance(v, bool) or v < 0 or v > 8:
-                    errors.append(f"{ctx}: '{k}' deve ser inteiro entre 0 e 8")
+                if not isinstance(v, int) or isinstance(v, bool) or v < 0 or v > 12:
+                    errors.append(f"{ctx}: '{k}' deve ser inteiro entre 0 e 12")
                 else:
                     ints[k] = v
         elev = _num(md, "elevation", errors, ctx, required=False, default=None)
-        if w and dp and h and t in SUPPORTED_MODULES:
+        if w and dp and h and t in SUPPORTED_MODULES and t not in ("bed", "wall_panel", "filler"):
             t_c = materials.carcass_thickness
             if w <= 2 * t_c + 10:
                 errors.append(f"{ctx}: largura {w:g} pequena demais para laterais de {t_c:g} mm")
         mods.append(ModuleSpec(t, w or 0, dp or 0, h or 0, ints.get("doors"), ints.get("drawers"),
-                               ints.get("shelves"), elev, md.get("label")))
+                               ints.get("shelves"), elev, md.get("label"), mwall, mx, mplinth, moff,
+                               md.get("front_material"), md.get("carcass_material"), md.get("source")))
 
     spec = ProjectSpec(
         project_name=name.strip() if isinstance(name, str) else name,
@@ -220,32 +280,37 @@ def parse_spec(data: dict) -> ProjectSpec:
 
 
 def _validate_fit(spec: ProjectSpec, errors: list[str]) -> None:
-    """Verifica se cada linha (piso / aéreo) cabe na parede e no pé-direito."""
+    """Verifica se cada linha (piso / aéreo) de cada parede cabe e se nada passa do pé-direito."""
     room = spec.room
-    rows: dict[str, float] = {"floor": 0.0, "wall": 0.0}
+    rows: dict[tuple[str, str], float] = {}
     for i, m in enumerate(spec.cabinet_modules):
-        row = "wall" if m.type == "wall_cabinet" else "floor"
-        rows[row] += m.width + spec.gap
-        if row == "wall" and m.depth > 450:
+        row = "aereo" if m.type in UPPER_TYPES else "piso"
+        L = room.wall_len(m.wall)
+        if m.x is not None:
+            if m.x + m.width > L + 1e-6:
+                errors.append(f"cabinet_modules[{i}]: x={m.x:g} + largura {m.width:g} passa da parede {m.wall} ({L:g} mm)")
+        else:
+            rows[(m.wall, row)] = rows.get((m.wall, row), 0.0) + m.width + spec.gap
+        if row == "aereo" and m.depth > 450:
             errors.append(f"cabinet_modules[{i}]: aéreo com profundidade {m.depth:g} mm (> 450 mm)")
         top = module_elevation(spec, m) + m.height
         if top > room.ceiling_height:
             errors.append(f"cabinet_modules[{i}] ({m.type}) ultrapassa o pé-direito: topo em {top:g} mm > {room.ceiling_height:g} mm")
-    for row, total in rows.items():
-        total = total - spec.gap if total else 0
-        avail = room.wall_length - room.start_offset
+    for (wall, row), total in rows.items():
+        total -= spec.gap
+        avail = room.wall_len(wall) - room.start_offset
         if total > avail:
-            errors.append(f"linha '{row}': soma das larguras {total:g} mm excede a parede disponível {avail:g} mm")
+            errors.append(f"parede {wall}, linha '{row}': soma das larguras {total:g} mm excede a parede disponível {avail:g} mm")
 
 
 def module_elevation(spec: ProjectSpec, m: ModuleSpec) -> float:
     if m.elevation is not None:
         return m.elevation
-    if m.type == "wall_cabinet":
+    if m.type in UPPER_TYPES:
         return spec.wall_cabinet_elevation
-    if m.type == "filler":
+    if m.type in ("filler", "bed", "wall_panel", "desk"):
         return 0.0
-    return spec.plinth_height  # módulos de piso apoiam-se sobre o rodapé
+    return spec.plinth_height if m.plinth is None else m.plinth  # apoiado sobre o rodapé
 
 
 def load_spec(path: str | Path) -> ProjectSpec:

@@ -1,0 +1,317 @@
+{
+  "generator": "promob_auto_generator 0.1.0",
+  "project_name": "MVP_Cozinha_Teste",
+  "units": "mm",
+  "axes": {
+    "files": "mão direita; X da esquerda para a direita (visto de dentro do ambiente); Z para cima; parede em +Y, ambiente em -Y",
+    "positions_below": "position = (x ao longo da parede, afastamento da parede, z) na parede 'wall'; bbox_arquivo = coordenadas reais no arquivo"
+  },
+  "room": {
+    "type": "linear_kitchen",
+    "wall_length": 3000.0,
+    "ceiling_height": 2700.0,
+    "wall_thickness": 150.0,
+    "openings": [
+      {
+        "type": "window",
+        "x": 1250.0,
+        "width": 1000.0,
+        "height": 1000.0,
+        "sill": 1100.0,
+        "wall": "A"
+      }
+    ],
+    "walls": [
+      {
+        "wall": "A",
+        "length": 3000.0,
+        "x0": 0.0,
+        "x1": 3000.0,
+        "frame": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "openings": [
+          {
+            "type": "window",
+            "x": 1250.0,
+            "width": 1000.0,
+            "height": 1000.0,
+            "sill": 1100.0,
+            "wall": "A"
+          }
+        ]
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": "M01_tall_cabinet",
+      "type": "tall_cabinet",
+      "label": "Torre paneleiro",
+      "wall": "A",
+      "position": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          0.0,
+          -598.0,
+          0.0
+        ],
+        "max": [
+          600.0,
+          0.0,
+          2300.0
+        ]
+      },
+      "source": null,
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 2200.0,
+      "parts": 14
+    },
+    {
+      "id": "M02_drawer_cabinet",
+      "type": "drawer_cabinet",
+      "label": "Gaveteiro",
+      "wall": "A",
+      "position": [
+        600.0,
+        0.0,
+        100.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          600.0,
+          -598.0,
+          0.0
+        ],
+        "max": [
+          1200.0,
+          0.0,
+          820.0
+        ]
+      },
+      "source": null,
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 29
+    },
+    {
+      "id": "M03_sink_cabinet",
+      "type": "sink_cabinet",
+      "label": "Balcao pia",
+      "wall": "A",
+      "position": [
+        1200.0,
+        0.0,
+        100.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          1200.0,
+          -598.0,
+          0.0
+        ],
+        "max": [
+          2200.0,
+          0.0,
+          820.0
+        ]
+      },
+      "source": null,
+      "width": 1000.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 11
+    },
+    {
+      "id": "M04_base_cabinet",
+      "type": "base_cabinet",
+      "label": "Balcao 2 portas",
+      "wall": "A",
+      "position": [
+        2200.0,
+        0.0,
+        100.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          2200.0,
+          -598.0,
+          0.0
+        ],
+        "max": [
+          3000.0,
+          0.0,
+          820.0
+        ]
+      },
+      "source": null,
+      "width": 800.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 12
+    },
+    {
+      "id": "M05_wall_cabinet",
+      "type": "wall_cabinet",
+      "label": "Aereo 1",
+      "wall": "A",
+      "position": [
+        600.0,
+        0.0,
+        1500.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          600.0,
+          -388.0,
+          1500.0
+        ],
+        "max": [
+          1200.0,
+          0.0,
+          2200.0
+        ]
+      },
+      "source": null,
+      "width": 600.0,
+      "depth": 350.0,
+      "height": 700.0,
+      "parts": 10
+    },
+    {
+      "id": "M06_wall_cabinet",
+      "type": "wall_cabinet",
+      "label": "Aereo 2",
+      "wall": "A",
+      "position": [
+        2250.0,
+        0.0,
+        1500.0
+      ],
+      "bbox_arquivo": {
+        "min": [
+          2250.0,
+          -388.0,
+          1500.0
+        ],
+        "max": [
+          3000.0,
+          0.0,
+          2200.0
+        ]
+      },
+      "source": null,
+      "width": 750.0,
+      "depth": 350.0,
+      "height": 700.0,
+      "parts": 10
+    }
+  ],
+  "warnings": [
+    "Módulo #5 (wall_cabinet) deslocado para x=600 na parede A para evitar abertura/outro módulo",
+    "Módulo #6 (wall_cabinet) deslocado para x=2250 na parede A para evitar abertura/outro módulo"
+  ],
+  "files": {
+    "ir": [
+      "MVP_Cozinha_Teste_ir.json"
+    ],
+    "cutlist": [
+      "MVP_Cozinha_Teste_lista_corte.csv"
+    ],
+    "preview": [
+      "MVP_Cozinha_Teste_vista_frontal.svg"
+    ],
+    "obj": [
+      "MVP_Cozinha_Teste.obj",
+      "MVP_Cozinha_Teste.mtl",
+      "MVP_Cozinha_Teste_moveis.obj",
+      "MVP_Cozinha_Teste_moveis.mtl"
+    ],
+    "3ds": [
+      "MVP_Cozinha_Teste.3ds"
+    ],
+    "dxf": [
+      "MVP_Cozinha_Teste.dxf"
+    ],
+    "dae": [
+      "MVP_Cozinha_Teste.dae"
+    ],
+    "pmob_experimental": [
+      "MVP_Cozinha_Teste.pmob"
+    ],
+    "skp_script": [
+      "MVP_Cozinha_Teste_sketchup.rb"
+    ],
+    "module_obj": [
+      "modulos/M01_tall_cabinet.obj",
+      "modulos/M01_tall_cabinet.mtl",
+      "modulos/M02_drawer_cabinet.obj",
+      "modulos/M02_drawer_cabinet.mtl",
+      "modulos/M03_sink_cabinet.obj",
+      "modulos/M03_sink_cabinet.mtl",
+      "modulos/M04_base_cabinet.obj",
+      "modulos/M04_base_cabinet.mtl",
+      "modulos/M05_wall_cabinet.obj",
+      "modulos/M05_wall_cabinet.mtl",
+      "modulos/M06_wall_cabinet.obj",
+      "modulos/M06_wall_cabinet.mtl"
+    ],
+    "module_3ds": [
+      "modulos/M01_tall_cabinet.3ds",
+      "modulos/M02_drawer_cabinet.3ds",
+      "modulos/M03_sink_cabinet.3ds",
+      "modulos/M04_base_cabinet.3ds",
+      "modulos/M05_wall_cabinet.3ds",
+      "modulos/M06_wall_cabinet.3ds"
+    ]
+  },
+  "triangles_per_file": {
+    "MVP_Cozinha_Teste.obj": 1092,
+    "MVP_Cozinha_Teste.mtl": 1092,
+    "MVP_Cozinha_Teste_moveis.obj": 1032,
+    "MVP_Cozinha_Teste_moveis.mtl": 1032,
+    "MVP_Cozinha_Teste.3ds": 1032,
+    "MVP_Cozinha_Teste.dxf": 1092,
+    "MVP_Cozinha_Teste.dae": 1092,
+    "MVP_Cozinha_Teste.pmob": 1092,
+    "modulos/M01_tall_cabinet.obj": 168,
+    "modulos/M01_tall_cabinet.mtl": 168,
+    "modulos/M01_tall_cabinet.3ds": 168,
+    "modulos/M02_drawer_cabinet.obj": 336,
+    "modulos/M02_drawer_cabinet.mtl": 336,
+    "modulos/M02_drawer_cabinet.3ds": 336,
+    "modulos/M03_sink_cabinet.obj": 132,
+    "modulos/M03_sink_cabinet.mtl": 132,
+    "modulos/M03_sink_cabinet.3ds": 132,
+    "modulos/M04_base_cabinet.obj": 144,
+    "modulos/M04_base_cabinet.mtl": 144,
+    "modulos/M04_base_cabinet.3ds": 144,
+    "modulos/M05_wall_cabinet.obj": 120,
+    "modulos/M05_wall_cabinet.mtl": 120,
+    "modulos/M05_wall_cabinet.3ds": 120,
+    "modulos/M06_wall_cabinet.obj": 120,
+    "modulos/M06_wall_cabinet.mtl": 120,
+    "modulos/M06_wall_cabinet.3ds": 120
+  },
+  "promob_face_limit": 25000
+}

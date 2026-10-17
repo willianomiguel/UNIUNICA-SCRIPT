@@ -93,7 +93,9 @@ def generate(spec: ProjectSpec, out_root: Path, formats=ALL_FORMATS, up: str = "
     furniture = project_meshes(project, tf, include_environment=False)
     record("ir", write_ir(project, run_dir / f"{name}_ir.json"))
     record("cutlist", write_cutlist(project, run_dir / f"{name}_lista_corte.csv"))
-    record("preview", write_elevation_svg(project, run_dir / f"{name}_vista_frontal.svg"))
+    for wall in sorted({m.wall for m in project.modules}):
+        suffix = "vista_frontal" if project.room["type"] == "linear_kitchen" else f"vista_parede_{wall}"
+        record("preview", write_elevation_svg(project, run_dir / f"{name}_{suffix}.svg", wall))
 
     if "obj" in formats:
         record("obj", write_obj(full, run_dir / f"{name}.obj", spec.project_name), full)
@@ -125,9 +127,12 @@ def generate(spec: ProjectSpec, out_root: Path, formats=ALL_FORMATS, up: str = "
         "axes": {"files": "mão direita; X da esquerda para a direita (visto de dentro do ambiente); "
                           + ("Z para cima; parede em +Y, ambiente em -Y" if up == "z" else
                              "Y para cima; parede em -Z, ambiente em +Z"),
-                 "positions_below": "referencial de layout: y = distância da face da parede para dentro do ambiente"},
+                 "positions_below": "position = (x ao longo da parede, afastamento da parede, z) na parede 'wall'; "
+                                    "bbox_arquivo = coordenadas reais no arquivo"},
         "room": project.room,
-        "modules": [{"id": m.id, "type": m.type, "label": m.label, "position": m.position,
+        "modules": [{"id": m.id, "type": m.type, "label": m.label, "wall": m.wall, "position": m.position,
+                     "bbox_arquivo": dict(zip(("min", "max"), m.world_bbox)),
+                     "source": spec.cabinet_modules[m.index].source,
                      "width": m.width, "depth": m.depth, "height": m.height,
                      "parts": len(m.parts)} for m in project.modules],
         "warnings": project.warnings,

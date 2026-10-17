@@ -1,0 +1,28 @@
+# materiais
+newmtl Tecido_Linho_Cinza
+Kd 0.600 0.610 0.620
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Colchao
+Kd 0.950 0.950 0.930
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Travesseiro
+Kd 0.980 0.980 0.970
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Manta_Tecido
+Kd 0.420 0.470 0.550
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2

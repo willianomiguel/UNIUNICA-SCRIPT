@@ -1,0 +1,98 @@
+# materiais
+newmtl Parede
+Kd 0.820 0.800 0.760
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Piso
+Kd 0.620 0.580 0.520
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Courino_Branco
+Kd 0.960 0.950 0.930
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Tecido_Linho_Cinza
+Kd 0.600 0.610 0.620
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Colchao
+Kd 0.950 0.950 0.930
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Travesseiro
+Kd 0.980 0.980 0.970
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Manta_Tecido
+Kd 0.420 0.470 0.550
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl MDP_Branco_TX_15mm
+Kd 0.930 0.930 0.910
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl HDF_Branco_3mm
+Kd 0.850 0.850 0.830
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl MDP_Branco_TX_Espelhado
+Kd 0.800 0.860 0.900
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Puxador_Inox
+Kd 0.720 0.730 0.750
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Tubo_Oval_Cromado
+Kd 0.750 0.750 0.770
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl MDP_Branco_TX_18mm
+Kd 0.970 0.970 0.970
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl MDP_Sevilha
+Kd 0.700 0.520 0.360
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2

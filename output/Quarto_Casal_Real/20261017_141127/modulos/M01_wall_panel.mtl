@@ -1,0 +1,7 @@
+# materiais
+newmtl Courino_Branco
+Kd 0.960 0.950 0.930
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2

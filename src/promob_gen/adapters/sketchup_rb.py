@@ -18,8 +18,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..mesh import ROLE_COLORS, part_color, safe_name, to_world
-from ..model import Project
+from ..mesh import ROLE_COLORS, part_color, safe_name
+from ..model import Project, frame_box, frame_point
 
 TAG_WALLS, TAG_FLOOR, TAG_ITEMS = "Paredes", "Piso", "Itens de Decoracao"
 
@@ -78,14 +78,12 @@ __JSON__
       g = ents.add_group
       g.name = w['name']; g.layer = tags[DATA['tags']['walls']]
       box(g.entities, w['origin'], w['size'])
+      # cada abertura: 4 cantos na face interna + normal apontando para o ambiente
       w['openings'].each do |op|
-        y = w['origin'][1]   # face voltada para o ambiente (ambiente em -Y)
-        rect = [[op['x'], y, op['sill']], [op['x'] + op['width'], y, op['sill']],
-                [op['x'] + op['width'], y, op['sill'] + op['height']], [op['x'], y, op['sill'] + op['height']]]
-        f = g.entities.add_face(rect.map { |p| pt(*p) })
+        f = g.entities.add_face(op['pts'].map { |p| pt(*p) })
         next unless f
-        f.reverse! if f.normal.y > 0
-        f.pushpull(-mm(w['size'][1]))
+        f.reverse! if f.normal.dot(Geom::Vector3d.new(*op['normal'])) < 0
+        f.pushpull(-mm(w['thickness']))
       end
       g.material = material(model, 'Parede', DATA['colors']['wall'])
     end
@@ -137,32 +135,36 @@ PromobGen.run
 '''
 
 
-def _box(origin, size) -> tuple[list, list]:
-    """Caixa do layout -> canto mínimo e tamanho no referencial do arquivo (ver mesh.to_world)."""
-    x, y, z = to_world(origin)
-    return [x, y - size[1], z], list(size)
-
-
 def build_payload(project: Project, skp_name: str) -> dict:
+    """Tudo em coordenadas do arquivo (mm, mão direita, Z para cima), caixas alinhadas aos eixos."""
     room = project.room
+    T, H = room["wall_thickness"], room["ceiling_height"]
     walls = []
-    T = room["wall_thickness"]
-    w_origin, w_size = _box((0, -T, 0), (room["wall_length"], T, room["ceiling_height"]))
-    walls.append({
-        "name": "Parede 1",
-        "origin": w_origin, "size": w_size,
-        "openings": [{"x": o["x"], "width": o["width"], "height": o["height"], "sill": o["sill"], "type": o["type"]}
-                     for o in room.get("openings", [])],
-    })
+    for w in room["walls"]:
+        frame = tuple(tuple(v) for v in w["frame"])
+        lo, hi = frame_box(frame, (w["x0"], -T, 0), (w["x1"] - w["x0"], T, H))
+        normal = list(frame[2])
+        ops = []
+        for o in w["openings"]:
+            corners = [(o["x"], 0, o["sill"]), (o["x"] + o["width"], 0, o["sill"]),
+                       (o["x"] + o["width"], 0, o["sill"] + o["height"]), (o["x"], 0, o["sill"] + o["height"])]
+            ops.append({"type": o["type"], "pts": [list(frame_point(frame, c)) for c in corners], "normal": normal})
+        walls.append({"name": f"Parede {w['wall']}", "origin": list(lo),
+                      "size": [hi[k] - lo[k] for k in range(3)], "thickness": T, "openings": ops})
     floor = next(p for p in project.environment if p.role == "floor")
+    flo, fhi = frame_box(floor.frame, floor.origin, floor.size)
     modules = []
     for m in project.modules:
-        parts = [{"name": p.name, "origin": _box(p.origin, p.size)[0], "size": list(p.size),
-                  "material": p.material, "color": list(part_color(p))} for p in m.parts]
+        boxes = [(p, frame_box(m.frame, tuple(m.position[k] + p.origin[k] for k in range(3)), p.size))
+                 for p in m.parts]
+        base = [min(b[0][k] for _, b in boxes) for k in range(3)]   # origem do componente
+        parts = [{"name": p.name, "origin": [lo[k] - base[k] for k in range(3)],
+                  "size": [hi[k] - lo[k] for k in range(3)], "material": p.material,
+                  "color": list(part_color(p))} for p, (lo, hi) in boxes]
         modules.append({
             "name": f"{m.id} {m.width:g}x{m.height:g}x{m.depth:g}",
-            "position": list(to_world(m.position)), "parts": parts,
-            "attributes": {"type": m.type, "label": m.label, "width": m.width,
+            "position": base, "parts": parts,
+            "attributes": {"type": m.type, "label": m.label, "wall": m.wall, "width": m.width,
                            "depth": m.depth, "height": m.height},
         })
     return {
@@ -170,7 +172,7 @@ def build_payload(project: Project, skp_name: str) -> dict:
         "tags": {"walls": TAG_WALLS, "floor": TAG_FLOOR, "items": TAG_ITEMS},
         "colors": {"wall": ROLE_COLORS["wall"], "floor": ROLE_COLORS["floor"]},
         "walls": walls,
-        "floor": dict(zip(("origin", "size"), _box(floor.origin, floor.size))),
+        "floor": {"origin": list(flo), "size": [fhi[k] - flo[k] for k in range(3)]},
         "modules": modules,
     }
 
