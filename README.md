@@ -133,6 +133,10 @@ MOOBLENDER_PATH=/caminho/clone/mooblender python -m pytest tests   # inclui roun
 - `tools/inspecionar_promob.ps1`: inventário somente leitura, com versão, plugins, DLLs, associações de extensão e contagem de projetos.
 - `tools/analisar_formato.py`: analisa uma **cópia** de um `.promob`, `.pcontent` ou `.xml` (ZIP, XML, binário, árvore PMob) para a engenharia reversa do formato nativo.
 - `tools/render_projeto.py`: gera imagens de conferência (perspectiva, frontal, planta) de um JSON. Exemplo em `docs/evidencias/mvp/`.
+- `tools/render_blender.py`: render fotorrealista (Blender 4.2+, Cycles) com materiais PBR, luz do sol pela janela, porta, caixilho, teto e tapete. Essa cenografia é só para a imagem e não vai para os arquivos do Promob. Exemplos em `docs/evidencias/render/`.
+  ```bash
+  blender -b --factory-startup -P tools/render_blender.py -- samples/quarto_casal_real.json docs/evidencias/render/Quarto --samples=64 --res=1440x900
+  ```
 - `tools/render_preview.py`: gera um PNG de conferência de um OBJ.
 
 ## Estrutura
