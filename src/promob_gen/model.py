@@ -1,9 +1,13 @@
 """Representação intermediária (IR) e cálculo de layout/geometria.
 
-Sistema de coordenadas do projeto (mm, mão direita, Z para cima):
-  X = ao longo da parede, da esquerda (0) para a direita
+Sistema de coordenadas INTERNO de layout (mm, Z para cima):
+  X = ao longo da parede, da esquerda (0) para a direita, vista de dentro do ambiente
   Y = profundidade, 0 na face da parede, positivo para dentro do ambiente
   Z = altura, 0 no piso
+Esse referencial é de mão esquerda (olhando a parede, +X fica à direita e +Y
+vem para o observador). Os exportadores convertem para o referencial de mão
+direita do arquivo com mesh.to_world(): (x, y, z) -> (x, -y, z), ou seja,
+ambiente em -Y e parede em +Y. Sem essa conversão o projeto sairia espelhado.
 
 Cada módulo é decomposto em peças retangulares (caixas alinhadas aos eixos),
 o que serve tanto para gerar geometria 3D quanto lista de corte.
@@ -16,6 +20,7 @@ from .spec import ModuleSpec, ProjectSpec, module_elevation
 
 DOOR_GAP = 3.0       # folga entre portas/frentes
 DRAWER_SIDE = 12.0   # espessura de lateral de gaveta (simplificado)
+HANDLE_LEN = 160.0   # comprimento do puxador (fora da lista de corte)
 
 
 @dataclass
@@ -122,6 +127,16 @@ def _doors(m: ModuleSpec, spec: ProjectSpec, n: int) -> list[Part]:
         x = DOOR_GAP + i * (w_each + DOOR_GAP)
         parts.append(Part(f"Porta {i + 1}", "door", spec.materials.front, (x, m.depth, DOOR_GAP),
                           (w_each, ft, m.height - 2 * DOOR_GAP), ft))
+        # Puxador vertical do lado de abertura (pares de portas abrem pelo centro)
+        hx = x + w_each - 40 if i % 2 == 0 else x + 20
+        if m.type == "wall_cabinet":
+            hz = DOOR_GAP + 40
+        elif m.type == "tall_cabinet":
+            hz = min(1000.0, m.height / 2)
+        else:
+            hz = m.height - DOOR_GAP - 40 - HANDLE_LEN
+        parts.append(Part(f"Puxador Porta {i + 1}", "handle", "Puxador Inox", (hx, m.depth + ft, hz),
+                          (20, 20, HANDLE_LEN), 20))
     return parts
 
 
@@ -138,6 +153,8 @@ def _drawers(m: ModuleSpec, spec: ProjectSpec, n: int) -> list[Part]:
         z = DOOR_GAP + i * (h_each + DOOR_GAP)
         parts.append(Part(f"Frente Gaveta {i + 1}", "drawer_front", mat.front, (DOOR_GAP, m.depth, z),
                           (m.width - 2 * DOOR_GAP, ft, h_each), ft))
+        parts.append(Part(f"Puxador Gaveta {i + 1}", "handle", "Puxador Inox",
+                          ((m.width - HANDLE_LEN) / 2, m.depth + ft, z + h_each - 50), (HANDLE_LEN, 20, 20), 20))
         box_h = max(h_each - 60, 60)
         x0, y0, z0 = t + slide, m.depth - box_d, z + 25
         s = DRAWER_SIDE

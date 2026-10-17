@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..mesh import ROLE_COLORS, safe_name
+from ..mesh import ROLE_COLORS, part_color, safe_name, to_world
 from ..model import Project
 
 TAG_WALLS, TAG_FLOOR, TAG_ITEMS = "Paredes", "Piso", "Itens de Decoracao"
@@ -79,12 +79,12 @@ __JSON__
       g.name = w['name']; g.layer = tags[DATA['tags']['walls']]
       box(g.entities, w['origin'], w['size'])
       w['openings'].each do |op|
-        y = w['origin'][1] + w['size'][1]   # face voltada para o ambiente
+        y = w['origin'][1]   # face voltada para o ambiente (ambiente em -Y)
         rect = [[op['x'], y, op['sill']], [op['x'] + op['width'], y, op['sill']],
                 [op['x'] + op['width'], y, op['sill'] + op['height']], [op['x'], y, op['sill'] + op['height']]]
         f = g.entities.add_face(rect.map { |p| pt(*p) })
         next unless f
-        f.reverse! if f.normal.y < 0
+        f.reverse! if f.normal.y > 0
         f.pushpull(-mm(w['size'][1]))
       end
       g.material = material(model, 'Parede', DATA['colors']['wall'])
@@ -137,24 +137,31 @@ PromobGen.run
 '''
 
 
+def _box(origin, size) -> tuple[list, list]:
+    """Caixa do layout -> canto mínimo e tamanho no referencial do arquivo (ver mesh.to_world)."""
+    x, y, z = to_world(origin)
+    return [x, y - size[1], z], list(size)
+
+
 def build_payload(project: Project, skp_name: str) -> dict:
     room = project.room
     walls = []
     T = room["wall_thickness"]
+    w_origin, w_size = _box((0, -T, 0), (room["wall_length"], T, room["ceiling_height"]))
     walls.append({
         "name": "Parede 1",
-        "origin": [0, -T, 0], "size": [room["wall_length"], T, room["ceiling_height"]],
+        "origin": w_origin, "size": w_size,
         "openings": [{"x": o["x"], "width": o["width"], "height": o["height"], "sill": o["sill"], "type": o["type"]}
                      for o in room.get("openings", [])],
     })
     floor = next(p for p in project.environment if p.role == "floor")
     modules = []
     for m in project.modules:
-        parts = [{"name": p.name, "origin": list(p.origin), "size": list(p.size), "material": p.material,
-                  "color": list(ROLE_COLORS.get(p.role, (0.8, 0.8, 0.8)))} for p in m.parts]
+        parts = [{"name": p.name, "origin": _box(p.origin, p.size)[0], "size": list(p.size),
+                  "material": p.material, "color": list(part_color(p))} for p in m.parts]
         modules.append({
             "name": f"{m.id} {m.width:g}x{m.height:g}x{m.depth:g}",
-            "position": list(m.position), "parts": parts,
+            "position": list(to_world(m.position)), "parts": parts,
             "attributes": {"type": m.type, "label": m.label, "width": m.width,
                            "depth": m.depth, "height": m.height},
         })
@@ -163,7 +170,7 @@ def build_payload(project: Project, skp_name: str) -> dict:
         "tags": {"walls": TAG_WALLS, "floor": TAG_FLOOR, "items": TAG_ITEMS},
         "colors": {"wall": ROLE_COLORS["wall"], "floor": ROLE_COLORS["floor"]},
         "walls": walls,
-        "floor": {"origin": list(floor.origin), "size": list(floor.size)},
+        "floor": dict(zip(("origin", "size"), _box(floor.origin, floor.size))),
         "modules": modules,
     }
 

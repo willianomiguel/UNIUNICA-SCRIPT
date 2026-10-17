@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="870" height="835" viewBox="0 0 870 835" font-family="sans-serif" font-size="10">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="60" y="20" font-size="13">MVP_Cozinha_Teste — vista frontal (mm)</text>
+<rect x="60.0" y="60.0" width="750.0" height="675.0" fill="#f3efe8" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="372.5" y="210.0" width="250.0" height="250.0" fill="#bfe0ff" fill-opacity="1.0" stroke="#3a7bd5" stroke-width="0.6"/>
+<rect x="60.8" y="160.8" width="73.9" height="548.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="124.6" y="420.0" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="135.4" y="160.8" width="73.9" height="548.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="140.4" y="420.0" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="60.0" y="710.0" width="150.0" height="25.0" fill="#4c4c4c" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="135.0" y="156.0" text-anchor="middle">M01 600</text>
+<rect x="210.8" y="650.2" width="148.5" height="59.0" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="265.0" y="657.8" width="40.0" height="5.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="210.8" y="590.5" width="148.5" height="59.0" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="265.0" y="598.0" width="40.0" height="5.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="210.8" y="530.8" width="148.5" height="59.0" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="265.0" y="538.2" width="40.0" height="5.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="210.0" y="710.0" width="150.0" height="25.0" fill="#4c4c4c" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="210.0" y="522.5" width="600.0" height="7.5" fill="#1e1e21" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="285.0" y="526.0" text-anchor="middle">M02 600</text>
+<rect x="360.8" y="530.8" width="123.9" height="178.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="474.6" y="540.8" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="485.4" y="530.8" width="123.9" height="178.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="490.4" y="540.8" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="360.0" y="710.0" width="250.0" height="25.0" fill="#4c4c4c" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="485.0" y="526.0" text-anchor="middle">M03 1000</text>
+<rect x="610.8" y="530.8" width="98.9" height="178.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="699.6" y="540.8" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="710.4" y="530.8" width="98.9" height="178.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="715.4" y="540.8" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="610.0" y="710.0" width="200.0" height="25.0" fill="#4c4c4c" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="710.0" y="526.0" text-anchor="middle">M04 800</text>
+<rect x="210.8" y="185.8" width="73.9" height="173.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="274.6" y="309.2" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="285.4" y="185.8" width="73.9" height="173.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="290.4" y="309.2" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="285.0" y="181.0" text-anchor="middle">M05 600</text>
+<rect x="623.2" y="185.8" width="92.6" height="173.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="705.9" y="309.2" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="716.6" y="185.8" width="92.6" height="173.5" fill="#a87a51" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<rect x="721.6" y="309.2" width="5.0" height="40.0" fill="#b7babf" fill-opacity="1.0" stroke="#333" stroke-width="0.6"/>
+<text x="716.2" y="181.0" text-anchor="middle">M06 750</text>
+<line x1="60" y1="810.0" x2="810.0" y2="810.0" stroke="#000"/>
+<text x="435.0" y="825.0" text-anchor="middle">3000 mm</text>
+</svg>

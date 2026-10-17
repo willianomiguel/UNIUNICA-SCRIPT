@@ -15,8 +15,23 @@ ROLE_COLORS = {
     "rail": (0.93, 0.93, 0.91), "shelf": (0.90, 0.90, 0.88), "back": (0.85, 0.85, 0.83),
     "door": (0.97, 0.97, 0.97), "drawer_front": (0.97, 0.97, 0.97), "panel": (0.97, 0.97, 0.97),
     "drawer_box": (0.80, 0.78, 0.74), "plinth": (0.30, 0.30, 0.30), "countertop": (0.12, 0.12, 0.13),
-    "wall": (0.82, 0.80, 0.76), "floor": (0.62, 0.58, 0.52),
+    "wall": (0.82, 0.80, 0.76), "floor": (0.62, 0.58, 0.52), "handle": (0.72, 0.73, 0.75),
 }
+
+# Cor pelo nome do material, quando reconhecido (prevalece sobre a cor por função)
+MATERIAL_HINTS = {
+    "freijo": (0.66, 0.48, 0.32), "carvalho": (0.72, 0.56, 0.38), "nogueira": (0.45, 0.31, 0.21),
+    "grafite": (0.28, 0.29, 0.31), "preto": (0.12, 0.12, 0.13), "cinza": (0.60, 0.61, 0.62),
+    "verde": (0.36, 0.45, 0.38), "azul": (0.28, 0.36, 0.48), "inox": (0.72, 0.73, 0.75),
+}
+
+
+def part_color(part) -> tuple[float, float, float]:
+    name = part.material.lower()
+    for key, rgb in MATERIAL_HINTS.items():
+        if key in name:
+            return rgb
+    return ROLE_COLORS.get(part.role, (0.8, 0.8, 0.8))
 
 
 @dataclass
@@ -29,27 +44,36 @@ class Mesh:
     quads: list[tuple[int, int, int, int]]
 
 
+def to_world(p):
+    """Layout (mão esquerda, ambiente em +Y) -> arquivo (mão direita, ambiente em -Y)."""
+    return (p[0], -p[1], p[2])
+
+
 def axis_transform(up: str, scale: float):
-    """Retorna função (x,y,z)->(x',y',z'). up='z' mantém; up='y' converte para Y-up (OBJ/DAE comum)."""
+    """Referencial do arquivo a partir do mundo (Z para cima). up='y' gira para Y-up (OBJ/DAE comum)."""
     if up == "z":
         return lambda p: (p[0] * scale, p[1] * scale, p[2] * scale)
     if up == "y":
-        # Z-up (x,y,z) -> Y-up (x, z, -y): preserva mão direita
+        # rotação própria Z-up -> Y-up: (x, y, z) -> (x, z, -y)
         return lambda p: (p[0] * scale, p[2] * scale, -p[1] * scale)
     raise ValueError("up deve ser 'z' ou 'y'")
+
+
+# to_world é uma reflexão: a ordem dos vértices é invertida para manter normais para fora
+_QUADS_WORLD = [tuple(reversed(q)) for q in _QUADS]
 
 
 def part_mesh(part: Part, offset=(0.0, 0.0, 0.0), name: str | None = None, tf=None) -> Mesh:
     ox, oy, oz = (part.origin[i] + offset[i] for i in range(3))
     sx, sy, sz = part.size
-    verts = [(ox + cx * sx, oy + cy * sy, oz + cz * sz) for cx, cy, cz in _CORNERS]
+    verts = [to_world((ox + cx * sx, oy + cy * sy, oz + cz * sz)) for cx, cy, cz in _CORNERS]
     if tf:
         verts = [tf(v) for v in verts]
     tris = []
-    for a, b, c, d in _QUADS:
+    for a, b, c, d in _QUADS_WORLD:
         tris += [(a, b, c), (a, c, d)]
-    return Mesh(name or part.name, part.material, ROLE_COLORS.get(part.role, (0.8, 0.8, 0.8)),
-                verts, tris, list(_QUADS))
+    return Mesh(name or part.name, part.material, part_color(part),
+                verts, tris, list(_QUADS_WORLD))
 
 
 def project_meshes(project: Project, tf=None, include_environment=True):
@@ -63,10 +87,13 @@ def project_meshes(project: Project, tf=None, include_environment=True):
 
 
 def module_meshes(module, tf=None, include_countertop=False):
-    """Malhas de um único módulo com canto mínimo em 0,0,0 (importar módulo a módulo)."""
+    """Malhas de um único módulo com canto mínimo em 0,0,0 no arquivo (importar módulo a módulo)."""
     parts = [p for p in module.parts if include_countertop or p.role != "countertop"]
-    off = tuple(-min(p.origin[k] for p in parts) for k in range(3))
-    return [(module.id, [part_mesh(p, off, p.name, tf) for p in parts])]
+    meshes = [part_mesh(p, (0, 0, 0), p.name, tf) for p in parts]
+    lo = [min(v[k] for m in meshes for v in m.vertices) for k in range(3)]
+    for m in meshes:
+        m.vertices = [tuple(v[k] - lo[k] for k in range(3)) for v in m.vertices]
+    return [(module.id, meshes)]
 
 
 def face_count(groups) -> int:

@@ -1,0 +1,28 @@
+{
+  "project_name": "MVP_Cozinha_Teste",
+  "units": "mm",
+  "room": {
+    "type": "linear_kitchen",
+    "wall_length": 3000,
+    "ceiling_height": 2700,
+    "wall_thickness": 150,
+    "openings": [
+      { "type": "window", "x": 1250, "width": 1000, "height": 1000, "sill": 1100 }
+    ]
+  },
+  "materials": {
+    "carcass": "MDF Branco TX 15mm",
+    "front": "MDF Freijo 18mm",
+    "back": "HDF Branco 6mm"
+  },
+  "plinth_height": 100,
+  "wall_cabinet_elevation": 1500,
+  "cabinet_modules": [
+    { "type": "tall_cabinet", "width": 600, "depth": 560, "height": 2200, "doors": 2, "label": "Torre paneleiro" },
+    { "type": "drawer_cabinet", "width": 600, "depth": 560, "height": 720, "drawers": 3, "label": "Gaveteiro" },
+    { "type": "sink_cabinet", "width": 1000, "depth": 560, "height": 720, "doors": 2, "label": "Balcao pia" },
+    { "type": "base_cabinet", "width": 800, "depth": 560, "height": 720, "doors": 2, "label": "Balcao 2 portas" },
+    { "type": "wall_cabinet", "width": 600, "depth": 350, "height": 700, "doors": 2, "label": "Aereo 1" },
+    { "type": "wall_cabinet", "width": 750, "depth": 350, "height": 700, "doors": 2, "label": "Aereo 2" }
+  ]
+}

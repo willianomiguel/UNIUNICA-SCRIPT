@@ -1,0 +1,35 @@
+# materiais
+newmtl MDF_Branco_TX_15mm
+Kd 0.930 0.930 0.910
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl HDF_Branco_6mm
+Kd 0.850 0.850 0.830
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl MDF_Branco_TX_18mm
+Kd 0.970 0.970 0.970
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Puxador_Inox
+Kd 0.720 0.730 0.750
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
+
+newmtl Granito_Preto_30mm
+Kd 0.120 0.120 0.130
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2

@@ -5,7 +5,7 @@ import csv
 import json
 from pathlib import Path
 
-from ..mesh import ROLE_COLORS
+from ..mesh import part_color
 from ..model import Project
 
 PANEL_ROLES = {"side", "bottom", "top", "rail", "back", "shelf", "door", "drawer_front",
@@ -52,14 +52,14 @@ def write_elevation_svg(project: Project, path: Path) -> list[Path]:
            rect(0, 0, L, H, "#f3efe8")]
     for o in project.room.get("openings", []):
         out.append(rect(o["x"], o["sill"], o["width"], o["height"], "#bfe0ff", "#3a7bd5"))
-    front_roles = {"door", "drawer_front", "panel", "countertop", "plinth"}
+    front_roles = {"door", "drawer_front", "panel", "countertop", "plinth", "handle"}
     for m in project.modules:
         lo, hi = m.bbox
         for p in m.parts:
             if p.role in front_roles:
                 x = m.position[0] + p.origin[0]
                 z = m.position[2] + p.origin[2]
-                out.append(rect(x, z, p.size[0], p.size[2], hexc(ROLE_COLORS[p.role])))
+                out.append(rect(x, z, p.size[0], p.size[2], hexc(part_color(p))))
         cx = pad + (lo[0] + hi[0]) / 2 * s
         out.append(f'<text x="{cx:.1f}" y="{pad + (H - hi[2]) * s - 4:.1f}" text-anchor="middle">'
                    f'{m.id.split("_")[0]} {m.width:g}</text>')

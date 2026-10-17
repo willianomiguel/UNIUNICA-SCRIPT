@@ -122,8 +122,10 @@ def generate(spec: ProjectSpec, out_root: Path, formats=ALL_FORMATS, up: str = "
         "generator": f"promob_auto_generator {__version__}",
         "project_name": spec.project_name,
         "units": "mm",
-        "axes": {"up": up, "x": "ao longo da parede", "y": "profundidade (0 = face da parede)",
-                 "z": "altura" if up == "z" else "-profundidade"},
+        "axes": {"files": "mão direita; X da esquerda para a direita (visto de dentro do ambiente); "
+                          + ("Z para cima; parede em +Y, ambiente em -Y" if up == "z" else
+                             "Y para cima; parede em -Z, ambiente em +Z"),
+                 "positions_below": "referencial de layout: y = distância da face da parede para dentro do ambiente"},
         "room": project.room,
         "modules": [{"id": m.id, "type": m.type, "label": m.label, "position": m.position,
                      "width": m.width, "depth": m.depth, "height": m.height,

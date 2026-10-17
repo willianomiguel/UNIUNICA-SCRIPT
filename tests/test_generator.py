@@ -126,6 +126,50 @@ def test_obj_with_trimesh(full_run):
     assert mod.bounds[1][0] == pytest.approx(600)
 
 
+def _obj_groups(path):
+    """Leitor mínimo de OBJ: {grupo: (vértices, faces)} com índices globais."""
+    verts, groups, cur = [], {}, None
+    for line in Path(path).read_text().splitlines():
+        t = line.split()
+        if not t:
+            continue
+        if t[0] == "v":
+            verts.append(tuple(map(float, t[1:4])))
+        elif t[0] == "g":
+            cur = groups.setdefault(t[1], [])
+        elif t[0] == "f":
+            cur.append([int(i) - 1 for i in t[1:]])
+    return verts, groups
+
+
+def _signed_volume(verts, faces):
+    vol = 0.0
+    for f in faces:
+        for i in range(1, len(f) - 1):
+            a, b, c = verts[f[0]], verts[f[i]], verts[f[i + 1]]
+            vol += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])
+                    + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6
+    return vol
+
+
+def test_not_mirrored_and_outward_normals(full_run):
+    """Torre (1º módulo) à esquerda (x 0–600); parede em +Y, móveis em -Y; normais para fora."""
+    _, d = full_run
+    verts, groups = _obj_groups(d / "Cozinha_Linear_3600.obj")
+
+    def bounds(pred):
+        pts = [verts[i] for g, fs in groups.items() if pred(g) for f in fs for i in f]
+        return [min(p[k] for p in pts) for k in range(3)], [max(p[k] for p in pts) for k in range(3)]
+
+    lo, hi = bounds(lambda g: g.startswith("M01_tall_cabinet"))
+    assert lo[0] == pytest.approx(0) and hi[0] == pytest.approx(600)
+    assert hi[1] <= 1e-6                                   # móveis do lado -Y
+    wlo, _ = bounds(lambda g: "Parede" in g)
+    assert wlo[1] == pytest.approx(0)                      # face da parede em y=0, parede em +Y
+    for g, fs in groups.items():
+        assert _signed_volume(verts, fs) > 0, g            # cada peça fechada com normais para fora
+
+
 def test_dxf_with_ezdxf(full_run):
     ezdxf = pytest.importorskip("ezdxf")
     _, d = full_run
