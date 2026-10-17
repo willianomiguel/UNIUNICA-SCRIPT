@@ -1,0 +1,10 @@
+{
+  "project_name": "Invalido",
+  "units": "mm",
+  "room": { "type": "linear_kitchen", "wall_length": 1000, "ceiling_height": 2700 },
+  "cabinet_modules": [
+    { "type": "base_cabinet", "width": 600, "depth": 560, "height": 720 },
+    { "type": "base_cabinet", "width": 600, "depth": 560, "height": 720 },
+    { "type": "torre_magica", "width": -5, "depth": 560, "height": 720 }
+  ]
+}

@@ -1,0 +1,6 @@
+# Somente para testes e validação independente dos arquivos gerados
+pytest>=8
+ezdxf>=1.3        # valida DXF
+trimesh>=4.0      # valida OBJ
+pycollada>=0.8    # valida DAE
+matplotlib>=3.8   # tools/render_preview.py

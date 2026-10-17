@@ -1,0 +1,219 @@
+{
+  "generator": "promob_auto_generator 0.1.0",
+  "project_name": "Cozinha_Linear_3600",
+  "units": "mm",
+  "axes": {
+    "up": "z",
+    "x": "ao longo da parede",
+    "y": "profundidade (0 = face da parede)",
+    "z": "altura"
+  },
+  "room": {
+    "type": "linear_kitchen",
+    "wall_length": 3600.0,
+    "ceiling_height": 2700.0,
+    "wall_thickness": 150.0,
+    "openings": [
+      {
+        "type": "window",
+        "x": 1300.0,
+        "width": 1200.0,
+        "height": 1000.0,
+        "sill": 1100.0
+      }
+    ]
+  },
+  "modules": [
+    {
+      "id": "M01_tall_cabinet",
+      "type": "tall_cabinet",
+      "label": "Torre paneleiro",
+      "position": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 2200.0,
+      "parts": 12
+    },
+    {
+      "id": "M02_drawer_cabinet",
+      "type": "drawer_cabinet",
+      "label": "drawer_cabinet 600x720x560",
+      "position": [
+        600.0,
+        0.0,
+        100.0
+      ],
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 26
+    },
+    {
+      "id": "M03_sink_cabinet",
+      "type": "sink_cabinet",
+      "label": "Balcao pia",
+      "position": [
+        1200.0,
+        0.0,
+        100.0
+      ],
+      "width": 1200.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 9
+    },
+    {
+      "id": "M04_base_cabinet",
+      "type": "base_cabinet",
+      "label": "base_cabinet 800x720x560",
+      "position": [
+        2400.0,
+        0.0,
+        100.0
+      ],
+      "width": 800.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 10
+    },
+    {
+      "id": "M05_filler",
+      "type": "filler",
+      "label": "filler 400x820x560",
+      "position": [
+        3200.0,
+        0.0,
+        0.0
+      ],
+      "width": 400.0,
+      "depth": 560.0,
+      "height": 820.0,
+      "parts": 1
+    },
+    {
+      "id": "M06_wall_cabinet",
+      "type": "wall_cabinet",
+      "label": "wall_cabinet 600x700x350",
+      "position": [
+        600.0,
+        0.0,
+        1500.0
+      ],
+      "width": 600.0,
+      "depth": 350.0,
+      "height": 700.0,
+      "parts": 8
+    },
+    {
+      "id": "M07_wall_cabinet",
+      "type": "wall_cabinet",
+      "label": "wall_cabinet 800x700x350",
+      "position": [
+        2500.0,
+        0.0,
+        1500.0
+      ],
+      "width": 800.0,
+      "depth": 350.0,
+      "height": 700.0,
+      "parts": 8
+    }
+  ],
+  "warnings": [
+    "Aéreo #6 deslocado para x=600 para evitar torre/janela",
+    "Aéreo #7 deslocado para x=2500 para evitar torre/janela"
+  ],
+  "files": {
+    "ir": [
+      "Cozinha_Linear_3600_ir.json"
+    ],
+    "cutlist": [
+      "Cozinha_Linear_3600_lista_corte.csv"
+    ],
+    "preview": [
+      "Cozinha_Linear_3600_vista_frontal.svg"
+    ],
+    "obj": [
+      "Cozinha_Linear_3600.obj",
+      "Cozinha_Linear_3600.mtl",
+      "Cozinha_Linear_3600_moveis.obj",
+      "Cozinha_Linear_3600_moveis.mtl"
+    ],
+    "3ds": [
+      "Cozinha_Linear_3600.3ds"
+    ],
+    "dxf": [
+      "Cozinha_Linear_3600.dxf"
+    ],
+    "dae": [
+      "Cozinha_Linear_3600.dae"
+    ],
+    "pmob_experimental": [
+      "Cozinha_Linear_3600.pmob"
+    ],
+    "skp_script": [
+      "Cozinha_Linear_3600_sketchup.rb"
+    ],
+    "module_obj": [
+      "modulos/M01_tall_cabinet.obj",
+      "modulos/M01_tall_cabinet.mtl",
+      "modulos/M02_drawer_cabinet.obj",
+      "modulos/M02_drawer_cabinet.mtl",
+      "modulos/M03_sink_cabinet.obj",
+      "modulos/M03_sink_cabinet.mtl",
+      "modulos/M04_base_cabinet.obj",
+      "modulos/M04_base_cabinet.mtl",
+      "modulos/M05_filler.obj",
+      "modulos/M05_filler.mtl",
+      "modulos/M06_wall_cabinet.obj",
+      "modulos/M06_wall_cabinet.mtl",
+      "modulos/M07_wall_cabinet.obj",
+      "modulos/M07_wall_cabinet.mtl"
+    ],
+    "module_3ds": [
+      "modulos/M01_tall_cabinet.3ds",
+      "modulos/M02_drawer_cabinet.3ds",
+      "modulos/M03_sink_cabinet.3ds",
+      "modulos/M04_base_cabinet.3ds",
+      "modulos/M05_filler.3ds",
+      "modulos/M06_wall_cabinet.3ds",
+      "modulos/M07_wall_cabinet.3ds"
+    ]
+  },
+  "triangles_per_file": {
+    "Cozinha_Linear_3600.obj": 948,
+    "Cozinha_Linear_3600.mtl": 948,
+    "Cozinha_Linear_3600_moveis.obj": 888,
+    "Cozinha_Linear_3600_moveis.mtl": 888,
+    "Cozinha_Linear_3600.3ds": 888,
+    "Cozinha_Linear_3600.dxf": 948,
+    "Cozinha_Linear_3600.dae": 948,
+    "Cozinha_Linear_3600.pmob": 948,
+    "modulos/M01_tall_cabinet.obj": 144,
+    "modulos/M01_tall_cabinet.mtl": 144,
+    "modulos/M01_tall_cabinet.3ds": 144,
+    "modulos/M02_drawer_cabinet.obj": 300,
+    "modulos/M02_drawer_cabinet.mtl": 300,
+    "modulos/M02_drawer_cabinet.3ds": 300,
+    "modulos/M03_sink_cabinet.obj": 108,
+    "modulos/M03_sink_cabinet.mtl": 108,
+    "modulos/M03_sink_cabinet.3ds": 108,
+    "modulos/M04_base_cabinet.obj": 120,
+    "modulos/M04_base_cabinet.mtl": 120,
+    "modulos/M04_base_cabinet.3ds": 120,
+    "modulos/M05_filler.obj": 12,
+    "modulos/M05_filler.mtl": 12,
+    "modulos/M05_filler.3ds": 12,
+    "modulos/M06_wall_cabinet.obj": 96,
+    "modulos/M06_wall_cabinet.mtl": 96,
+    "modulos/M06_wall_cabinet.3ds": 96,
+    "modulos/M07_wall_cabinet.obj": 96,
+    "modulos/M07_wall_cabinet.mtl": 96,
+    "modulos/M07_wall_cabinet.3ds": 96
+  },
+  "promob_face_limit": 25000
+}

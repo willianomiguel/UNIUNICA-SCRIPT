@@ -1,0 +1,110 @@
+{
+  "generator": "promob_auto_generator 0.1.0",
+  "project_name": "POC_Cozinha_01",
+  "units": "mm",
+  "axes": {
+    "up": "z",
+    "x": "ao longo da parede",
+    "y": "profundidade (0 = face da parede)",
+    "z": "altura"
+  },
+  "room": {
+    "type": "linear_kitchen",
+    "wall_length": 3200.0,
+    "ceiling_height": 2700.0,
+    "wall_thickness": 150.0,
+    "openings": []
+  },
+  "modules": [
+    {
+      "id": "M01_base_cabinet",
+      "type": "base_cabinet",
+      "label": "base_cabinet 600x720x560",
+      "position": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 11
+    },
+    {
+      "id": "M02_drawer_cabinet",
+      "type": "drawer_cabinet",
+      "label": "drawer_cabinet 600x720x560",
+      "position": [
+        600.0,
+        0.0,
+        100.0
+      ],
+      "width": 600.0,
+      "depth": 560.0,
+      "height": 720.0,
+      "parts": 25
+    }
+  ],
+  "warnings": [
+    "Sobra de 2000 mm na linha de piso (considere um tapa-vão)"
+  ],
+  "files": {
+    "ir": [
+      "POC_Cozinha_01_ir.json"
+    ],
+    "cutlist": [
+      "POC_Cozinha_01_lista_corte.csv"
+    ],
+    "preview": [
+      "POC_Cozinha_01_vista_frontal.svg"
+    ],
+    "obj": [
+      "POC_Cozinha_01.obj",
+      "POC_Cozinha_01.mtl",
+      "POC_Cozinha_01_moveis.obj",
+      "POC_Cozinha_01_moveis.mtl"
+    ],
+    "3ds": [
+      "POC_Cozinha_01.3ds"
+    ],
+    "dxf": [
+      "POC_Cozinha_01.dxf"
+    ],
+    "dae": [
+      "POC_Cozinha_01.dae"
+    ],
+    "pmob_experimental": [
+      "POC_Cozinha_01.pmob"
+    ],
+    "skp_script": [
+      "POC_Cozinha_01_sketchup.rb"
+    ],
+    "module_obj": [
+      "modulos/M01_base_cabinet.obj",
+      "modulos/M01_base_cabinet.mtl",
+      "modulos/M02_drawer_cabinet.obj",
+      "modulos/M02_drawer_cabinet.mtl"
+    ],
+    "module_3ds": [
+      "modulos/M01_base_cabinet.3ds",
+      "modulos/M02_drawer_cabinet.3ds"
+    ]
+  },
+  "triangles_per_file": {
+    "POC_Cozinha_01.obj": 456,
+    "POC_Cozinha_01.mtl": 456,
+    "POC_Cozinha_01_moveis.obj": 432,
+    "POC_Cozinha_01_moveis.mtl": 432,
+    "POC_Cozinha_01.3ds": 432,
+    "POC_Cozinha_01.dxf": 456,
+    "POC_Cozinha_01.dae": 456,
+    "POC_Cozinha_01.pmob": 456,
+    "modulos/M01_base_cabinet.obj": 120,
+    "modulos/M01_base_cabinet.mtl": 120,
+    "modulos/M01_base_cabinet.3ds": 120,
+    "modulos/M02_drawer_cabinet.obj": 300,
+    "modulos/M02_drawer_cabinet.mtl": 300,
+    "modulos/M02_drawer_cabinet.3ds": 300
+  },
+  "promob_face_limit": 25000
+}

@@ -1,0 +1,7 @@
+# materiais
+newmtl MDF_Freijo_18mm
+Kd 0.970 0.970 0.970
+Ka 0.200 0.200 0.200
+Ks 0.050 0.050 0.050
+d 1.0
+illum 2
