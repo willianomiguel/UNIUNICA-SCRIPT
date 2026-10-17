@@ -135,7 +135,8 @@ MOOBLENDER_PATH=/caminho/clone/mooblender python -m pytest tests   # inclui roun
 - `tools/render_projeto.py`: gera imagens de conferência (perspectiva, frontal, planta) de um JSON. Exemplo em `docs/evidencias/mvp/`.
 - `tools/render_blender.py`: render fotorrealista (Blender 4.2+, Cycles) com materiais PBR, luz do sol pela janela, porta, caixilho, teto e tapete. Essa cenografia é só para a imagem e não vai para os arquivos do Promob. Exemplos em `docs/evidencias/render/`.
   ```bash
-  blender -b --factory-startup -P tools/render_blender.py -- samples/quarto_casal_real.json docs/evidencias/render/Quarto --samples=64 --res=1440x900
+  python tools/baixar_assets.py assets_cache   # texturas, HDRI e modelos CC0 do Poly Haven (uma vez)
+  blender -b --factory-startup -P tools/render_blender.py -- samples/quarto_casal_real.json docs/evidencias/render/Quarto --assets=assets_cache --samples=128 --res=1600x1000
   ```
 - `tools/render_preview.py`: gera um PNG de conferência de um OBJ.
 
