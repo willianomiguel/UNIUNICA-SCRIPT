@@ -126,3 +126,28 @@ def test_delete_and_inspect(model, tmp_path):
     rep0 = inspect(model)
     assert rep0["top_level_modules"][0]["dimension"]["WIDTH"] == 836
     assert rep0["catalog"]["tod_coz_bui_inf_bal_bal_2p"]["dim_max"]["WIDTH"] == 1200
+
+
+def test_move_translates_whole_subtree(model):
+    p = PromobProject(model)
+    m = p.first("tod_coz_bui_inf_bal_bal_2p")
+    p.move(m, dx=100, dz=50)
+    xs = [(b.get("X"), b.get("Z")) for b in m.iter("PONTOBASE")]
+    assert xs[0] == ("200", "250")
+
+
+def test_novo_projeto_importa_modulo_de_outra_fonte(model, tmp_path):
+    sys.path.insert(0, str(ROOT / "tools"))
+    from promob_novo import build
+    recipe = {"pasta": str(model.parent), "modelo": model.name, "nome_ambiente": "Novo",
+              "modulos": [{"fonte": model.name, "codigo": "tod_coz_bui_inf_bal_bal_2p", "parede_face": 0,
+                           "x": 500, "y": 0, "z": 200}]}
+    out = tmp_path / "NOVO.promob"
+    build(recipe, out)
+    root = _ambient(out)
+    mods = [e for e in root.iter("INFORMACOES") if e.get("ID") == "tod_coz_bui_inf_bal_bal_2p"]
+    assert len(mods) == 1                                    # o original foi removido, só o importado ficou
+    assert mods[0].find("POSICAOINSERCAO/PONTOBASE").get("X") == "500"
+    ids = {r.get("UNIQUEID") for r in root.iter("ASSOCIATIONREGISTRY")}
+    assert all(o.get("UNIQUEID") in ids for o in root.iter("OBJECTASSOCIATION"))
+    assert root.get("NAME") == "Novo"

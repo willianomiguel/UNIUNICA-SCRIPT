@@ -84,10 +84,8 @@ class PromobProject:
         self.log.append(f"set_dimension {e.get('ID')} {dims}")
 
     def move(self, e, dx=0.0, dy=0.0, dz=0.0):
-        p = e.find("POSICAOINSERCAO/PONTOBASE")
-        for k, dv in (("X", dx), ("Y", dy), ("Z", dz)):
-            if dv:
-                p.set(k, _num(float(p.get(k, 0) or 0) + dv))
+        """Translada o módulo E TODA a sua árvore (agregados e faces usam coordenadas absolutas)."""
+        translate_subtree(e, dx, dy, dz)
         self.log.append(f"move {e.get('ID')} ({dx},{dy},{dz})")
 
     def _next_ids(self, n):
@@ -170,6 +168,14 @@ class PromobProject:
                 zi.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(zi, members[info.filename])
         return new_guid
+
+
+def translate_subtree(e, dx=0.0, dy=0.0, dz=0.0):
+    """Soma (dx,dy,dz) a todo PONTOBASE da subárvore (atributo ausente = 0)."""
+    for p in e.iter("PONTOBASE"):
+        for k, dv in (("X", dx), ("Y", dy), ("Z", dz)):
+            if dv:
+                p.set(k, _num(float(p.get(k, 0) or 0) + dv))
 
 
 def _replace_project_ids(data: bytes, new_guid: str) -> bytes:
