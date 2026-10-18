@@ -772,4 +772,5 @@ def main():
         print("RENDER OK", sc.render.filepath, flush=True)
 
 
-main()
+if __name__ == "__main__":
+    main()
