@@ -151,3 +151,24 @@ def test_novo_projeto_importa_modulo_de_outra_fonte(model, tmp_path):
     ids = {r.get("UNIQUEID") for r in root.iter("ASSOCIATIONREGISTRY")}
     assert all(o.get("UNIQUEID") in ids for o in root.iter("OBJECTASSOCIATION"))
     assert root.get("NAME") == "Novo"
+
+
+def test_limpar_remove_dados_pessoais_e_licenca(tmp_path):
+    from promob_limpar import clean
+    src = tmp_path / "ORIG.promob"
+    with zipfile.ZipFile(src, "w") as z:
+        z.writestr("promob.info", '<PROMOB><HISTORY SERIALNUMBER="123" PRODUCTCODE="ABC" VERSION="5" /></PROMOB>')
+        z.writestr("solucao/document2/document2.dataclient",
+                   '﻿<DATACLIENT><FIELDS><FIELD NAME="nomecliente" DESCRIPTION="" VALUE="Fulano" />'
+                   '<FIELD NAME="email" DESCRIPTION="E-mail" VALUE="a@b.c" /></FIELDS></DATACLIENT>'.encode("utf-8"))
+        z.writestr(AMBIENT, AMB.encode("utf-8"))
+    out = tmp_path / "LIMPO.promob"
+    clean(src, out)
+    with zipfile.ZipFile(out) as z:
+        info = z.read("promob.info").decode()
+        dc = z.read("solucao/document2/document2.dataclient").decode("utf-8-sig")
+        assert z.read(AMBIENT) == AMB.encode("utf-8")              # o projeto em si não muda
+    assert 'SERIALNUMBER=""' in info and 'PRODUCTCODE=""' in info and 'VERSION="5"' in info
+    assert "Fulano" not in dc and "a@b.c" not in dc and 'VALUE="Cliente Teste"' in dc
+    with pytest.raises(FileExistsError):
+        clean(src, out)
