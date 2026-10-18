@@ -1,0 +1,119 @@
+{
+ "pasta": "<pasta com COZINHA.promob, SALA.promob e LAVANDERIA.promob>",
+ "modelo": "COZINHA.promob",
+ "nome_ambiente": "Suite Casal (gerado automaticamente)",
+ "ambiente_mm": [
+  3600,
+  4000
+ ],
+ "mover_aberturas": [
+  {
+   "perto": [
+    2378.66,
+    5384.91
+   ],
+   "deslocar": [
+    2581,
+    0
+   ]
+  }
+ ],
+ "modulos": [
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 1300,
+   "z": 0
+  },
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 1873,
+   "z": 0
+  },
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 2446,
+   "z": 0
+  },
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 3019,
+   "z": 0
+  },
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 3592,
+   "z": 0
+  },
+  {
+   "fonte": "SALA.promob",
+   "codigo": "tod_dor_bui_arm_1p",
+   "parede_face": 0,
+   "x": 1988.831,
+   "y": 4165,
+   "z": 0
+  },
+  {
+   "fonte": "LAVANDERIA.promob",
+   "codigo": "tod_coz_bui_inf_gav_1_gavetao",
+   "ocorrencia": 0,
+   "parede_face": 2,
+   "x": 5588.65,
+   "y": 2420,
+   "z": 180
+  },
+  {
+   "fonte": "LAVANDERIA.promob",
+   "codigo": "tod_coz_bui_inf_gav_1_gavetao",
+   "ocorrencia": 1,
+   "parede_face": 2,
+   "x": 5588.65,
+   "y": 4786,
+   "z": 180
+  },
+  {
+   "fonte": "COZINHA.promob",
+   "codigo": "tod_coz_bui_inf_gav_1_gavetao_1_gaveta_ok_5",
+   "perto": [
+    4709,
+    1236,
+    200
+   ],
+   "parede_face": 1,
+   "deslocar": [
+    -609,
+    -1,
+    0
+   ]
+  },
+  {
+   "fonte": "COZINHA.promob",
+   "codigo": "tod_coz_bui_sup_arm_1p",
+   "perto": [
+    4709,
+    1308,
+    1871
+   ],
+   "parede_face": 1,
+   "deslocar": [
+    -609,
+    -1,
+    0
+   ]
+  }
+ ]
+}

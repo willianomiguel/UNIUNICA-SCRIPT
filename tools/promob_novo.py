@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from promob_editar import PromobProject, translate_subtree  # noqa: E402
 
 KEEP_TYPES = {"WALL", "Teto", "PisoTeto"}
+OPENING_LAYER = "Decore Promob-Aberturas"   # portas e janelas (itens online que furam a parede)
 
 
 def kids(e):
@@ -34,8 +35,8 @@ def kids(e):
     return c
 
 
-def strip_furniture(p: PromobProject, keep_ids=()):
-    """Remove móveis/geometrias do ambiente, mantendo paredes, teto e itens listados (ex.: porta)."""
+def strip_furniture(p: PromobProject, keep_ids=(), keep_layers=(OPENING_LAYER,)):
+    """Remove móveis/geometrias do ambiente, mantendo paredes, teto, aberturas e itens listados."""
     floor = p.root.find("INFORMACOES")
     removed = 0
 
@@ -47,7 +48,8 @@ def strip_furniture(p: PromobProject, keep_ids=()):
             if e.get("TYPE") in KEEP_TYPES:
                 clean(kids(e))
                 continue
-            if e.get("ID") in keep_ids:
+            layer = e.find("LAYER")
+            if e.get("ID") in keep_ids or (layer is not None and layer.get("DESCRIPTION") in keep_layers):
                 continue
             removed += sum(1 for _ in e.iter("ASSOCIATIONREGISTRY"))
             container.remove(e)
@@ -56,6 +58,115 @@ def strip_furniture(p: PromobProject, keep_ids=()):
     p._parents = None
     p._bump_entity_count(-removed)
     p.log.append(f"strip_furniture: {removed} entidades removidas")
+
+
+def _inner_box(p: PromobProject):
+    pts = [(float(q.get("X")), float(q.get("Y"))) for q in wall(p).find("GEOMETRY/SHAPE")]
+    xs, ys = [a for a, _ in pts], [b for _, b in pts]
+    return min(xs), max(xs), min(ys), max(ys)
+
+
+def resize_shell(p: PromobProject, width: float, depth: float):
+    """Redimensiona a casca retangular (paredes + piso + teto) para medidas internas width x depth (mm).
+    Mantém o canto inferior esquerdo; o lado direito anda dW e o lado de cima anda dD.
+    Coordenadas absolutas: translação por lado. Faces (POINTS locais): comprimentos ajustados."""
+    x0, x1, y0, y1 = _inner_box(p)
+    old_w, old_d = x1 - x0, y1 - y0
+    dw, dd = width - old_w, depth - old_d
+    xm, ym = (x0 + x1) / 2, (y0 + y1) / 2
+
+    def tx(v):
+        return v + dw if v > xm else v
+
+    def ty(v):
+        return v + dd if v > ym else v
+
+    def adj(v, band_w, band_d):
+        a = abs(v)
+        if band_w and abs(a - old_w) <= 400:
+            return v + (dw if v > 0 else -dw)
+        if band_d and abs(a - old_d) <= 400:
+            return v + (dd if v > 0 else -dd)
+        return v
+
+    from promob_editar import _num
+    targets = [e for e in p.root.iter("INFORMACOES") if e.get("TYPE") in ("WALL", "PisoTeto", "Teto")]
+    for ent in targets:
+        own = [c for c in ent if c.tag != "INFORMACOESCOLECAO"]   # só a própria entidade, não os filhos
+        for top in own:
+            for el in top.iter():
+                if el.tag in ("PONTOBASE", "POINT2DGP", "POINT2DG", "MIN", "MAX") and el.get("X") is not None:
+                    el.set("X", _num(tx(float(el.get("X")))))
+                if el.tag in ("PONTOBASE", "POINT2DGP", "POINT2DG", "MIN", "MAX") and el.get("Y") is not None:
+                    el.set("Y", _num(ty(float(el.get("Y")))))
+            for reg in top.iter():
+                pos, pts = reg.find("POSITION"), reg.find("POINTS")
+                if pos is None or pts is None:
+                    continue
+                n = pos.find("NORMAL")
+                horizontal = n is not None and n.get("C") not in (None, "", "0")
+                for q in pts:
+                    if q.get("X"):
+                        q.set("X", _num(adj(float(q.get("X")), True, True)))
+                    if horizontal and q.get("Y"):
+                        q.set("Y", _num(adj(float(q.get("Y")), True, True)))
+        d = ent.find("INSERTDIMENSION")
+        if d is not None:
+            d.set("WIDTH", _num(float(d.get("WIDTH", 0)) + dw))
+            d.set("DEPTH", _num(float(d.get("DEPTH", 0)) + dd))
+    props = p.root.find("AMBIENTPROPERTIES")
+    for el in props if props is not None else []:
+        if el.get("X"):
+            el.set("X", _num(tx(float(el.get("X")))))
+        if el.get("Y"):
+            el.set("Y", _num(ty(float(el.get("Y")))))
+    # aberturas e itens mantidos acompanham o lado em que estão
+    for e in list(kids_list(wall(p))) + list(kids_list(p.root.find("INFORMACOES"))):
+        if e.get("TYPE") in KEEP_TYPES:
+            continue
+        b = e.find("POSICAOINSERCAO/PONTOBASE")
+        if b is None:
+            continue
+        bx, by = float(b.get("X", 0) or 0), float(b.get("Y", 0) or 0)
+        translate_subtree(e, tx(bx) - bx, ty(by) - by, 0)
+    p.log.append(f"resize_shell: {old_w:.0f}x{old_d:.0f} -> {width:.0f}x{depth:.0f} (dW={dw:.0f}, dD={dd:.0f})")
+    return {"x0": x0, "y0": y0, "x1": x0 + width, "y1": y0 + depth}
+
+
+def kids_list(e):
+    c = e.find("INFORMACOESCOLECAO")
+    return list(c) if c is not None else []
+
+
+def _xyz(e):
+    b = e.find("POSICAOINSERCAO/PONTOBASE")
+    return tuple(float(b.get(k, 0) or 0) for k in "XYZ") if b is not None else None
+
+
+def opening_groups(p: PromobProject):
+    """Agrupa aberturas: cada item que fura a parede (HOLE PRICK) + itens contidos nele (folha, maçaneta)."""
+    items = [e for e in kids_list(wall(p)) if e.find("LAYER") is not None
+             and e.find("LAYER").get("DESCRIPTION") == OPENING_LAYER and _xyz(e)]
+    frames = [e for e in items if e.find("HOLE") is not None and e.find("HOLE").get("PRICK") == "Y"]
+    groups = []
+    for f in frames:
+        fx, fy, fz = _xyz(f)
+        fw = float(f.find("INSERTDIMENSION").get("WIDTH"))
+        fh = float(f.find("INSERTDIMENSION").get("HEIGHT"))
+        g = [f] + [e for e in items if e not in frames and abs(_xyz(e)[1] - fy) < 250
+                   and fx - 1 <= _xyz(e)[0] <= fx + fw and fz - 1 <= _xyz(e)[2] <= fz + fh]
+        groups.append(g)
+    return groups
+
+
+def move_opening(p: PromobProject, near_xy, dx=0.0, dy=0.0):
+    """Move a abertura (batente + folha + maçaneta) cujo batente está mais perto de near_xy."""
+    groups = opening_groups(p)
+    g = min(groups, key=lambda g: (_xyz(g[0])[0] - near_xy[0]) ** 2 + (_xyz(g[0])[1] - near_xy[1]) ** 2)
+    for e in g:
+        translate_subtree(e, dx, dy, 0)
+    p.log.append(f"move_opening perto de {near_xy}: {len(g)} itens deslocados ({dx},{dy})")
+    return g
 
 
 def wall(p: PromobProject):
@@ -167,6 +278,15 @@ def build(recipe: dict, out: Path):
     base_dir = Path(recipe.get("pasta", "."))
     dst = PromobProject(base_dir / recipe["modelo"])
     strip_furniture(dst, set(recipe.get("manter", [])))
+    for r in recipe.get("remover_aberturas_perto", []):
+        for e in move_opening(dst, r):
+            for par in dst.root.iter("INFORMACOESCOLECAO"):
+                if e in list(par):
+                    par.remove(e)
+    if "ambiente_mm" in recipe:
+        resize_shell(dst, *recipe["ambiente_mm"])
+    for mv in recipe.get("mover_aberturas", []):
+        move_opening(dst, mv["perto"], *mv["deslocar"])
     sources = {}
     remaps: dict[str, dict] = {}
     imported = []
