@@ -93,7 +93,7 @@ Configuração:
 4. O GitHub manda um `ping`; a rota responde `200 {"ok":true,"mensagem":"pong"}`.
 
 Respostas da rota: `401` assinatura inválida, `503` segredo não configurado, `200 {ignorado:true}` evento sem
-código de tarefa, `202 {queued:true}` evento enfileirado.
+código de tarefa, `200 {"queued":true}` evento enfileirado (o processamento roda no worker).
 
 Teste manual com curl (troque `URL` e `SEGREDO`):
 
@@ -104,6 +104,7 @@ curl -i -X POST "$URL" -H 'Content-Type: application/json' \
   -H 'X-GitHub-Event: pull_request' -H "X-Hub-Signature-256: $SIG" --data "$BODY"
 ```
 
+> Verificado ao vivo (local): assinatura errada → 401, PR aberto → tarefa Em andamento + PR/branch, PR mergeado → Concluída + `concluidaEm` + pontos da sprint.
 > A rota de servidor só responde quando o app está registrado e instalado no workspace dono do registro
 > (é o caso do `twenty app apply` local e da instalação de produção da UniÚnica).
 
