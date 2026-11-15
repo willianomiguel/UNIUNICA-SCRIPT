@@ -42,9 +42,16 @@ Os endpoints são *server routes* do app. A URL é a que `getServerRouteUrl(<id 
 | Ingestão de métricas | `6dd6f4a5-3913-4108-8630-ebfa208be0ad` (`trafego-ingest`) | POST |
 | Pixel do site | `aed8df69-c08e-4d62-acca-4a6660b19502` (`trafego-pixel`) | GET, POST |
 
-O `applicationRegistrationId` aparece em Configurações → Apps → UniÚnica Gestão (ou nos logs do
-Twenty). Na instância local de desenvolvimento ficou:
-`http://localhost:3000/webhooks/server/<registrationId>/<id>` — ver o exemplo verificado no fim.
+O `applicationRegistrationId` aparece nos logs do servidor do Twenty (aviso de rota depreciada) ou
+em Configurações → Apps. Na instância local de desenvolvimento (verificado):
+
+```
+URL_INGEST=http://localhost:3000/webhooks/server/cded0d11-4c1b-4a6e-a5ab-58c37de23340/6dd6f4a5-3913-4108-8630-ebfa208be0ad
+URL_PIXEL=http://localhost:3000/webhooks/server/cded0d11-4c1b-4a6e-a5ab-58c37de23340/aed8df69-c08e-4d62-acca-4a6660b19502
+```
+
+Para o pixel funcionar a partir do site público, o Twenty precisa estar acessível pela internet
+(SERVER_URL público).
 
 ### 1. Ingestão (`POST`) — qualquer fonte (Google Ads, TikTok, planilha, Zapier…)
 
@@ -202,4 +209,4 @@ Nenhuma (usa `fetch` e `RestApiClient` do `twenty-client-sdk`).
 - O incremento do pixel lê e grava (não é atômico); para o volume de um site pequeno basta.
 - As funções acessam os dados via GraphQL cru (`services/executar-graphql.service.ts`), sem depender
   do cliente gerado — assim funcionam mesmo antes do cliente conhecer objetos de outros módulos.
-- Testes unitários: `src/modules/trafego/utils/__tests__/*.spec.ts` (um por util).
+- Testes unitários: `src/modules/trafego/utils/__tests__/*.test.ts` (um por util; `yarn test:unit`).
