@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { SEM_CAMPANHA } from 'src/modules/trafego/constants/trafego-constantes';
 import { type LinhaMetrica } from 'src/modules/trafego/types/linha-metrica';
 import { agregarPorCampanha } from 'src/modules/trafego/utils/agregar-por-campanha.util';

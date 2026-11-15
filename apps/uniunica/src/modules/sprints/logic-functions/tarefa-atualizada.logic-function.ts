@@ -10,11 +10,17 @@ import { processarEventoTarefa } from 'src/modules/sprints/services/processar-ev
 const TASK = STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.task;
 
 // Tarefa alterada (status, pontos ou sprint): grava/limpa a conclusão e recalcula as sprints
-const handler = async (evento: DatabaseEventPayload) =>
-  processarEventoTarefa(
-    evento as unknown as Parameters<typeof processarEventoTarefa>[0],
-    'updated',
-  );
+const handler = async (evento: DatabaseEventPayload) => {
+  try {
+    return await processarEventoTarefa(
+      evento as unknown as Parameters<typeof processarEventoTarefa>[0],
+      'updated',
+    );
+  } catch (erro) {
+    console.error('[sprints] falha ao processar evento de tarefa', erro);
+    throw erro;
+  }
+};
 
 export default defineLogicFunction({
   universalIdentifier: SPRINTS_IDS.logicFunctions.tarefaAtualizada,

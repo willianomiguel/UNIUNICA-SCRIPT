@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularCpa } from 'src/modules/trafego/utils/calcular-cpa.util';
 
 describe('calcularCpa', () => {

@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularCpc } from 'src/modules/trafego/utils/calcular-cpc.util';
 
 describe('calcularCpc', () => {

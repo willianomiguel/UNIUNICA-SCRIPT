@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularCpl } from 'src/modules/trafego/utils/calcular-cpl.util';
 
 describe('calcularCpl', () => {

@@ -22,6 +22,7 @@ export const processarEventoTarefa = async (
   evento: EventoTarefa,
   acao: 'created' | 'updated' | 'deleted' | 'restored',
 ) => {
+  console.log('[sprints] evento recebido', acao, JSON.stringify(Object.keys(evento ?? {})));
   const cliente = new RestApiClient();
   const antes = evento.properties?.before ?? {};
   const depois = evento.properties?.after ?? {};
@@ -57,6 +58,10 @@ export const processarEventoTarefa = async (
     await recalcularPontosSprint(cliente, sprintId);
   }
 
-  return { tarefaId, acao, alteracoes, sprintsRecalculadas: sprintIds };
+  const resultado = { tarefaId, acao, alteracoes, sprintsRecalculadas: sprintIds };
+
+  console.log('[sprints] evento de tarefa', JSON.stringify(resultado));
+
+  return resultado;
 };
 

@@ -31,6 +31,8 @@ services:
       APP_SECRET: ${APP_SECRET:-}
       # Liga as funções dos apps (webhooks, tarefas agendadas, automações)
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
+      # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
+      SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_ENABLED: ${AUTH_GOOGLE_ENABLED}
@@ -92,6 +94,8 @@ services:
       APP_SECRET: ${APP_SECRET:-}
       # Liga as funções dos apps (webhooks, tarefas agendadas, automações)
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
+      # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
+      SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_ENABLED: ${AUTH_GOOGLE_ENABLED}

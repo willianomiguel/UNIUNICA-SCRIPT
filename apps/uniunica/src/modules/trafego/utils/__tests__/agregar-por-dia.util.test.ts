@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { type LinhaMetrica } from 'src/modules/trafego/types/linha-metrica';
 import { agregarPorDia } from 'src/modules/trafego/utils/agregar-por-dia.util';
 

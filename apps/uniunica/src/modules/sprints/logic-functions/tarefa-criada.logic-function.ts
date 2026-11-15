@@ -10,11 +10,17 @@ import { processarEventoTarefa } from 'src/modules/sprints/services/processar-ev
 const TASK = STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.task;
 
 // Tarefa criada: gera o código UNI-<n>, grava a conclusão e recalcula a sprint
-const handler = async (evento: DatabaseEventPayload) =>
-  processarEventoTarefa(
-    evento as unknown as Parameters<typeof processarEventoTarefa>[0],
-    'created',
-  );
+const handler = async (evento: DatabaseEventPayload) => {
+  try {
+    return await processarEventoTarefa(
+      evento as unknown as Parameters<typeof processarEventoTarefa>[0],
+      'created',
+    );
+  } catch (erro) {
+    console.error('[sprints] falha ao processar evento de tarefa', erro);
+    throw erro;
+  }
+};
 
 export default defineLogicFunction({
   universalIdentifier: SPRINTS_IDS.logicFunctions.tarefaCriada,
