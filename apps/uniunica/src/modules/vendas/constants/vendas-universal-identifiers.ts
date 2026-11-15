@@ -1,0 +1,45 @@
+import { OBJECTS } from 'src/modules/shared/constants/objects';
+
+// Field and entity IDs of the vendas module. Never change them after the first sync.
+export const VENDAS_IDS = {
+  objetoVenda: OBJECTS.venda.universalIdentifier,
+  objetoEventoPagamento: OBJECTS.eventoPagamento.universalIdentifier,
+  venda: {
+    descricao: 'a47ab264-87af-4260-9cc2-e9b0b540a836',
+    valor: '860c50dc-048f-41f3-b833-fc91f2118c1f',
+    valorLiquido: '2a2e32bf-5c2e-42f3-9728-8a81f823cf0d',
+    taxaGateway: 'd200b182-5155-48fb-b2f4-b227b7a54c56',
+    status: '1b2fb3cb-ab78-45b9-86bb-64292a0dda60',
+    gateway: '697d5518-3dad-48f7-bd98-8ea25d0aca40',
+    idExterno: 'c3505a0d-8aac-49de-b749-ad3aa75cdd52',
+    metodoPagamento: '0dae571e-2a37-4711-863a-38bd7720bc94',
+    parcelas: '9b7a424a-93f9-4baa-b278-07b4b4a2fa6a',
+    clienteNome: '440f113f-3131-471c-b029-631caf154cff',
+    clienteEmail: '59415f7d-6238-4053-960c-6b958ed64587',
+    dataEvento: 'd90c7881-d096-486a-b649-7168de1793e1',
+    motivoRecusa: '1bf643a6-d895-4e21-9c22-b50d9d92356b',
+    utmSource: 'dc7d033f-885b-449e-a69e-5f421fa2ca69',
+    utmMedium: '83d91db1-88a6-4d80-95e7-af34166ab7b5',
+    utmCampaign: 'fbe30829-f8bd-4f1f-afd4-ea570601a7fa',
+    eventos: '4754be6c-3ad9-4c00-a447-78f3912cfeab',
+  },
+  eventoPagamento: {
+    tipo: 'b2878b9b-4c68-421f-92b9-3c72a055d277',
+    gateway: 'db3b8bd4-58ff-4f53-9770-b46823cf166f',
+    idExterno: 'b0bd3584-05af-474c-aa06-b1dc39702ea2',
+    payload: 'ad36d963-3c47-4516-9990-b43bc4f2d53d',
+    recebidoEm: 'a16084bb-e2dc-442f-89c3-f9a470f949c7',
+    processado: '4de67044-cf52-4a2a-87d0-058d141fc907',
+    erro: 'e62aa88e-2617-4201-94eb-7b55e16d91be',
+    venda: '648e6866-715a-425f-ad60-a8a558c78e75',
+  },
+  logicFunctions: {
+    webhookGenerico: 'e2716b29-6179-461c-b8a3-f17f0384406f',
+    webhookStripe: '966ea3b8-5048-43d0-ae70-d76dd51b5e9d',
+    webhookMercadoPago: 'af86e1ae-4078-4e0b-9d14-5c134d428804',
+    webhookAsaas: '511599a5-2331-422c-98c2-a1acefa3617e',
+    webhookPagarme: '67efc6e1-56b1-4a08-baf5-75ad0126e157',
+  },
+  painelFrontComponent: 'd1f06943-6921-40fe-ac7d-97045e409e4f',
+  painelPageLayout: '1d206ab7-d951-43f9-9587-a229d4c76e42',
+} as const;

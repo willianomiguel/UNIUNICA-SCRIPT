@@ -1,0 +1,9 @@
+export type FonteMeta =
+  | 'MANUAL'
+  | 'FATURAMENTO_BRUTO'
+  | 'FATURAMENTO_LIQUIDO'
+  | 'VENDAS_APROVADAS'
+  | 'TAXA_CHARGEBACK'
+  | 'LUCRO'
+  | 'LEADS'
+  | 'CLIQUES';

@@ -1,0 +1,9 @@
+export type AlertaMetrica =
+  | 'TAXA_CHARGEBACK'
+  | 'TAXA_RECUSA'
+  | 'FATURAMENTO_DIA'
+  | 'VENDAS_DIA'
+  | 'GASTO_TRAFEGO_DIA'
+  | 'LANCAMENTOS_ATRASADOS'
+  | 'METAS_EM_RISCO'
+  | 'SPRINT_ATRASADA';
