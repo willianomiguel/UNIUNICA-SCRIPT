@@ -1,0 +1,23 @@
+# Produção: adiciona o Caddy na frente do Twenty, com HTTPS automático (Let's Encrypt).
+# Uso: defina DOMINIO e SERVER_URL=https://$DOMINIO no .env e rode:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  server:
+    ports: !reset []
+  caddy:
+    image: caddy:2
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?defina DOMINIO no .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      server:
+        condition: service_healthy
+
+volumes:
+  caddy-data:
