@@ -2,22 +2,20 @@ import { RestApiClient } from 'twenty-client-sdk/rest';
 import { enqueueSnackbar } from 'twenty-sdk/front-component';
 
 import { type BulkActionResult } from 'src/modules/projetos/types/bulk-action-result';
+import { type RestClientLike } from 'src/modules/projetos/types/rest-client-like';
 import { buildBulkActionSnackbar } from 'src/modules/projetos/utils/build-bulk-action-snackbar.util';
 
-// Chama UMA vez a rota em lote do módulo com as ideias selecionadas e mostra o resultado.
+// Roda a ação em lote com as permissões de quem clicou (API REST direta, sem depender
+// da execução de funções no servidor) e mostra o resumo num snackbar.
 export const runBulkIdeiaAction = async ({
-  routePath,
-  recordIds,
+  action,
   successLabel,
 }: {
-  routePath: string;
-  recordIds: string[];
+  action: (client: RestClientLike) => Promise<BulkActionResult>;
   successLabel: (count: number) => string;
 }): Promise<BulkActionResult | null> => {
   try {
-    const result = await new RestApiClient().post<BulkActionResult>(`/s${routePath}`, {
-      records: recordIds.map((id) => ({ id })),
-    });
+    const result = await action(new RestApiClient());
 
     await enqueueSnackbar(buildBulkActionSnackbar(result, successLabel));
 

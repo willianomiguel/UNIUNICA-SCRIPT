@@ -29,7 +29,7 @@ const buildFakeClient = () => {
 };
 
 describe('seedProjetosWithClient', () => {
-  it('cria projetos e ideias com responsável/autor e pontuação calculada', async () => {
+  it('cria projetos e ideias com responsável/autor', async () => {
     const { client, store } = buildFakeClient();
 
     await seedProjetosWithClient(client);
@@ -38,6 +38,7 @@ describe('seedProjetosWithClient', () => {
     expect(store.ideias.length).toBe(5);
     expect(store.projetos.every((projeto) => projeto.responsavelId === 'membro-1')).toBe(true);
     expect(store.ideias.find((ideia) => ideia.titulo === 'Painel semanal de indicadores')?.pontuacao).toBe(8);
+    expect(store.ideias.every((ideia) => ideia.autorId === 'membro-1')).toBe(true);
   });
 
   it('é idempotente: rodar duas vezes não duplica nada', async () => {

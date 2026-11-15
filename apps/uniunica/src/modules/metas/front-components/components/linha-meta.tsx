@@ -10,11 +10,18 @@ type LinhaMetaProps = {
   meta: MetaResumo;
   hoje: string;
   destaque?: boolean;
+  quantidadeSubmetas?: number;
   onAbrir?: () => void;
 };
 
 // Título, status, valores e barra de progresso com o marcador do tempo decorrido.
-export const LinhaMeta = ({ meta, hoje, destaque = false, onAbrir }: LinhaMetaProps) => {
+export const LinhaMeta = ({
+  meta,
+  hoje,
+  destaque = false,
+  quantidadeSubmetas = 0,
+  onAbrir,
+}: LinhaMetaProps) => {
   const theme = useTheme();
   const status = CORES_STATUS_META[meta.status ?? 'NO_PRAZO'];
   const progresso = meta.progresso ?? 0;
@@ -106,8 +113,9 @@ export const LinhaMeta = ({ meta, hoje, destaque = false, onAbrir }: LinhaMetaPr
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: theme.spacing[2] }}>
         <Text size="xs" color="tertiary">
-          {formatarValorMeta(meta.valorAtual, meta.unidade)} de{' '}
-          {formatarValorMeta(meta.valorAlvo, meta.unidade)}
+          {quantidadeSubmetas > 0
+            ? `Média de ${quantidadeSubmetas} submeta(s)`
+            : `${formatarValorMeta(meta.valorAtual, meta.unidade)} de ${formatarValorMeta(meta.valorAlvo, meta.unidade)}`}
         </Text>
         <Text size="xs" color="secondary" weight="medium">
           {progresso.toFixed(1).replace('.', ',')}%

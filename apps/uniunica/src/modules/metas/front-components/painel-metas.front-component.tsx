@@ -174,7 +174,13 @@ const PainelMetas = () => {
                     minWidth: 0,
                   }}
                 >
-                  <LinhaMeta meta={meta} hoje={hoje} destaque onAbrir={() => abrirMeta(meta.id)} />
+                  <LinhaMeta
+                    meta={meta}
+                    hoje={hoje}
+                    destaque
+                    quantidadeSubmetas={submetas.length}
+                    onAbrir={() => abrirMeta(meta.id)}
+                  />
                   {submetas.length > 0 && (
                     <div
                       style={{

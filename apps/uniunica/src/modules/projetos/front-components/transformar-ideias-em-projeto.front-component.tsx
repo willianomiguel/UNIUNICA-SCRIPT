@@ -6,10 +6,8 @@ import {
   useSelectedRecordIds,
 } from 'twenty-sdk/front-component';
 
-import {
-  TRANSFORMAR_IDEIAS_FRONT_COMPONENT_ID,
-  TRANSFORMAR_IDEIAS_ROUTE_PATH,
-} from 'src/modules/projetos/constants/projetos-universal-identifiers';
+import { transformarIdeiasEmProjeto } from 'src/modules/projetos/actions/transformar-ideias-em-projeto';
+import { TRANSFORMAR_IDEIAS_FRONT_COMPONENT_ID } from 'src/modules/projetos/constants/projetos-universal-identifiers';
 import { runBulkIdeiaAction } from 'src/modules/projetos/front-components/utils/run-bulk-ideia-action.util';
 
 const TransformarIdeiasEmProjeto = () => {
@@ -19,8 +17,7 @@ const TransformarIdeiasEmProjeto = () => {
     <Command
       execute={async () => {
         const result = await runBulkIdeiaAction({
-          routePath: TRANSFORMAR_IDEIAS_ROUTE_PATH,
-          recordIds,
+          action: (client) => transformarIdeiasEmProjeto(client, recordIds, Date.now()),
           successLabel: (count) => (count === 1 ? 'Projeto criado' : `${count} projetos criados`),
         });
 

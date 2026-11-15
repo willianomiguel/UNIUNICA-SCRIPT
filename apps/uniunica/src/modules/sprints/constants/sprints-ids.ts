@@ -44,13 +44,13 @@ export const SPRINTS_IDS = {
   views: {
     allSprints: '64256415-a0ef-4548-96b3-028c002ff550',
     sprintRecordPageFields: 'f4b34abf-2d9e-4c5a-a8ee-fc2a52fc739d',
-    sprintTasksTable: '17cc448c-dba6-4a94-b4ef-87e76d99e84f',
     tarefasSprintKanban: '6a9bb6f4-197b-488d-be94-4fa18584c92c',
     backlog: '8c1d150b-924a-41ef-a7f7-738592711a83',
   },
   pageLayouts: {
     sprintRecord: 'c44bd45e-24d4-468e-b153-65d286d4b6ed',
     sprintRecordTabResumo: 'bd313b16-5012-42aa-9ac2-1cef098c08f2',
+    sprintRecordTabBurndown: '352923f5-f011-4306-834a-297eff527a83',
     sprintRecordTabTimeline: '406fcf92-d1ac-4fb9-b55d-0a74d26c4849',
     sprintRecordWidgetBurndown: 'e94dfd25-1612-4497-b4a3-5396f2f24a5d',
     sprintRecordWidgetFields: 'e572e810-0c43-4006-99e2-c5bcacce5cdd',

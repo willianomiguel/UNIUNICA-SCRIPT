@@ -126,7 +126,7 @@ export default defineObject({
     {
       universalIdentifier: CAMPANHA_LINK_FIELD_ID,
       type: FieldType.LINKS,
-      name: 'link',
+      name: 'linkDestino',
       label: 'Link',
       description: 'Página de destino ou link do gerenciador de anúncios',
       icon: 'IconLink',

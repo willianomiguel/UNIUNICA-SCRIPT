@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { type VendaExistente } from 'src/modules/vendas/types/venda-existente';
@@ -43,6 +42,10 @@ export const gravarVenda = async ({
       createVenda: { __args: { data: gravacao.dados }, id: true, status: true },
     });
 
+    if (!createVenda) {
+      throw new Error('O Twenty não retornou a venda criada');
+    }
+
     return {
       id: createVenda.id,
       status: (createVenda.status ?? venda.status) as VendaStatus,
@@ -57,6 +60,10 @@ export const gravarVenda = async ({
       status: true,
     },
   });
+
+  if (!updateVenda) {
+    throw new Error('O Twenty não retornou a venda atualizada');
+  }
 
   return {
     id: updateVenda.id,

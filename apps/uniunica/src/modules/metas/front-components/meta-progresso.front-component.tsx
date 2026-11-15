@@ -120,7 +120,7 @@ const MetaProgresso = () => {
         color: theme.font.color.primary,
       }}
     >
-      <LinhaMeta meta={meta} hoje={hoje} destaque />
+      <LinhaMeta meta={meta} hoje={hoje} destaque quantidadeSubmetas={submetas.length} />
       <div
         style={{
           display: 'grid',
@@ -128,7 +128,8 @@ const MetaProgresso = () => {
           gap: theme.spacing[2],
         }}
       >
-        {info('Falta', falta === null ? '—' : formatarValorMeta(Math.max(falta, 0), meta.unidade))}
+        {submetas.length === 0 &&
+          info('Falta', falta === null ? '—' : formatarValorMeta(Math.max(falta, 0), meta.unidade))}
         {info(
           'Prazo',
           diasRestantes === null

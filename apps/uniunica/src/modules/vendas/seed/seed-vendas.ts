@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { montarVendasExemplo } from 'src/modules/vendas/utils/montar-vendas-exemplo.util';

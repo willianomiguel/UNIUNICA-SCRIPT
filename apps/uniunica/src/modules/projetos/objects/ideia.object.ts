@@ -89,11 +89,10 @@ export default defineObject({
       name: 'pontuacao',
       label: 'Pontuação',
       description:
-        'Calculada automaticamente: impacto × (1 + votos) ÷ esforço, com 1 casa decimal',
+        'Calculada automaticamente: impacto × (1 + votos) ÷ esforço, com 1 casa decimal. Não edite à mão',
       icon: 'IconStar',
       defaultValue: 0,
       universalSettings: { decimals: 1 },
-      disabledFieldPermissionActions: ['canUpdateFieldValue'],
     },
   ],
 });

@@ -16,9 +16,9 @@ export default definePageLayout({
   tabs: [
     {
       universalIdentifier: P.sprintRecordTabResumo,
-      title: 'Resumo',
+      title: 'Dados',
       position: 10,
-      icon: 'IconChartLine',
+      icon: 'IconHome',
       layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
       widgets: [
         {
@@ -30,6 +30,15 @@ export default definePageLayout({
             viewUniversalIdentifier: SPRINTS_IDS.views.sprintRecordPageFields,
           },
         },
+      ],
+    },
+    {
+      universalIdentifier: P.sprintRecordTabBurndown,
+      title: 'Burndown e tarefas',
+      position: 15,
+      icon: 'IconChartLine',
+      layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+      widgets: [
         {
           universalIdentifier: P.sprintRecordWidgetBurndown,
           title: 'Burndown',
@@ -48,8 +57,7 @@ export default definePageLayout({
           configuration: {
             configurationType: 'FIELD',
             fieldMetadataId: SPRINTS_IDS.sprintFields.tarefas,
-            fieldDisplayMode: 'TABLE',
-            viewId: SPRINTS_IDS.views.sprintTasksTable,
+            fieldDisplayMode: 'CARD',
           },
         },
       ],

@@ -34,5 +34,4 @@ exemplo nos últimos 3 meses (por chave `seed:financeiro:<n>`).
 Nenhuma variável de ambiente. Nenhuma dependência npm extra.
 
 ## Testes
-`utils/__tests__/*.spec.ts` (vitest). Observação: `vitest.unit.config.ts` hoje só inclui `*.test.ts`; para
-rodar os specs do contrato é preciso incluir `src/**/*.spec.ts` nessa configuração.
+`utils/__tests__/*.test.ts` (vitest) — rode com `yarn test:unit`.

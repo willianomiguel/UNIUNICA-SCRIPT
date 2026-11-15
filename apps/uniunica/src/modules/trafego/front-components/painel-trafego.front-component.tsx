@@ -83,6 +83,11 @@ const PainelTrafego = () => {
     const linhas = montarLinhasPainel({ campanhas, metricas, vendas });
     const receita = linhas.reduce((soma, linha) => soma + linha.receita, 0);
     const quantidadeVendas = linhas.reduce((soma, linha) => soma + linha.vendas, 0);
+    // Mesmo critério do CPA por campanha: vendas aprovadas, ou conversões quando a campanha não tem vendas.
+    const aquisicoes = linhas.reduce(
+      (soma, linha) => soma + (linha.vendas > 0 ? linha.vendas : linha.totais.conversoes),
+      0,
+    );
     const plataformaPorCampanha = Object.fromEntries(
       campanhas.map((campanha) => [campanha.id, campanha.plataforma]),
     );
@@ -94,7 +99,7 @@ const PainelTrafego = () => {
       totais,
       receita,
       quantidadeVendas,
-      indicadores: calcularIndicadores({ totais, receita, vendas: quantidadeVendas }),
+      indicadores: calcularIndicadores({ totais, receita, vendas: quantidadeVendas, aquisicoes }),
       linhas,
       porDia: agregarPorDia(metricas),
       porPlataforma,
@@ -314,7 +319,7 @@ const PainelTrafego = () => {
         />
       ) : null}
 
-      {resumo ? (
+      {resumo && resumo.linhas.length > 0 ? (
         <>
           <section style={estilos.kpis} aria-label="Indicadores do período">
             <Kpi rotulo="Gasto" valor={formatarMoedaBrl(resumo.totais.gasto)} />
@@ -334,7 +339,7 @@ const PainelTrafego = () => {
               detalhe={`${formatarNumero(resumo.totais.conversoes)} conversões nas plataformas`}
             />
             <Kpi rotulo="Receita" valor={formatarMoedaBrl(resumo.receita)} />
-            <Kpi rotulo="CPA" valor={formatarMoedaBrl(resumo.indicadores.cpa)} detalhe="gasto ÷ vendas" />
+            <Kpi rotulo="CPA" valor={formatarMoedaBrl(resumo.indicadores.cpa)} detalhe="gasto ÷ vendas (ou conversões)" />
             <Kpi rotulo="ROAS" valor={formatarRoas(resumo.indicadores.roas)} detalhe="receita ÷ gasto" />
             <Kpi
               rotulo="Impressões"

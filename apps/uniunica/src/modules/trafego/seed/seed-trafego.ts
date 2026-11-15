@@ -29,7 +29,7 @@ const seedTrafego = async (): Promise<void> => {
       dataFim: somarDias(hoje, 16),
       utmCampaign: exemplo.utmCampaign,
       idExterno: exemplo.idExterno,
-      link: { primaryLinkUrl: exemplo.link, primaryLinkLabel: '' },
+      linkDestino: { primaryLinkUrl: exemplo.link, primaryLinkLabel: '' },
     });
 
     await upsertMetricas(

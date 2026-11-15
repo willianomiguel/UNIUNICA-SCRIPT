@@ -30,7 +30,7 @@ export const semearMetas = async (cliente: ClienteRest, hoje: string): Promise<n
   };
 
   const objetivoId = await garantir({
-    titulo: `Crescer as vendas no ${periodo.replace('-T', ' – ')}º trimestre`,
+    titulo: `Crescer as vendas no ${periodo.slice(-1)}º trimestre de ${periodo.slice(0, 4)}`,
     descricao: 'Objetivo do trimestre. O progresso é a média dos resultados-chave.',
     fonte: 'MANUAL',
     unidade: 'PERCENTUAL',

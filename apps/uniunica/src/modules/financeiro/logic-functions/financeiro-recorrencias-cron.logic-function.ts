@@ -10,8 +10,9 @@ const handler = async () => {
   const cliente = new RestApiClient({ runAs: 'application' });
   const hoje = hojeIso();
 
-  const atrasados = await marcarLancamentosAtrasados(cliente, hoje);
+  // Recorrências primeiro: ocorrências já vencidas criadas agora também são marcadas.
   const recorrencias = await gerarOcorrenciasRecorrentes(cliente, hoje);
+  const atrasados = await marcarLancamentosAtrasados(cliente, hoje);
 
   const resultado = {
     hoje,

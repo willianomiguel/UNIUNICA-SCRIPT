@@ -8,16 +8,20 @@ import { calcularCtr } from 'src/modules/trafego/utils/calcular-ctr.util';
 import { calcularRoas } from 'src/modules/trafego/utils/calcular-roas.util';
 
 // Vendas reais (aprovadas) têm prioridade sobre as conversões informadas pela plataforma no CPA.
+// `aquisicoes` permite informar o denominador do CPA já somado (ex.: total de várias campanhas).
 export const calcularIndicadores = ({
   totais,
   receita,
   vendas,
+  aquisicoes: aquisicoesInformadas,
 }: {
   totais: TotaisMetricas;
   receita: number;
   vendas: number;
+  aquisicoes?: number;
 }): IndicadoresTrafego => {
-  const aquisicoes = vendas > 0 ? vendas : totais.conversoes;
+  const aquisicoes =
+    aquisicoesInformadas ?? (vendas > 0 ? vendas : totais.conversoes);
 
   return {
     ctr: calcularCtr(totais.cliques, totais.impressoes),

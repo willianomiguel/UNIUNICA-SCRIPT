@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { type GatewayPagamento } from 'src/modules/vendas/types/gateway-pagamento';
@@ -50,6 +49,10 @@ export const processarEventoPagamento = async ({
       id: true,
     },
   });
+  if (!createEventoPagamento) {
+    throw new Error('O Twenty não retornou o evento de pagamento criado');
+  }
+
   const eventoId = createEventoPagamento.id;
 
   if (resultado.tipo === 'IGNORADO') {

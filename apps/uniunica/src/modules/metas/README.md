@@ -36,5 +36,8 @@ Se o objeto da fonte não existir, o valor atual não é alterado.
 `seed/seed-metas.ts`: OKR do trimestre atual (objetivo + "Faturamento do trimestre" automático + uma meta
 manual), sem duplicar (título + período), seguido de um recálculo.
 
+## Testes
+`utils/__tests__/*.test.ts` (vitest) — rode com `yarn test:unit`.
+
 ## Variáveis e dependências
 Nenhuma. Usa utilitários de `src/modules/financeiro/utils` (mesmo autor).

@@ -18,6 +18,10 @@ describe('calcularIndicadores', () => {
     expect(calcularIndicadores({ totais, receita: 0, vendas: 0 }).cpa).toBe(80);
   });
 
+  it('aceita aquisições já somadas', () => {
+    expect(calcularIndicadores({ totais, receita: 0, vendas: 1, aquisicoes: 10 }).cpa).toBe(40);
+  });
+
   it('tudo null quando não há dados', () => {
     const vazio = { impressoes: 0, cliques: 0, visitas: 0, leads: 0, conversoes: 0, gasto: 0 };
 
