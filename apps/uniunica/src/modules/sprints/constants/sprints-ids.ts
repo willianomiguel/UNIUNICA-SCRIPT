@@ -80,6 +80,7 @@ export const SPRINTS_IDS = {
     tarefaAtualizada: 'cdc418ea-5ff4-4dfd-8e5c-736ac9f472f6',
     tarefaCriada: 'b2a049a4-5582-4535-b129-7297adce38b7',
     tarefaRemovida: '26f26111-6622-4d0d-982d-bd22c7e1ad4c',
+    tarefaDestruida: 'dd61ccc7-4f7e-45a5-972a-e09a85135d28',
     tarefaRestaurada: 'fbc23cd9-2239-47fd-8618-ace7886e5934',
     githubWebhookResolver: '9c659053-d5b1-4e9c-9da5-678649e26679',
     githubWebhookProcessar: '98e11466-2c0c-4f4f-85b8-09c02552a50a',

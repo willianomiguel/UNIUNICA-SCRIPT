@@ -20,9 +20,8 @@ type EventoTarefa = {
 // - qualquer mudança em status/pontos/sprint: recalcula os pontos da sprint.
 export const processarEventoTarefa = async (
   evento: EventoTarefa,
-  acao: 'created' | 'updated' | 'deleted' | 'restored',
+  acao: 'created' | 'updated' | 'deleted' | 'destroyed' | 'restored',
 ) => {
-  console.log('[sprints] evento recebido', acao, JSON.stringify(Object.keys(evento ?? {})));
   const cliente = new RestApiClient();
   const antes = evento.properties?.before ?? {};
   const depois = evento.properties?.after ?? {};

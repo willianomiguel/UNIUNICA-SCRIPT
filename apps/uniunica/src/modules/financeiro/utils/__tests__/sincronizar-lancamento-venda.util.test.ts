@@ -14,13 +14,20 @@ const venda = (status: string): VendaResumo => ({
 });
 
 describe('sincronizarLancamentoVenda', () => {
-  it('cria a entrada uma única vez', async () => {
-    const { cliente, banco } = criarClienteRestFalso();
+  it('cria a entrada uma única vez, na categoria de receita de vendas', async () => {
+    const { cliente, banco } = criarClienteRestFalso({
+      categoriasFinanceiras: [{ id: 'rec', nome: 'Receita de vendas' }],
+    });
 
     expect(await sincronizarLancamentoVenda(cliente, venda('APROVADA'), '2026-11-15')).toBe('CRIADO');
     expect(await sincronizarLancamentoVenda(cliente, venda('APROVADA'), '2026-11-15')).toBe('JA_EXISTE');
     expect(banco.lancamentos).toHaveLength(1);
-    expect(banco.lancamentos[0]).toMatchObject({ tipo: 'ENTRADA', vendaId: 'v1', origem: 'VENDA' });
+    expect(banco.lancamentos[0]).toMatchObject({
+      tipo: 'ENTRADA',
+      vendaId: 'v1',
+      origem: 'VENDA',
+      categoriaId: 'rec',
+    });
   });
 
   it('cria o estorno só depois da entrada e uma única vez', async () => {
@@ -33,6 +40,7 @@ describe('sincronizarLancamentoVenda', () => {
     expect(await sincronizarLancamentoVenda(cliente, venda('REEMBOLSADA'), '2026-11-16')).toBe('CRIADO');
     expect(await sincronizarLancamentoVenda(cliente, venda('CHARGEBACK'), '2026-11-17')).toBe('JA_EXISTE');
     expect(banco.lancamentos.map((registro) => registro.tipo)).toEqual(['ENTRADA', 'SAIDA']);
+    expect(banco.lancamentos.map((registro) => registro.categoriaId)).toEqual([null, null]);
   });
 
   it('ignora status sem lançamento', async () => {

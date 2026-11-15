@@ -21,7 +21,7 @@ data de fim, progresso (0–100) e trimestre (texto, ex.: `2026-T4`). Relações
 
 **Ideia** (`ideia`): título, descrição (texto rico), autor (membro do workspace), área, status
 (Nova, Em análise, Aprovada, Descartada, Virou projeto), impacto (1–5), esforço (1–5), votos,
-pontuação (calculada, só leitura para usuários) e projeto (o projeto criado a partir dela).
+pontuação (calculada automaticamente; não edite à mão) e projeto (o projeto criado a partir dela).
 
 ### Pontuação da ideia
 
@@ -52,8 +52,11 @@ Aparecem no menu de comandos (e fixadas na barra) ao selecionar uma ou mais idei
   muda o status para "Virou projeto". Ideias já ligadas a um projeto são ignoradas. Com uma única
   ideia, abre o projeto criado.
 
-Ambas chamam uma vez a rota em lote do módulo (corpo `{ "records": [{ "id": "..." }] }`) e
-devolvem um resumo `{ ok, total, successCount, skippedCount, failedCount, results[] }`:
+A lógica de cada ação fica em `actions/` (`votar-ideias.ts`, `transformar-ideias-em-projeto.ts`,
+testadas com um cliente REST falso). O comando roda essa lógica uma vez para todas as ideias
+selecionadas, com as permissões de quem clicou, e mostra um resumo no snackbar. A mesma lógica
+também está exposta como rotas em lote (corpo `{ "records": [{ "id": "..." }] }`, resposta
+`{ ok, total, successCount, skippedCount, failedCount, results[] }`) para API/automações:
 
 | Rota (POST, autenticada) | Função |
 |---|---|
