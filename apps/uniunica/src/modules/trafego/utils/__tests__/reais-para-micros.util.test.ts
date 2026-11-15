@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { reaisParaMicros } from 'src/modules/trafego/utils/reais-para-micros.util';
 
 describe('reaisParaMicros', () => {

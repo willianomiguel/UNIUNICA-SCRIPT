@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { mapearNoMetrica } from 'src/modules/trafego/utils/mapear-no-metrica.util';
 
 describe('mapearNoMetrica', () => {

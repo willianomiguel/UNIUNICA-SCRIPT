@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { somarDias } from 'src/modules/trafego/utils/somar-dias.util';
 
 describe('somarDias', () => {

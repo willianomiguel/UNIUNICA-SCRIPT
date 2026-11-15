@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { encontrarCampanhaPorUtm } from 'src/modules/trafego/utils/encontrar-campanha-por-utm.util';
 
 const campanhas = [

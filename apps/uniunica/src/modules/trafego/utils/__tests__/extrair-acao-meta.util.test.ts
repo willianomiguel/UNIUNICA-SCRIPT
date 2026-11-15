@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { extrairAcaoMeta } from 'src/modules/trafego/utils/extrair-acao-meta.util';
 
 describe('extrairAcaoMeta', () => {

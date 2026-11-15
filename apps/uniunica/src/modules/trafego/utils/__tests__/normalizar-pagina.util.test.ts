@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { normalizarPagina } from 'src/modules/trafego/utils/normalizar-pagina.util';
 
 describe('normalizarPagina', () => {

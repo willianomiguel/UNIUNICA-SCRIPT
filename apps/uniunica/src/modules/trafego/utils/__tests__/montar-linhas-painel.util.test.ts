@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { type LinhaMetrica } from 'src/modules/trafego/types/linha-metrica';
 import { montarLinhasPainel } from 'src/modules/trafego/utils/montar-linhas-painel.util';
 

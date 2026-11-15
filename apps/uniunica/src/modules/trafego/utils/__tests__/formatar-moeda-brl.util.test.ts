@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { formatarMoedaBrl } from 'src/modules/trafego/utils/formatar-moeda-brl.util';
 
 describe('formatarMoedaBrl', () => {

@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { dividirSeguro } from 'src/modules/trafego/utils/dividir-seguro.util';
 
 describe('dividirSeguro', () => {

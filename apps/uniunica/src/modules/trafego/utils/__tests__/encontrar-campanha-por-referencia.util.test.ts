@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { encontrarCampanhaPorReferencia } from 'src/modules/trafego/utils/encontrar-campanha-por-referencia.util';
 
 const campanhas = [

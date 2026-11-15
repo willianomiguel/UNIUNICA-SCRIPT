@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { mapearMetricaParaRegistro } from 'src/modules/trafego/utils/mapear-metrica-para-registro.util';
 
 const metrica = {

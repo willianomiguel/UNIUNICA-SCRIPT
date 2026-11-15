@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { formatarNumero } from 'src/modules/trafego/utils/formatar-numero.util';
 
 describe('formatarNumero', () => {

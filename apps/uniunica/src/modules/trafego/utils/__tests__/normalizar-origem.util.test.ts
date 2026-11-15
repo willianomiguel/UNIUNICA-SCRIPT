@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { normalizarOrigem } from 'src/modules/trafego/utils/normalizar-origem.util';
 
 describe('normalizarOrigem', () => {

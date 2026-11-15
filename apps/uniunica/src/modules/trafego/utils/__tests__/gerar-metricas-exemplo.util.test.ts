@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { gerarMetricasExemplo } from 'src/modules/trafego/utils/gerar-metricas-exemplo.util';
 
 const base = { impressoes: 1000, cliques: 100, visitas: 80, leads: 10, conversoes: 2, gasto: 50 };

@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { dataNoFuso } from 'src/modules/trafego/utils/data-no-fuso.util';
 
 describe('dataNoFuso', () => {

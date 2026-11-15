@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { formatarRoas } from 'src/modules/trafego/utils/formatar-roas.util';
 
 describe('formatarRoas', () => {

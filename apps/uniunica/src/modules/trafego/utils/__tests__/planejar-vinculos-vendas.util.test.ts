@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { planejarVinculosVendas } from 'src/modules/trafego/utils/planejar-vinculos-vendas.util';
 
 const campanhas = [

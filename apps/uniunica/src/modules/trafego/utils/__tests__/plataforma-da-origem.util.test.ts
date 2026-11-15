@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { plataformaDaOrigem } from 'src/modules/trafego/utils/plataforma-da-origem.util';
 
 describe('plataformaDaOrigem', () => {

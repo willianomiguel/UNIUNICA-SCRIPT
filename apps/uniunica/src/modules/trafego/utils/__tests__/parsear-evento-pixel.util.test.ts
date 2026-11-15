@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { parsearEventoPixel } from 'src/modules/trafego/utils/parsear-evento-pixel.util';
 
 describe('parsearEventoPixel', () => {

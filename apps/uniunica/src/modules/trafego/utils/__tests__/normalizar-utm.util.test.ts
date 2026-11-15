@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { normalizarUtm } from 'src/modules/trafego/utils/normalizar-utm.util';
 
 describe('normalizarUtm', () => {

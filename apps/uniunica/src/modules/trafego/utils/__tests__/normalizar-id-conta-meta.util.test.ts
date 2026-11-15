@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { normalizarIdContaMeta } from 'src/modules/trafego/utils/normalizar-id-conta-meta.util';
 
 describe('normalizarIdContaMeta', () => {

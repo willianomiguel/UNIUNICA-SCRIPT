@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { montarNomeMetrica } from 'src/modules/trafego/utils/montar-nome-metrica.util';
 
 describe('montarNomeMetrica', () => {

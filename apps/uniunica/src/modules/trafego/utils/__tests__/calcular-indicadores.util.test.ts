@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularIndicadores } from 'src/modules/trafego/utils/calcular-indicadores.util';
 
 const totais = { impressoes: 10000, cliques: 200, visitas: 150, leads: 20, conversoes: 5, gasto: 400 };

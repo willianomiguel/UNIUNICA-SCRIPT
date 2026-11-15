@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { somarReceitaPorCampanha } from 'src/modules/trafego/utils/somar-receita-por-campanha.util';
 
 describe('somarReceitaPorCampanha', () => {

@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { somarMetricas } from 'src/modules/trafego/utils/somar-metricas.util';
 
 describe('somarMetricas', () => {

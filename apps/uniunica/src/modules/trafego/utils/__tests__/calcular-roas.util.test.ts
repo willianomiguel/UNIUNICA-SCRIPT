@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularRoas } from 'src/modules/trafego/utils/calcular-roas.util';
 
 describe('calcularRoas', () => {

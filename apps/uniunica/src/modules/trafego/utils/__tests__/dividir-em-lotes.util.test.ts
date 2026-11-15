@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { dividirEmLotes } from 'src/modules/trafego/utils/dividir-em-lotes.util';
 
 describe('dividirEmLotes', () => {

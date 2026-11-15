@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { tokenIngestaoValido } from 'src/modules/trafego/utils/token-ingestao-valido.util';
 
 describe('tokenIngestaoValido', () => {

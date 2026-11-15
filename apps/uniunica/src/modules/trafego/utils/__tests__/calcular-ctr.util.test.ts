@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { calcularCtr } from 'src/modules/trafego/utils/calcular-ctr.util';
 
 describe('calcularCtr', () => {

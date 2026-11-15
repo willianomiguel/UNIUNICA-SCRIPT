@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { totaisVazios } from 'src/modules/trafego/utils/totais-vazios.util';
 
 describe('totaisVazios', () => {

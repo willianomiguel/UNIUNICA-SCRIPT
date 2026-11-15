@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { parsearPayloadGenerico } from 'src/modules/trafego/utils/parsear-payload-generico.util';
 
 describe('parsearPayloadGenerico', () => {

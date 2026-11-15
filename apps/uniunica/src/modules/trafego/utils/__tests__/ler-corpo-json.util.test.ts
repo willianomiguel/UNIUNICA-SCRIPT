@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { lerCorpoJson } from 'src/modules/trafego/utils/ler-corpo-json.util';
 
 describe('lerCorpoJson', () => {

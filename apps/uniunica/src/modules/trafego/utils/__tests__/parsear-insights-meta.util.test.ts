@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { parsearInsightsMeta } from 'src/modules/trafego/utils/parsear-insights-meta.util';
 
 describe('parsearInsightsMeta', () => {

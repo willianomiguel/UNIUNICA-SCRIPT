@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { extrairIdsVendasEvento } from 'src/modules/trafego/utils/extrair-ids-vendas-evento.util';
 
 describe('extrairIdsVendasEvento', () => {

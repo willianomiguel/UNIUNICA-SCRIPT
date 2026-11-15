@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { paraNumero } from 'src/modules/trafego/utils/para-numero.util';
 
 describe('paraNumero', () => {

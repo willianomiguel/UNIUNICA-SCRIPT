@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { mapearNoVenda } from 'src/modules/trafego/utils/mapear-no-venda.util';
 
 describe('mapearNoVenda', () => {

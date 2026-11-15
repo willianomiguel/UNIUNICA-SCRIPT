@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { montarUrlInsightsMeta } from 'src/modules/trafego/utils/montar-url-insights-meta.util';
 
 describe('montarUrlInsightsMeta', () => {
