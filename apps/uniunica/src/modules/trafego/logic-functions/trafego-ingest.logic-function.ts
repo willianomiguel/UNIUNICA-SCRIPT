@@ -9,6 +9,13 @@ import { tokenIngestaoValido } from 'src/modules/trafego/utils/token-ingestao-va
 
 // POST <getServerRouteUrl(INGEST_LOGIC_FUNCTION_ID)> — recebe métricas diárias (formato no README).
 export const trafegoIngestHandler = async (payload: RoutePayload<unknown>) => {
+  if ((process.env.TRAFEGO_INGEST_TOKEN ?? '').trim() === '') {
+    return new Response(
+      { ok: false, erro: 'Endpoint desativado: configure TRAFEGO_INGEST_TOKEN nas variáveis do app.' },
+      { status: 503 },
+    );
+  }
+
   if (!tokenIngestaoValido(payload, process.env.TRAFEGO_INGEST_TOKEN)) {
     return new Response(
       { ok: false, erro: 'Token inválido. Envie o cabeçalho x-trafego-token.' },

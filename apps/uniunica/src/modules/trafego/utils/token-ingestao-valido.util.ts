@@ -1,6 +1,6 @@
 import { type RequisicaoRota } from 'src/modules/trafego/types/requisicao-rota';
 
-// Sem token configurado o endpoint é aberto; com token, exige cabeçalho x-trafego-token ou ?token=.
+// Fechado por padrão: sem token configurado recusa tudo; com token, exige cabeçalho x-trafego-token ou ?token=.
 export const tokenIngestaoValido = (
   requisicao: RequisicaoRota,
   tokenEsperado: string | undefined,
@@ -8,7 +8,7 @@ export const tokenIngestaoValido = (
   const esperado = (tokenEsperado ?? '').trim();
 
   if (esperado === '') {
-    return true;
+    return false;
   }
 
   const recebido =

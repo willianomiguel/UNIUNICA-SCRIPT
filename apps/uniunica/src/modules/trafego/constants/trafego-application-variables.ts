@@ -23,7 +23,7 @@ export default {
     universalIdentifier: TRAFEGO_INGEST_TOKEN_VARIABLE_ID,
     label: 'Tráfego — token do endpoint de ingestão',
     description:
-      'Se preenchido, o endpoint de ingestão de métricas exige este token (cabeçalho x-trafego-token ou ?token=). Deixe vazio para aceitar sem token.',
+      'Obrigatório para usar o endpoint de ingestão de métricas: envie no cabeçalho x-trafego-token (ou ?token=). Vazio = endpoint desativado.',
     isSecret: true,
   },
 };

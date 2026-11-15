@@ -87,8 +87,8 @@ automaticamente.
 - Também aceita um array solto de linhas. Máx. 2000 linhas por envio.
 - Resposta: `{ ok, recebidas, criadas, atualizadas, campanhasCriadas, erros }` (400 se nenhuma linha válida).
 
-Proteção opcional: se a variável `TRAFEGO_INGEST_TOKEN` estiver preenchida, envie o cabeçalho
-`x-trafego-token: <token>` (ou `?token=<token>`); sem ela o endpoint aceita qualquer envio.
+Proteção obrigatória: preencha a variável `TRAFEGO_INGEST_TOKEN` e envie o cabeçalho
+`x-trafego-token: <token>` (ou `?token=<token>`). Sem a variável o endpoint fica desativado (503).
 
 ```bash
 curl -X POST "$URL_INGEST" \
@@ -105,7 +105,7 @@ todo dia:
 
 ```js
 var URL_INGEST = 'COLE_AQUI_A_URL_DO_ENDPOINT';
-var TOKEN = 'SEU_TOKEN'; // o mesmo de TRAFEGO_INGEST_TOKEN (ou '')
+var TOKEN = 'SEU_TOKEN'; // o mesmo de TRAFEGO_INGEST_TOKEN
 
 function main() {
   var query =
@@ -198,7 +198,7 @@ Fragmento em `constants/trafego-application-variables.ts` (o integrador junta em
 |---|---|---|
 | `META_ADS_ACCESS_TOKEN` | sim | Token (usuário do sistema do Business Manager) com `ads_read`. |
 | `META_ADS_ACCOUNT_ID` | não | ID da conta de anúncios, com ou sem `act_`. |
-| `TRAFEGO_INGEST_TOKEN` | sim | Opcional. Exige `x-trafego-token` no endpoint de ingestão. |
+| `TRAFEGO_INGEST_TOKEN` | sim | Obrigatório para o endpoint de ingestão (`x-trafego-token`). Vazio = desativado. |
 
 ## Dependências npm
 
