@@ -26,6 +26,47 @@ const trocarTudo = (arquivo) =>
       .replace(/\bTwenty\b/g, MARCA),
   );
 
+// Pequenos ajustes de interface: tira os cards de vídeo (iframe do Vimeo) das telas de configuração,
+// esconde a Comunidade e corrige textos que vêm de dados ou de exemplos (ex.: "por Twenty",
+// "npx twenty@latest"). Roda como observador para pegar telas montadas depois.
+const scriptUi = `
+<script id="marca-ui">
+(function(){
+  var MARCA='${MARCA}';
+  function textos(raiz){
+    var w=document.createTreeWalker(raiz,4,null),n;
+    while((n=w.nextNode())){
+      var v=n.nodeValue;
+      if(!v||(v.indexOf('Twenty')<0&&v.indexOf('twenty')<0))continue;
+      n.nodeValue=v.replace(/npx twenty@latest/g,'yarn integra').replace(/\\bTwenty\\b/g,MARCA);
+    }
+  }
+  function limpar(){
+    if(location.pathname.replace(/\\/$/,'')==='/settings/community'){location.replace('/settings/profile');return;}
+    document.querySelectorAll('button[aria-label^="Assistir"],img[src*="/assets/cover-"],img[src*="ai-tools-cover"]').forEach(function(el){
+      var card=el.closest('[class*="_card_"]');
+      if(card&&!card.dataset.marcaRemovido){card.dataset.marcaRemovido='1';card.remove();}
+    });
+    document.querySelectorAll('a[href$="/settings/community"]').forEach(function(a){
+      var item=a.closest('li')||a.parentElement;
+      if(item&&!item.dataset.marcaRemovido){
+        item.dataset.marcaRemovido='1';item.style.display='none';
+        var bloco=item.parentElement;
+        while(bloco&&!bloco.querySelector('.section-title-container'))bloco=bloco.parentElement;
+        if(bloco&&![].some.call(bloco.querySelectorAll('a'),function(x){return x.getClientRects().length;}))bloco.style.display='none';
+      }
+    });
+    textos(document.body);
+  }
+  var agendado=false;
+  function agenda(){
+    if(!agendado){agendado=true;setTimeout(function(){agendado=false;limpar();},80);}
+  }
+  new MutationObserver(agenda).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+  document.addEventListener('DOMContentLoaded',limpar);
+})();
+</script></head>`;
+
 // Página base: título da aba e prévias de link.
 trocar(path.join(front, 'index.html'), (s) =>
   s
@@ -33,6 +74,8 @@ trocar(path.join(front, 'index.html'), (s) =>
     .replace(/(property="og:title" content=")Twenty"/, `$1${MARCA}"`)
     .replace(/(name="twitter:title" content=")Twenty"/, `$1${MARCA}"`),
 );
+
+trocar(path.join(front, 'index.html'), (s) => s.replace('</head>', scriptUi));
 
 // Quadro (módulo quadros): o front component roda num worker e não consegue cancelar a tempo o menu do
 // navegador no botão direito; este ouvinte cancela só dentro da área marcada, onde o quadro abre o próprio menu.
