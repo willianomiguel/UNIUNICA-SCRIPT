@@ -27,12 +27,27 @@ const trocarTudo = (arquivo) =>
   );
 
 // Pequenos ajustes de interface: tira os cards de vídeo (iframe do Vimeo) das telas de configuração,
-// esconde a Comunidade e corrige textos que vêm de dados ou de exemplos (ex.: "por Twenty",
-// "npx twenty@latest"). Roda como observador para pegar telas montadas depois.
+// esconde telas que não usamos (e manda a rota para outra) e corrige textos que vêm de dados ou de
+// exemplos (ex.: "por Twenty", "npx twenty@latest"). Roda como observador para pegar telas montadas depois.
+const TELAS_ESCONDIDAS = {
+  '/settings/community': '/settings/profile',
+  '/settings/applications': '/settings/developers',
+};
+
 const scriptUi = `
 <script id="marca-ui">
 (function(){
   var MARCA='${MARCA}';
+  var ESCONDER=${JSON.stringify(TELAS_ESCONDIDAS)};
+
+  function redirecionar(){
+    var atual=location.pathname.replace(/\\/$/,'');
+    for(var chave in ESCONDER){
+      if(atual===chave||atual.indexOf(chave+'/')===0){location.replace(ESCONDER[chave]);return true;}
+    }
+    return false;
+  }
+
   function textos(raiz){
     var w=document.createTreeWalker(raiz,4,null),n;
     while((n=w.nextNode())){
@@ -42,19 +57,21 @@ const scriptUi = `
     }
   }
   function limpar(){
-    if(location.pathname.replace(/\\/$/,'')==='/settings/community'){location.replace('/settings/profile');return;}
+    if(redirecionar())return;
     document.querySelectorAll('button[aria-label^="Assistir"],img[src*="/assets/cover-"],img[src*="ai-tools-cover"]').forEach(function(el){
       var card=el.closest('[class*="_card_"]');
       if(card&&!card.dataset.marcaRemovido){card.dataset.marcaRemovido='1';card.remove();}
     });
-    document.querySelectorAll('a[href$="/settings/community"]').forEach(function(a){
-      var item=a.closest('li')||a.parentElement;
-      if(item&&!item.dataset.marcaRemovido){
-        item.dataset.marcaRemovido='1';item.style.display='none';
-        var bloco=item.parentElement;
-        while(bloco&&!bloco.querySelector('.section-title-container'))bloco=bloco.parentElement;
-        if(bloco&&![].some.call(bloco.querySelectorAll('a'),function(x){return x.getClientRects().length;}))bloco.style.display='none';
-      }
+    Object.keys(ESCONDER).forEach(function(rota){
+      document.querySelectorAll('a[href^="'+rota+'"]').forEach(function(a){
+        var item=a.closest('li')||a.parentElement;
+        if(item&&!item.dataset.marcaRemovido){
+          item.dataset.marcaRemovido='1';item.style.display='none';
+          var bloco=item.parentElement;
+          while(bloco&&!bloco.querySelector('.section-title-container'))bloco=bloco.parentElement;
+          if(bloco&&![].some.call(bloco.querySelectorAll('a'),function(x){return x.getClientRects().length;}))bloco.style.display='none';
+        }
+      });
     });
     textos(document.body);
   }
