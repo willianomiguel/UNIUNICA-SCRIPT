@@ -36,7 +36,7 @@ export const Titulo = ({
           style={{
             fontFamily: FONTE_TITULO,
             fontSize: pagina ? '30px' : '20px',
-            fontWeight: 600,
+            fontWeight: 500,
             lineHeight: 1.15,
             letterSpacing: '-0.01em',
             color: theme.font.color.primary,

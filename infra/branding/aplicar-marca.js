@@ -45,6 +45,7 @@ const scriptUi = `
     for(var chave in ESCONDER){
       if(atual===chave||atual.indexOf(chave+'/')===0){location.replace(ESCONDER[chave]);return true;}
     }
+    if(atual==='/settings/admin-panel'&&(location.hash===''||location.hash==='#apps')){location.replace('/settings/admin-panel#general');return true;}
     return false;
   }
 
@@ -72,6 +73,10 @@ const scriptUi = `
           if(bloco&&![].some.call(bloco.querySelectorAll('a'),function(x){return x.getClientRects().length;}))bloco.style.display='none';
         }
       });
+    });
+    // Aba "Aplicativos" do painel de administração.
+    document.querySelectorAll('a[href="/settings/admin-panel#apps"]').forEach(function(a){
+      a.style.display='none';
     });
     textos(document.body);
   }
@@ -126,7 +131,7 @@ trocar(path.join(front, 'index.html'), (s) =>
   s.replace(
     '</head>',
     '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap"></head>',
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"></head>',
   ),
 );
 

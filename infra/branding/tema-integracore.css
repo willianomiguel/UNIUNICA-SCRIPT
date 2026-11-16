@@ -31,6 +31,9 @@
 }
 
 .light, .dark {
+  /* fonte do texto: a do sistema, como no Notion (Segoe UI no Windows, SF no Mac) */
+  --t-font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", Helvetica, Arial, sans-serif;
+
   /* fundos, bordas e textos */
   --t-background-primary: var(--ic-g1);
   --t-background-secondary: var(--ic-g2);
