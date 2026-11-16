@@ -78,6 +78,11 @@ const scriptUi = `
     document.querySelectorAll('a[href="/settings/admin-panel#apps"]').forEach(function(a){
       a.style.display='none';
     });
+    // Aparência "Somente Enterprise" (tema de venda, sem efeito prático aqui).
+    document.querySelectorAll('label').forEach(function(l){
+      var campo=l.querySelector('input[value="Salesfarce"]');
+      if(campo)l.style.display='none';
+    });
     textos(document.body);
   }
   var agendado=false;
