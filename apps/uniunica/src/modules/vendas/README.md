@@ -13,7 +13,6 @@ reembolso e chargeback chega sozinha pelos webhooks dos gateways e aparece no **
 | Visões de Eventos | *Todos os eventos*, *Não processados* (eventos ignorados ou com erro). |
 | **Painel de Vendas** (menu, posição 30) | Aba *Resumo*: KPIs com período selecionável (hoje / 7 dias / 30 dias / este mês) e comparação com o período anterior, faturamento por dia, quebras por status/método/gateway e últimos problemas (clicáveis). Aba *Gráficos*: gráficos nativos do Twenty (totais, pizza por status, barras por gateway, método e campanha). |
 | Menu | Painel de Vendas (30), Vendas (31), Eventos de pagamento (32). |
-| Seed | `seed/seed-vendas.ts` cria 10 vendas `[Exemplo]` (gateways e status variados, IDs `exemplo-001`…`exemplo-010`). É idempotente; apague-as quando entrarem vendas reais. |
 
 ### Como as métricas são calculadas (`utils/calcular-metricas-vendas.util.ts`)
 
@@ -158,4 +157,3 @@ Nenhuma dependência npm nova.
   regras de status/gravação e métricas. Cada um tem teste em `utils/__tests__/`.
 - `vendas-client/` — gravação no Twenty (upsert da venda, log do evento), busca no Mercado Pago, leitura do painel.
 - `front-components/painel-vendas.front-component.tsx`, `page-layouts/painel-vendas.page-layout.ts` — Painel de Vendas.
-- `seed/seed-vendas.ts` — vendas de exemplo.

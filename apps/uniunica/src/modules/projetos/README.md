@@ -73,13 +73,11 @@ também está exposta como rotas em lote (corpo `{ "records": [{ "id": "..." }] 
 
 ## Dados iniciais
 
-`seed/seed-projetos.ts` (export default, idempotente por nome/título): 6 projetos entre o
-4º trimestre de 2026 e o 1º de 2027 e 5 ideias, com o primeiro membro do workspace como
-responsável/autor.
+Nenhum. O módulo começa sem projetos nem ideias.
 
 ## Testes
 
-`utils/__tests__/*.test.ts` e `seed/__tests__/*.test.ts` (vitest): `yarn test:unit`.
+`utils/__tests__/*.test.ts` (vitest): `yarn test:unit`.
 (Os testes usam o sufixo `.test.ts` porque é o que `vitest.unit.config.ts` inclui.)
 
 ## Variáveis de ambiente e dependências

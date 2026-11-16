@@ -20,13 +20,12 @@ Wiki interna da UniÚnica dentro do Twenty.
 
 ## Dados iniciais
 
-`seed/seed-docs.ts` (idempotente, procura pelo título): "Bem-vindo à UniÚnica" (fixado, explica cada módulo do menu),
-"Planejamento estratégico trimestral", "Ata de reunião (modelo)", "Processo de deploy", "Guia de marca".
+Nenhum. A Wiki começa vazia.
 
 ## Código
 
 - `utils/` — funções puras com testes em `utils/__tests__/*.test.ts` (árvore, agrupamento, busca, breadcrumb,
-  parser de markdown, parser da resposta REST, seleção de seeds).
+  parser de markdown, parser da resposta REST).
 - `front-components/wiki.front-component.tsx` — página; lê os documentos pela API REST (`/rest/documentos`).
 
 Sem variáveis de ambiente e sem dependências npm.

@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/projetos/constants/pasta-menu.constant';
+
 import { IDEIA_OBJECT_ID } from 'src/modules/projetos/constants/projetos-universal-identifiers';
 
 export default defineNavigationMenuItem({
@@ -11,6 +13,7 @@ export default defineNavigationMenuItem({
   icon: 'IconBulb',
   color: 'yellow',
   position: 12,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,
   targetObjectUniversalIdentifier: IDEIA_OBJECT_ID,
 });

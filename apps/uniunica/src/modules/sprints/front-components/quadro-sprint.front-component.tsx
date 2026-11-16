@@ -4,13 +4,13 @@ import { defineFrontComponent } from 'twenty-sdk/define';
 import { AppPath, enqueueSnackbar, navigate } from 'twenty-sdk/front-component';
 import { Callout } from 'twenty-ui/components/feedback';
 import { LightButton } from 'twenty-ui/components/input';
-import { Section } from 'twenty-ui/components/layout';
 import { IconArrowLeft, IconArrowRight, IconRefresh } from 'twenty-ui/icon';
 import { Tag } from 'twenty-ui/primitives/data-display';
 import { Loader } from 'twenty-ui/primitives/feedback';
 import { Text } from 'twenty-ui/primitives/typography';
 import { useTheme } from 'twenty-ui/theme';
 
+import { Titulo } from 'src/modules/shared/components/titulo';
 import { SPRINTS_IDS } from 'src/modules/sprints/constants/sprints-ids';
 import { TAREFA_PRIORIDADE_OPTIONS } from 'src/modules/sprints/constants/tarefa-prioridade-options';
 import { TAREFA_TIPO_OPTIONS } from 'src/modules/sprints/constants/tarefa-tipo-options';
@@ -244,7 +244,7 @@ const QuadroSprint = () => {
   if (dados.tipo === 'erro') {
     return (
       <main style={raiz}>
-        <Section.Header level={1} title="Quadro da sprint" actions={atualizar} />
+        <Titulo nivel="pagina" titulo="Quadro da sprint" acoes={atualizar} />
         <Callout status="error" title="Não foi possível carregar o quadro" description={dados.mensagem} />
       </main>
     );
@@ -255,7 +255,7 @@ const QuadroSprint = () => {
   if (!sprint) {
     return (
       <main style={raiz}>
-        <Section.Header level={1} title="Quadro da sprint" actions={atualizar} />
+        <Titulo nivel="pagina" titulo="Quadro da sprint" acoes={atualizar} />
         <Callout
           status="info"
           title="Nenhuma sprint ativa"
@@ -278,11 +278,11 @@ const QuadroSprint = () => {
 
   return (
     <main style={raiz}>
-      <Section.Header
-        level={1}
-        title={sprint.nome ?? 'Sprint ativa'}
-        description={`${formatarData(sprint.dataInicio)} → ${formatarData(sprint.dataFim)} · ${pontos.pontosConcluidos} de ${pontos.pontosTotais} pontos concluídos`}
-        actions={
+      <Titulo
+        nivel="pagina"
+        titulo={sprint.nome ?? 'Sprint ativa'}
+        descricao={`${formatarData(sprint.dataInicio)} → ${formatarData(sprint.dataFim)} · ${pontos.pontosConcluidos} de ${pontos.pontosTotais} pontos concluídos`}
+        acoes={
           <div style={{ display: 'flex', gap: theme.spacing[2] }}>
             <LightButton
               size="sm"

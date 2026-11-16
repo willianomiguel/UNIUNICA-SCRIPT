@@ -17,11 +17,11 @@ apps/uniunica/src/modules/<modulo>/
   utils/                   funções puras (<nome>.util.ts) + __tests__/<nome>.spec.ts
   types/                   um tipo por arquivo
   constants/               constantes do módulo
-  seed/                    seed-<modulo>.ts — dados iniciais (ver "Dados iniciais")
+  seed/                    seed-<modulo>.ts — só se o módulo precisar de dado estrutural (ver "Dados iniciais")
   README.md                o que o módulo faz, como usar, variáveis e endpoints
 ```
 
-Módulos: `vendas`, `financeiro`, `metas`, `trafego`, `projetos`, `sprints`, `docs`, `avisos`.
+Módulos: `vendas`, `financeiro`, `metas`, `trafego`, `projetos`, `sprints`, `docs`, `avisos`, `quadros`, `assistente`, `cofre`.
 
 ## Regras
 
@@ -39,9 +39,11 @@ Módulos: `vendas`, `financeiro`, `metas`, `trafego`, `projetos`, `sprints`, `do
    Precisa de dependência npm? Escreva no README do módulo.
 5. **Dados iniciais**: não crie post-install. Exporte (default) uma função idempotente em
    `src/modules/<modulo>/seed/seed-<modulo>.ts` com assinatura `async () => Promise<void>`;
-   o post-install único do app chama todas.
+   o post-install único do app chama todas (lista em `src/logic-functions/utils/seeds-dos-modulos.util.ts`).
+   **Só dado estrutural** que o app precisa para funcionar (ex.: categorias financeiras).
+   **Nunca dados de exemplo/fictícios** — o sistema começa vazio.
 6. **Menu lateral**: posições reservadas por módulo — projetos 10–19, sprints 20–29, vendas 30–39,
-   financeiro 40–44, metas 45–49, tráfego 50–59, docs 60–69, avisos 70–79.
+   financeiro 40–44, metas 45–49, tráfego 50–59, docs 60–69, avisos 70–79, quadros 80–89, cofre 90–99 (o módulo `assistente` não tem item de menu: só ferramentas e skill do chat de IA).
 7. **Sync**: use `scripts/apply.sh` (tem trava; só um sync por vez). Se falhar por erro em
    pasta de outro módulo, espere e tente de novo — não corrija arquivo dos outros.
 
@@ -60,3 +62,4 @@ Módulos: `vendas`, `financeiro`, `metas`, `trafego`, `projetos`, `sprints`, `do
 | sprint.projeto ↔ projeto.sprints | sprints |
 | documento.projeto ↔ projeto.documentos | docs |
 | documento.documentoPai ↔ documento.subdocumentos | docs |
+| quadro.projeto ↔ projeto.quadros | quadros |

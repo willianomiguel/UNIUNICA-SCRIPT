@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/trafego/constants/pasta-menu.constant';
+
 import { CAMPANHA_OBJECT_ID } from 'src/modules/trafego/constants/trafego-universal-identifiers';
 
 export default defineNavigationMenuItem({
@@ -11,6 +13,7 @@ export default defineNavigationMenuItem({
   icon: 'IconSpeakerphone',
   color: 'blue',
   position: 51,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,
   targetObjectUniversalIdentifier: CAMPANHA_OBJECT_ID,
 });

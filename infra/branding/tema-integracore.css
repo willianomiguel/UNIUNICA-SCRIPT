@@ -1,0 +1,105 @@
+/* Tema IntegraCore: neutros quentes + destaque terracota (visual "Notion + Claude Code").
+   Injetado no index.html pela build da imagem (aplicar-marca.js). Fica fora da camada
+   `@layer twenty-ui`, então vence as variáveis originais sem precisar de !important.
+   As escalas --ic-* são nossas; o bloco final liga cada variável do Twenty a elas.
+   Etiquetas coloridas (--t-tag-*) não são tocadas. */
+
+.light {
+  /* cinzas quentes, do fundo (1) ao texto (12) */
+  --ic-g1: #FFFEFB; --ic-g2: #F8F6F1; --ic-g3: #F4F1EB; --ic-g4: #F1EEE7;
+  --ic-g5: #EAE6DD; --ic-g6: #D9D4C9; --ic-g7: #C6C0B5; --ic-g8: #A8A298;
+  /* g9 (texto fraco) a 4,75:1 sobre g2: passa AA também na barra lateral */
+  --ic-g9: #736D63; --ic-g10: #6A655C; --ic-g11: #5F5A51; --ic-g12: #2B2925;
+  /* terracota; a9 com texto branco = 5,0:1 (AA) */
+  --ic-a1: #FFFCFA; --ic-a2: #FDF6F2; --ic-a3: #FAEBE3; --ic-a4: #F6DDD1;
+  --ic-a5: #F0CDBD; --ic-a6: #E8B9A5; --ic-a7: #DDA08A; --ic-a8: #D08467;
+  --ic-a9: #B05438; --ic-a10: #A84F33; --ic-a11: #9C4A30; --ic-a12: #4E2418;
+  --ic-a-rgb: 176, 84, 56;
+  --ic-inverted: #FFFFFF;
+}
+
+.dark {
+  --ic-g1: #1C1B19; --ic-g2: #201F1D; --ic-g3: #1E1D1B; --ic-g4: #252422;
+  --ic-g5: #2C2B28; --ic-g6: #45423D; --ic-g7: #4D4A44; --ic-g8: #6F6B63;
+  --ic-g9: #8C877D; --ic-g10: #9A958A; --ic-g11: #B8B3A8; --ic-g12: #ECEAE4;
+  /* a9 com texto branco = 5,0:1 (o botão do Twenty usa branco fixo também no escuro) */
+  --ic-a1: #1A1311; --ic-a2: #211814; --ic-a3: #33201A; --ic-a4: #42261D;
+  --ic-a5: #4F2D22; --ic-a6: #5E3729; --ic-a7: #744434; --ic-a8: #985640;
+  --ic-a9: #B05438; --ic-a10: #BD5E3F; --ic-a11: #F0A68A; --ic-a12: #FBDDD0;
+  --ic-a-rgb: 208, 106, 69;
+  --ic-inverted: #1C1B19;
+}
+
+.light, .dark {
+  /* fundos, bordas e textos */
+  --t-background-primary: var(--ic-g1);
+  --t-background-secondary: var(--ic-g2);
+  --t-background-tertiary: var(--ic-g4);
+  --t-background-quaternary: var(--ic-g5);
+  --t-background-inverted-primary: var(--ic-g12);
+  --t-background-inverted-secondary: var(--ic-g11);
+  --t-background-primary-inverted: var(--ic-g12);
+  --t-background-primary-inverted-hover: var(--ic-g11);
+  --t-border-color-strong: var(--ic-g6);
+  --t-border-color-medium: var(--ic-g5);
+  --t-border-color-light: var(--ic-g4);
+  --t-border-color-inverted: var(--ic-g12);
+  --t-border-color-secondary-inverted: var(--ic-g11);
+  --t-font-color-primary: var(--ic-g12);
+  --t-font-color-secondary: var(--ic-g11);
+  --t-font-color-tertiary: var(--ic-g9);
+  --t-font-color-light: var(--ic-g8);
+  --t-font-color-extra-light: var(--ic-g7);
+  --t-font-color-inverted: var(--ic-inverted);
+
+  --t-gray-scale-gray1: var(--ic-g1);   --t-color-gray1: var(--ic-g1);
+  --t-gray-scale-gray2: var(--ic-g2);   --t-color-gray2: var(--ic-g2);
+  --t-gray-scale-gray3: var(--ic-g3);   --t-color-gray3: var(--ic-g3);
+  --t-gray-scale-gray4: var(--ic-g4);   --t-color-gray4: var(--ic-g4);
+  --t-gray-scale-gray5: var(--ic-g5);   --t-color-gray5: var(--ic-g5);
+  --t-gray-scale-gray6: var(--ic-g6);   --t-color-gray6: var(--ic-g6);
+  --t-gray-scale-gray7: var(--ic-g7);   --t-color-gray7: var(--ic-g7);
+  --t-gray-scale-gray8: var(--ic-g8);   --t-color-gray8: var(--ic-g8);
+  --t-gray-scale-gray9: var(--ic-g9);   --t-color-gray9: var(--ic-g9);
+  --t-gray-scale-gray10: var(--ic-g10); --t-color-gray10: var(--ic-g10);
+  --t-gray-scale-gray11: var(--ic-g11); --t-color-gray11: var(--ic-g11);
+  --t-gray-scale-gray12: var(--ic-g12); --t-color-gray12: var(--ic-g12);
+
+  /* destaque (seleção, foco, botão principal) */
+  --t-accent-accent1: var(--ic-a1);  --t-color-blue1: var(--ic-a1);
+  --t-accent-accent2: var(--ic-a2);  --t-color-blue2: var(--ic-a2);
+  --t-accent-accent3: var(--ic-a3);  --t-color-blue3: var(--ic-a3);
+  --t-accent-accent4: var(--ic-a4);  --t-color-blue4: var(--ic-a4);
+  --t-accent-accent5: var(--ic-a5);  --t-color-blue5: var(--ic-a5);
+  --t-accent-accent6: var(--ic-a6);  --t-color-blue6: var(--ic-a6);
+  --t-accent-accent7: var(--ic-a7);  --t-color-blue7: var(--ic-a7);
+  --t-accent-accent8: var(--ic-a8);  --t-color-blue8: var(--ic-a8);
+  --t-accent-accent9: var(--ic-a9);  --t-color-blue9: var(--ic-a9);
+  --t-accent-accent10: var(--ic-a10); --t-color-blue10: var(--ic-a10);
+  --t-accent-accent11: var(--ic-a11); --t-color-blue11: var(--ic-a11);
+  --t-accent-accent12: var(--ic-a12); --t-color-blue12: var(--ic-a12);
+  --t-accent-primary: var(--ic-a5);
+  --t-accent-secondary: var(--ic-a5);
+  --t-accent-tertiary: var(--ic-a3);
+  --t-accent-quaternary: var(--ic-a2);
+  --t-accent-accent3570: var(--ic-a8);
+  --t-accent-accent4060: var(--ic-a8);
+  --t-color-blue: var(--ic-a9);
+  --t-buttons-secondary-text-color: var(--ic-a11);
+  --t-border-color-blue: var(--ic-a7);
+  --t-background-transparent-blue: rgba(var(--ic-a-rgb), 0.07);
+  --t-illustration-icon-color-blue: var(--ic-a8);
+  --t-illustration-icon-fill-blue: var(--ic-a5);
+  --t-color-transparent-blue1: rgba(var(--ic-a-rgb), 0.01);
+  --t-color-transparent-blue2: rgba(var(--ic-a-rgb), 0.03);
+  --t-color-transparent-blue3: rgba(var(--ic-a-rgb), 0.07);
+  --t-color-transparent-blue4: rgba(var(--ic-a-rgb), 0.12);
+  --t-color-transparent-blue5: rgba(var(--ic-a-rgb), 0.18);
+  --t-color-transparent-blue6: rgba(var(--ic-a-rgb), 0.24);
+  --t-color-transparent-blue7: rgba(var(--ic-a-rgb), 0.33);
+  --t-color-transparent-blue8: rgba(var(--ic-a-rgb), 0.45);
+  --t-color-transparent-blue9: rgba(var(--ic-a-rgb), 0.76);
+  --t-color-transparent-blue10: rgba(var(--ic-a-rgb), 0.8);
+  --t-color-transparent-blue11: rgba(var(--ic-a-rgb), 0.77);
+  --t-color-transparent-blue12: rgba(var(--ic-a-rgb), 0.88);
+}

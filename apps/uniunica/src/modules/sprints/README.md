@@ -124,17 +124,14 @@ GITHUB_WEBHOOK_SECRET: {
 
 ## Dados iniciais
 
-`seed/seed-sprints.ts` (idempotente: procura sprints pelo nome e tarefas pelo título):
-"Sprint 12 — Login e onboarding" (Ativa, 10/11 → 24/11/2026, capacidade 30, com histórico de burndown dos
-primeiros dias), "Sprint 13 — Pagamentos" (Planejada, 24/11 → 08/12/2026) e 8 tarefas com pontos, tipos,
-prioridades, uma subtarefa e duas dependências.
+Nenhum. O módulo começa sem sprints nem tarefas.
 
 ## Código
 
 - `constants/sprints-ids.ts` — todos os IDs universais do módulo.
 - `utils/` — funções puras com testes em `utils/__tests__/*.test.ts` (códigos, parser de eventos do GitHub,
   assinatura HMAC, pontos, burndown — série ideal/real, escala e caminho SVG —, escolha da próxima sprint…).
-- `services/` — acesso à API REST do Twenty usado pelas logic functions e pelo seed.
+- `services/` — acesso à API REST do Twenty usado pelas logic functions.
 - `front-components/` — Burndown (widget), Quadro da sprint (página), Iniciar/Encerrar (headless + confirmação).
 - Sem dependências npm novas (usa `fetch`/`RestApiClient` e `crypto` do Node).
 

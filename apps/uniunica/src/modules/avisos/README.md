@@ -63,8 +63,7 @@ Só são necessárias para o canal WhatsApp.
 
 ## Dados iniciais
 
-`seed/seed-avisos.ts` (idempotente, procura pelo nome): "Chargeback acima de 1% (30 dias)",
-"Faturamento do dia abaixo de R$ 1.000", "Lançamentos financeiros atrasados" — todas **inativas e sem destino**.
+Nenhum. O módulo começa sem regras de alerta; crie as suas em Alertas.
 
 ## Código
 

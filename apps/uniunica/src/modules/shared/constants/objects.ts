@@ -76,4 +76,16 @@ export const OBJECTS = {
     nameSingular: 'alerta',
     namePlural: 'alertas',
   },
+  quadro: {
+    module: 'quadros',
+    universalIdentifier: '4b427a2c-b44d-4fca-9b18-e420cb163d60',
+    nameSingular: 'quadro',
+    namePlural: 'quadros',
+  },
+  cofre: {
+    module: 'cofre',
+    universalIdentifier: '8d61259b-fd4d-43e0-91c2-7855b2537d41',
+    nameSingular: 'cofre',
+    namePlural: 'cofres',
+  },
 } as const;

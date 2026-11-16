@@ -70,7 +70,14 @@ O `apply` do CLI **não** roda o post-install. Rode a rota (idempotente, pode re
 ```bash
 curl -fsS -X POST -H "Authorization: Bearer $(cat ~/.uniunica-api-key)" "$SERVER_URL/s/uniunica/dados-iniciais"
 ```
-Resposta esperada: `{"ok":true,"resultados":[...8 módulos ok...]}`.
+Resposta esperada: `{"ok":true,"resultados":[{"modulo":"financeiro","ok":true}]}`.
+Só cria dados estruturais (as categorias financeiras padrão). O app **não** instala dados de exemplo.
+
+Depois, tire o **Cofre de acessos** da função padrão "Member" (idempotente; ver `apps/uniunica/src/modules/cofre/README.md`):
+```bash
+SERVER_URL="$SERVER_URL" node scripts/travar-cofre.mjs < ~/.uniunica-api-key
+```
+Quem pode abrir o cofre recebe a função "Membro com cofre" (Configurações → Membros), feito pelo humano.
 
 ### 7. Integrações (só com valores fornecidos pelo humano)
 Variáveis do app: Configurações → Aplicativos (aba Instalado) → UniÚnica Gestão (o caminho no menu pode variar entre versões). Pela API (metadata GraphQL), testado:
@@ -94,7 +101,7 @@ o `registrationId` sai de `select id from core."applicationRegistration"` no Pos
 - Firewall: só 22, 80, 443 (ou nenhuma porta pública com Cloudflare Tunnel). Nunca exponha 5432/6379.
 - Verificação final: abrir cada item do menu lateral (Roadmap, Projetos, Ideias, Sprints, Quadro da sprint,
   Painel de Vendas, Vendas, Painel Financeiro, Lançamentos, Painel de metas, Metas, Painel de Tráfego,
-  Campanhas de tráfego, Wiki, Alertas) e confirmar que carregam com os dados iniciais.
+  Campanhas de tráfego, Wiki, Alertas) e confirmar que carregam (vazios, sem dados de exemplo).
 
 ## Tarefa: desenvolver
 

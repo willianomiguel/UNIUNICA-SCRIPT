@@ -33,8 +33,7 @@ Se o objeto da fonte não existir, o valor atual não é alterado.
 - **Metas** (46): visões Todas, Por período e Por status (kanban). A página da meta tem o widget **Progresso**.
 
 ## Dados iniciais
-`seed/seed-metas.ts`: OKR do trimestre atual (objetivo + "Faturamento do trimestre" automático + uma meta
-manual), sem duplicar (título + período), seguido de um recálculo.
+Nenhum. O módulo começa sem metas.
 
 ## Testes
 `utils/__tests__/*.test.ts` (vitest) — rode com `yarn test:unit`.

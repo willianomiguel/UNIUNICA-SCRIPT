@@ -4,7 +4,11 @@ name: twenty
 
 services:
   server:
-    image: twentycrm/twenty:${TAG:-v2.58.2}
+    image: integracore/twenty:${TAG:-v2.58.2}
+    build:
+      context: ./branding
+      args:
+        TAG: ${TAG:-v2.58.2}
     stop_grace_period: 120s
     volumes:
       - server-local-data:/app/packages/twenty-server/.local-storage
@@ -33,6 +37,9 @@ services:
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
       # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
       SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
+      # IA do Twenty (chat do quadro e agentes): chave no .env, nunca no git
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_ENABLED: ${AUTH_GOOGLE_ENABLED}
@@ -70,7 +77,11 @@ services:
     restart: always
 
   worker:
-    image: twentycrm/twenty:${TAG:-v2.58.2}
+    image: integracore/twenty:${TAG:-v2.58.2}
+    build:
+      context: ./branding
+      args:
+        TAG: ${TAG:-v2.58.2}
     volumes:
       - server-local-data:/app/packages/twenty-server/.local-storage
     command: ["yarn", "worker:prod"]
@@ -96,6 +107,9 @@ services:
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
       # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
       SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
+      # IA do Twenty (chat do quadro e agentes): chave no .env, nunca no git
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_ENABLED: ${AUTH_GOOGLE_ENABLED}

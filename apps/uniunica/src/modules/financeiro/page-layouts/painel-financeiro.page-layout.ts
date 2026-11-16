@@ -2,6 +2,7 @@ import {
   AggregateOperations,
   definePageLayout,
   PageLayoutTabLayoutMode,
+  PageLayoutWidgetVerticalListHeightBehavior,
 } from 'twenty-sdk/define';
 
 import { FINANCEIRO_IDS } from 'src/modules/financeiro/constants/financeiro-ids';
@@ -36,11 +37,6 @@ const tipo = (valor: 'ENTRADA' | 'SAIDA') => ({
   operand: 'IS',
   value: `["${valor}"]`,
 });
-const EM_ABERTO = {
-  campo: FINANCEIRO_IDS.LANCAMENTO_STATUS,
-  operand: 'IS',
-  value: '["PENDENTE","ATRASADO"]',
-};
 
 const posicao = (row: number, column: number, rowSpan: number, columnSpan: number) => ({
   layoutMode: PageLayoutTabLayoutMode.GRID as const,
@@ -50,49 +46,45 @@ const posicao = (row: number, column: number, rowSpan: number, columnSpan: numbe
   columnSpan,
 });
 
-const totalDoValor = (
-  universalIdentifier: string,
-  title: string,
-  filtros: Array<{ campo: string; operand: string; value: string }>,
-  column: number,
-) => ({
-  universalIdentifier,
-  title,
-  type: 'GRAPH' as const,
-  objectUniversalIdentifier: LANCAMENTO,
-  position: posicao(0, column, 2, 3),
-  configuration: {
-    configurationType: 'AGGREGATE_CHART' as const,
-    aggregateFieldMetadataUniversalIdentifier: FINANCEIRO_IDS.LANCAMENTO_VALOR,
-    aggregateOperation: AggregateOperations.SUM,
-    displayDataLabel: true,
-    filter: filtro(filtros),
-    ...COMUM,
-  },
-});
-
 export default definePageLayout({
   universalIdentifier: FINANCEIRO_IDS.PAGE_LAYOUT_PAINEL,
   name: 'Painel Financeiro',
   type: 'STANDALONE_PAGE',
   tabs: [
+    // Resumo: um painel só (indicadores em R$, fluxo de caixa, DRE e orçado x realizado),
+    // no mesmo formato dos painéis de Vendas e Tráfego.
     {
       universalIdentifier: 'f4d1be66-7d5e-4442-bcca-f781bf55b142',
-      title: 'Visão geral',
+      title: 'Resumo',
       position: 0,
+      icon: 'IconLayoutDashboard',
+      layoutMode: PageLayoutTabLayoutMode.VERTICAL_LIST,
+      widgets: [
+        {
+          universalIdentifier: 'dc10f111-da99-4db4-a69f-1ec06fdaf216',
+          title: ' ',
+          type: 'FRONT_COMPONENT',
+          heightBehavior: PageLayoutWidgetVerticalListHeightBehavior.TAB_VIEWPORT,
+          configuration: {
+            configurationType: 'FRONT_COMPONENT',
+            frontComponentUniversalIdentifier: FINANCEIRO_IDS.FRONT_PAINEL,
+          },
+        },
+      ],
+    },
+    {
+      universalIdentifier: 'dadbe39c-08ef-45f2-88bb-3497fa5bcbb2',
+      title: 'Gráficos',
+      position: 1,
       icon: 'IconChartBar',
       layoutMode: PageLayoutTabLayoutMode.GRID,
       widgets: [
-        totalDoValor('1630153d-04bc-4657-8cbd-7044df9ce931', 'Entradas no mês', [ESTE_MES, NAO_CANCELADO, tipo('ENTRADA')], 0),
-        totalDoValor('d8480457-db82-414f-b0f6-24c6995eb6c9', 'Saídas no mês', [ESTE_MES, NAO_CANCELADO, tipo('SAIDA')], 3),
-        totalDoValor('fe1cb200-b152-43aa-81d9-f77772b39b3e', 'A pagar (em aberto)', [EM_ABERTO, tipo('SAIDA')], 6),
-        totalDoValor('2d3a91b7-2aad-4ed3-91a9-a8bc2025e991', 'A receber (em aberto)', [EM_ABERTO, tipo('ENTRADA')], 9),
         {
           universalIdentifier: '6f0c6f9f-4a17-43d5-82ae-9a095a507e63',
           title: 'Entradas x saídas por mês',
           type: 'GRAPH',
           objectUniversalIdentifier: LANCAMENTO,
-          position: posicao(2, 0, 6, 8),
+          position: posicao(0, 0, 6, 8),
           configuration: {
             configurationType: 'BAR_CHART',
             aggregateFieldMetadataUniversalIdentifier: FINANCEIRO_IDS.LANCAMENTO_VALOR,
@@ -116,7 +108,7 @@ export default definePageLayout({
           title: 'Saídas do mês por categoria',
           type: 'GRAPH',
           objectUniversalIdentifier: LANCAMENTO,
-          position: posicao(2, 8, 6, 4),
+          position: posicao(0, 8, 6, 4),
           configuration: {
             configurationType: 'PIE_CHART',
             aggregateFieldMetadataUniversalIdentifier: FINANCEIRO_IDS.LANCAMENTO_VALOR,
@@ -125,16 +117,6 @@ export default definePageLayout({
             displayLegend: true,
             filter: filtro([ESTE_MES, NAO_CANCELADO, tipo('SAIDA')]),
             ...COMUM,
-          },
-        },
-        {
-          universalIdentifier: 'dc10f111-da99-4db4-a69f-1ec06fdaf216',
-          title: 'Fluxo de caixa, DRE e orçado x realizado',
-          type: 'FRONT_COMPONENT',
-          position: posicao(8, 0, 18, 12),
-          configuration: {
-            configurationType: 'FRONT_COMPONENT',
-            frontComponentUniversalIdentifier: FINANCEIRO_IDS.FRONT_PAINEL,
           },
         },
       ],

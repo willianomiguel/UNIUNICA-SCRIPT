@@ -4,7 +4,6 @@ import { defineFrontComponent, PageLayoutType } from 'twenty-sdk/define';
 import { AppPath, navigate } from 'twenty-sdk/front-component';
 import { Callout } from 'twenty-ui/components/feedback';
 import { LightButton } from 'twenty-ui/components/input';
-import { Section } from 'twenty-ui/components/layout';
 import { IconRefresh } from 'twenty-ui/icon';
 import { Loader } from 'twenty-ui/primitives/feedback';
 import { Text } from 'twenty-ui/primitives/typography';
@@ -19,6 +18,7 @@ import { type MetaResumo } from 'src/modules/metas/types/meta-resumo';
 import { type StatusMeta } from 'src/modules/metas/types/status-meta';
 import { agruparMetasPorPeriodo } from 'src/modules/metas/utils/agrupar-metas-por-periodo.util';
 import { normalizarMeta } from 'src/modules/metas/utils/normalizar-meta.util';
+import { Titulo } from 'src/modules/shared/components/titulo';
 import { OBJECTS } from 'src/modules/shared/constants/objects';
 
 type Estado =
@@ -92,47 +92,44 @@ const PainelMetas = () => {
         fontFamily: theme.font.family,
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: theme.spacing[2],
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ display: 'flex', gap: theme.spacing[2], flexWrap: 'wrap' }}>
-          {(Object.keys(CORES_STATUS_META) as StatusMeta[]).map((status) => (
-            <div
-              key={status}
+      <Titulo
+        nivel="pagina"
+        titulo="Metas"
+        descricao="Metas principais de cada período e quanto falta para bater"
+        acoes={
+          <LightButton size="sm" startIcon={<IconRefresh size={14} />} onClick={carregar}>
+            Atualizar
+          </LightButton>
+        }
+      />
+      <div style={{ display: 'flex', gap: theme.spacing[2], flexWrap: 'wrap' }}>
+        {(Object.keys(CORES_STATUS_META) as StatusMeta[]).map((status) => (
+          <div
+            key={status}
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: theme.spacing[1],
+              padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
+              border: `1px solid ${theme.border.color.light}`,
+              borderRadius: theme.border.radius.md,
+              background: theme.background.secondary,
+            }}
+          >
+            <span
               style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: theme.spacing[1],
-                padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
-                border: `1px solid ${theme.border.color.light}`,
-                borderRadius: theme.border.radius.md,
-                background: theme.background.secondary,
+                fontSize: theme.font.size.lg,
+                fontWeight: theme.font.weight.semiBold,
+                color: theme.color[CORES_STATUS_META[status].cor],
               }}
             >
-              <span
-                style={{
-                  fontSize: theme.font.size.lg,
-                  fontWeight: theme.font.weight.semiBold,
-                  color: theme.color[CORES_STATUS_META[status].cor],
-                }}
-              >
-                {contagem(status)}
-              </span>
-              <Text size="sm" color="secondary">
-                {CORES_STATUS_META[status].rotulo}
-              </Text>
-            </div>
-          ))}
-        </div>
-        <LightButton size="sm" startIcon={<IconRefresh size={14} />} onClick={carregar}>
-          Atualizar
-        </LightButton>
+              {contagem(status)}
+            </span>
+            <Text size="sm" color="secondary">
+              {CORES_STATUS_META[status].rotulo}
+            </Text>
+          </div>
+        ))}
       </div>
 
       {metas.length === 0 && (
@@ -144,11 +141,11 @@ const PainelMetas = () => {
       )}
 
       {grupos.map(({ periodo, metas: metasDoPeriodo }) => (
-        <Section.Root key={periodo} fullWidth>
-          <Section.Header
-            title={periodo}
-            description={`${metasDoPeriodo.length} meta(s) principal(is)`}
-            size="md"
+        <section key={periodo} style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[3] }}>
+          <Titulo
+            titulo={periodo}
+            descricao={`${metasDoPeriodo.length} meta(s) principal(is)`}
+            
           />
           <div
             style={{
@@ -205,7 +202,7 @@ const PainelMetas = () => {
               );
             })}
           </div>
-        </Section.Root>
+        </section>
       ))}
       <Text size="xs" color="light">
         A linha vertical na barra marca quanto do período já passou. Metas automáticas são

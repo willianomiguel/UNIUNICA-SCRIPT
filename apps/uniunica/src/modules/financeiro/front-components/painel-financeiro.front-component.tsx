@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RestApiClient } from 'twenty-client-sdk/rest';
 import { defineFrontComponent, PageLayoutType } from 'twenty-sdk/define';
 import { Callout } from 'twenty-ui/components/feedback';
 import { LightButton, LightIconButton } from 'twenty-ui/components/input';
-import { Section } from 'twenty-ui/components/layout';
 import { IconChevronLeft, IconChevronRight, IconRefresh } from 'twenty-ui/icon';
 import { Loader } from 'twenty-ui/primitives/feedback';
 import { Text } from 'twenty-ui/primitives/typography';
@@ -12,6 +11,7 @@ import { useTheme } from 'twenty-ui/theme';
 import { FINANCEIRO_IDS } from 'src/modules/financeiro/constants/financeiro-ids';
 import { type DadosFinanceiros } from 'src/modules/financeiro/types/dados-financeiros';
 import { type LinhaValor } from 'src/modules/financeiro/types/linha-valor';
+import { calcularEmAberto } from 'src/modules/financeiro/utils/calcular-em-aberto.util';
 import { calcularDreSimplificada } from 'src/modules/financeiro/utils/calcular-dre-simplificada.util';
 import { calcularFluxoCaixaMensal } from 'src/modules/financeiro/utils/calcular-fluxo-caixa-mensal.util';
 import { calcularOrcadoRealizado } from 'src/modules/financeiro/utils/calcular-orcado-realizado.util';
@@ -21,6 +21,9 @@ import { deslocarMes } from 'src/modules/financeiro/utils/deslocar-mes.util';
 import { formatarBrl } from 'src/modules/financeiro/utils/formatar-brl.util';
 import { formatarMes } from 'src/modules/financeiro/utils/formatar-mes.util';
 import { hojeIso } from 'src/modules/financeiro/utils/hoje-iso.util';
+import { IndicadoresPrincipais } from 'src/modules/shared/components/indicadores-principais';
+import { IndicadoresSecundarios } from 'src/modules/shared/components/indicadores-secundarios';
+import { Titulo } from 'src/modules/shared/components/titulo';
 
 const MESES_NO_FLUXO = 6;
 
@@ -67,6 +70,7 @@ const PainelFinanceiro = () => {
       ),
       dre: calcularDreSimplificada(lancamentos, categorias, mes),
       orcado: calcularOrcadoRealizado(categorias, lancamentos, mes),
+      emAberto: calcularEmAberto(lancamentos),
       vazio: lancamentos.length === 0,
     };
   }, [estado, mes]);
@@ -78,7 +82,7 @@ const PainelFinanceiro = () => {
     padding: theme.spacing[3],
     border: `1px solid ${theme.border.color.light}`,
     borderRadius: theme.border.radius.md,
-    background: theme.background.secondary,
+    background: theme.background.primary,
     minWidth: 0,
   };
   const celula = {
@@ -93,41 +97,40 @@ const PainelFinanceiro = () => {
     valor < 0 ? theme.color.red : theme.font.color.primary;
 
   const cabecalho = (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: theme.spacing[2],
-        flexWrap: 'wrap',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[1] }}>
-        <LightIconButton
-          aria-label="Mês anterior"
-          onClick={() => setMes((atual) => deslocarMes(atual, -1))}
-        >
-          <IconChevronLeft size={16} />
-        </LightIconButton>
-        <Text size="md" weight="semibold">
-          {formatarMes(mes)}
-        </Text>
-        <LightIconButton
-          aria-label="Próximo mês"
-          onClick={() => setMes((atual) => deslocarMes(atual, 1))}
-        >
-          <IconChevronRight size={16} />
-        </LightIconButton>
-      </div>
-      <LightButton
-        size="sm"
-        startIcon={<IconRefresh size={14} />}
-        onClick={carregar}
-        disabled={estado.tipo === 'carregando'}
-      >
-        Atualizar
-      </LightButton>
-    </div>
+    <Titulo
+      nivel="pagina"
+      titulo="Financeiro"
+      descricao="Resumo do mês: entradas, saídas, contas em aberto e orçamento"
+      acoes={
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing[1] }}>
+            <LightIconButton
+              aria-label="Mês anterior"
+              onClick={() => setMes((atual) => deslocarMes(atual, -1))}
+            >
+              <IconChevronLeft size={16} />
+            </LightIconButton>
+            <Text size="md" weight="semibold">
+              {formatarMes(mes)}
+            </Text>
+            <LightIconButton
+              aria-label="Próximo mês"
+              onClick={() => setMes((atual) => deslocarMes(atual, 1))}
+            >
+              <IconChevronRight size={16} />
+            </LightIconButton>
+          </div>
+          <LightButton
+            size="sm"
+            startIcon={<IconRefresh size={14} />}
+            onClick={carregar}
+            disabled={estado.tipo === 'carregando'}
+          >
+            Atualizar
+          </LightButton>
+        </>
+      }
+    />
   );
 
   if (estado.tipo === 'carregando') {
@@ -156,26 +159,10 @@ const PainelFinanceiro = () => {
   }
 
   const { fluxo, dre, orcado } = resumo;
+  const saldoAcumulado = fluxo[fluxo.length - 1]?.saldoAcumulado ?? 0;
   const maiorValorFluxo = Math.max(
     1,
     ...fluxo.flatMap((linha) => [linha.entradas, linha.saidas]),
-  );
-
-  const kpi = (rotulo: string, valor: ReactNode, cor?: string) => (
-    <div style={cartao}>
-      <Text size="xs" color="tertiary">
-        {rotulo}
-      </Text>
-      <span
-        style={{
-          fontSize: theme.font.size.lg,
-          fontWeight: theme.font.weight.semiBold,
-          color: cor ?? theme.font.color.primary,
-        }}
-      >
-        {valor}
-      </span>
-    </div>
   );
 
   const listaValores = (titulo: string, linhas: LinhaValor[]) => (
@@ -204,12 +191,17 @@ const PainelFinanceiro = () => {
   );
 
   return (
-    <div
+    <main
       style={{
+        boxSizing: 'border-box',
+        height: '100%',
+        width: '100%',
+        overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
         gap: theme.spacing[4],
-        padding: theme.spacing[3],
+        padding: theme.spacing[4],
+        background: theme.background.secondary,
         color: theme.font.color.primary,
         fontFamily: theme.font.family,
       }}
@@ -224,30 +216,44 @@ const PainelFinanceiro = () => {
         />
       )}
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: theme.spacing[2],
-        }}
-      >
-        {kpi('Receita do mês', formatarBrl(dre.receita), theme.color.green)}
-        {kpi('Custos do mês', formatarBrl(dre.custos), theme.color.red)}
-        {kpi('Resultado', formatarBrl(dre.resultado), corValor(dre.resultado))}
-        {kpi('Margem', dre.margem === null ? '—' : `${dre.margem.toFixed(1).replace('.', ',')}%`)}
-        {kpi(
-          'Saldo acumulado',
-          formatarBrl(fluxo[fluxo.length - 1]?.saldoAcumulado ?? 0),
-          corValor(fluxo[fluxo.length - 1]?.saldoAcumulado ?? 0),
-        )}
-      </div>
+      <IndicadoresPrincipais
+        rotulo="Indicadores principais do financeiro"
+        itens={[
+          { titulo: 'Receita do mês', valor: formatarBrl(dre.receita) },
+          { titulo: 'Custos do mês', valor: formatarBrl(dre.custos) },
+          {
+            titulo: 'Resultado',
+            valor: formatarBrl(dre.resultado),
+            detalhe: dre.margem === null ? 'sem receita no mês' : `margem ${dre.margem.toFixed(1).replace('.', ',')}%`,
+            tom: dre.resultado < 0 ? 'negativo' : dre.resultado > 0 ? 'positivo' : 'neutro',
+          },
+          {
+            titulo: 'Saldo acumulado',
+            valor: formatarBrl(saldoAcumulado),
+            detalhe: 'até o fim do mês',
+            tom: saldoAcumulado < 0 ? 'negativo' : 'neutro',
+          },
+        ]}
+      />
 
-      <Section.Root fullWidth>
-        <Section.Header
-          title="Fluxo de caixa"
-          description={`Últimos ${MESES_NO_FLUXO} meses (lançamentos não cancelados, pela data)`}
-          size="md"
-        />
+      <IndicadoresSecundarios
+        rotulo="Contas em aberto hoje"
+        itens={[
+          {
+            titulo: 'A receber (em aberto hoje)',
+            valor: formatarBrl(resumo.emAberto.aReceber),
+            detalhe: 'todos os meses · pendentes e atrasadas',
+          },
+          {
+            titulo: 'A pagar (em aberto hoje)',
+            valor: formatarBrl(resumo.emAberto.aPagar),
+            detalhe: 'todos os meses · pendentes e atrasadas',
+          },
+        ]}
+      />
+
+      <section style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[3] }}>
+        <Titulo titulo="Fluxo de caixa" descricao={`Últimos ${MESES_NO_FLUXO} meses (lançamentos não cancelados, pela data)`} />
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -318,7 +324,7 @@ const PainelFinanceiro = () => {
             </tbody>
           </table>
         </div>
-      </Section.Root>
+      </section>
 
       <div
         style={{
@@ -327,12 +333,8 @@ const PainelFinanceiro = () => {
           gap: theme.spacing[4],
         }}
       >
-        <Section.Root fullWidth>
-          <Section.Header
-            title="DRE do mês"
-            description={`Demonstrativo simplificado de ${formatarMes(mes)}`}
-            size="md"
-          />
+        <section style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[3] }}>
+          <Titulo titulo="DRE do mês" descricao={`Demonstrativo simplificado de ${formatarMes(mes)}`} />
           <div style={{ ...cartao, gap: theme.spacing[3] }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Text weight="semibold">(+) Receita</Text>
@@ -364,14 +366,10 @@ const PainelFinanceiro = () => {
               </span>
             </div>
           </div>
-        </Section.Root>
+        </section>
 
-        <Section.Root fullWidth>
-          <Section.Header
-            title="Orçado x realizado"
-            description="Orçamento mensal de cada categoria"
-            size="md"
-          />
+        <section style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[3] }}>
+          <Titulo titulo="Orçado x realizado" descricao="Orçamento mensal de cada categoria" />
           <div style={{ ...cartao, gap: theme.spacing[3] }}>
             {orcado.length === 0 ? (
               <Text size="sm" color="light">
@@ -438,9 +436,9 @@ const PainelFinanceiro = () => {
               })
             )}
           </div>
-        </Section.Root>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -22,6 +22,9 @@ import { formatarRoas } from 'src/modules/trafego/utils/formatar-roas.util';
 import { montarLinhasPainel } from 'src/modules/trafego/utils/montar-linhas-painel.util';
 import { somarDias } from 'src/modules/trafego/utils/somar-dias.util';
 import { somarMetricas } from 'src/modules/trafego/utils/somar-metricas.util';
+import { CabecalhoPainel } from 'src/modules/shared/components/cabecalho-painel';
+import { IndicadoresPrincipais } from 'src/modules/shared/components/indicadores-principais';
+import { IndicadoresSecundarios } from 'src/modules/shared/components/indicadores-secundarios';
 
 const PERIODOS = [7, 14, 30, 90] as const;
 
@@ -111,37 +114,15 @@ const PainelTrafego = () => {
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: theme.spacing[6],
+      gap: theme.spacing[4],
       height: '100%',
       overflowY: 'auto',
-      padding: theme.spacing[6],
+      padding: theme.spacing[4],
+      background: theme.background.secondary,
       color: theme.font.color.primary,
       fontFamily: theme.font.family,
     },
-    cabecalho: {
-      alignItems: 'center',
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: theme.spacing[3],
-      justifyContent: 'space-between',
-    },
     acoes: { alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: theme.spacing[2] },
-    kpis: {
-      display: 'grid',
-      gap: theme.spacing[3],
-      gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-    },
-    cartao: {
-      background: theme.background.secondary,
-      border: `1px solid ${theme.border.color.light}`,
-      borderRadius: theme.border.radius.md,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing[1],
-      minWidth: 0,
-      padding: theme.spacing[3],
-    },
-    valor: { fontSize: theme.font.size.xl, fontWeight: theme.font.weight.semiBold },
     secao: { display: 'flex', flexDirection: 'column', gap: theme.spacing[3], minWidth: 0 },
     duasColunas: {
       display: 'grid',
@@ -152,6 +133,7 @@ const PainelTrafego = () => {
       border: `1px solid ${theme.border.color.light}`,
       borderRadius: theme.border.radius.md,
       overflowX: 'auto',
+      background: theme.background.primary,
     },
     tabela: { borderCollapse: 'collapse', fontSize: theme.font.size.sm, minWidth: '900px', width: '100%' },
     th: {
@@ -184,20 +166,6 @@ const PainelTrafego = () => {
       justifyContent: 'space-between',
     },
   } satisfies Record<string, CSSProperties>;
-
-  const Kpi = ({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) => (
-    <div style={estilos.cartao}>
-      <Text size="sm" color="tertiary">
-        {rotulo}
-      </Text>
-      <span style={estilos.valor}>{valor}</span>
-      {detalhe ? (
-        <Text size="xs" color="light">
-          {detalhe}
-        </Text>
-      ) : null}
-    </div>
-  );
 
   const GraficoDiario = ({
     titulo,
@@ -254,16 +222,10 @@ const PainelTrafego = () => {
 
   return (
     <main style={estilos.pagina}>
-      <header style={estilos.cabecalho}>
-        <div>
-          <Heading level={1} size="xl">
-            Painel de Tráfego
-          </Heading>
-          <Text size="sm" color="tertiary">
-            {inicio.split('-').reverse().join('/')} a {hoje.split('-').reverse().join('/')} · receita
-            = vendas aprovadas ligadas às campanhas
-          </Text>
-        </div>
+      <CabecalhoPainel
+        titulo="Tráfego"
+        descricao={`${inicio.split('-').reverse().join('/')} a ${hoje.split('-').reverse().join('/')} · receita = vendas aprovadas ligadas às campanhas`}
+        acoes={
         <div style={estilos.acoes} role="group" aria-label="Período">
           {PERIODOS.map((periodo) => (
             <Button
@@ -286,7 +248,8 @@ const PainelTrafego = () => {
             Atualizar
           </Button>
         </div>
-      </header>
+        }
+      />
 
       {estado.tipo === 'erro' ? (
         <Callout
@@ -321,32 +284,41 @@ const PainelTrafego = () => {
 
       {resumo && resumo.linhas.length > 0 ? (
         <>
-          <section style={estilos.kpis} aria-label="Indicadores do período">
-            <Kpi rotulo="Gasto" valor={formatarMoedaBrl(resumo.totais.gasto)} />
-            <Kpi
-              rotulo="Cliques"
-              valor={formatarNumero(resumo.totais.cliques)}
-              detalhe={`CTR ${formatarPercentual(resumo.indicadores.ctr)} · CPC ${formatarMoedaBrl(resumo.indicadores.cpc)}`}
-            />
-            <Kpi
-              rotulo="Leads"
-              valor={formatarNumero(resumo.totais.leads)}
-              detalhe={`CPL ${formatarMoedaBrl(resumo.indicadores.cpl)}`}
-            />
-            <Kpi
-              rotulo="Vendas aprovadas"
-              valor={formatarNumero(resumo.quantidadeVendas)}
-              detalhe={`${formatarNumero(resumo.totais.conversoes)} conversões nas plataformas`}
-            />
-            <Kpi rotulo="Receita" valor={formatarMoedaBrl(resumo.receita)} />
-            <Kpi rotulo="CPA" valor={formatarMoedaBrl(resumo.indicadores.cpa)} detalhe="gasto ÷ vendas (ou conversões)" />
-            <Kpi rotulo="ROAS" valor={formatarRoas(resumo.indicadores.roas)} detalhe="receita ÷ gasto" />
-            <Kpi
-              rotulo="Impressões"
-              valor={formatarNumero(resumo.totais.impressoes)}
-              detalhe={`CPM ${formatarMoedaBrl(resumo.indicadores.cpm)}`}
-            />
-          </section>
+          <IndicadoresPrincipais
+            rotulo="Indicadores principais de tráfego"
+            itens={[
+              { titulo: 'Gasto', valor: formatarMoedaBrl(resumo.totais.gasto) },
+              { titulo: 'Receita', valor: formatarMoedaBrl(resumo.receita), detalhe: 'vendas aprovadas das campanhas' },
+              { titulo: 'ROAS', valor: formatarRoas(resumo.indicadores.roas), detalhe: 'receita ÷ gasto' },
+              { titulo: 'CPA', valor: formatarMoedaBrl(resumo.indicadores.cpa), detalhe: 'gasto ÷ vendas (ou conversões)' },
+            ]}
+          />
+
+          <IndicadoresSecundarios
+            rotulo="Outros indicadores de tráfego"
+            itens={[
+              {
+                titulo: 'Vendas aprovadas',
+                valor: formatarNumero(resumo.quantidadeVendas),
+                detalhe: `${formatarNumero(resumo.totais.conversoes)} conversões nas plataformas`,
+              },
+              {
+                titulo: 'Leads',
+                valor: formatarNumero(resumo.totais.leads),
+                detalhe: `CPL ${formatarMoedaBrl(resumo.indicadores.cpl)}`,
+              },
+              {
+                titulo: 'Cliques',
+                valor: formatarNumero(resumo.totais.cliques),
+                detalhe: `CTR ${formatarPercentual(resumo.indicadores.ctr)} · CPC ${formatarMoedaBrl(resumo.indicadores.cpc)}`,
+              },
+              {
+                titulo: 'Impressões',
+                valor: formatarNumero(resumo.totais.impressoes),
+                detalhe: `CPM ${formatarMoedaBrl(resumo.indicadores.cpm)}`,
+              },
+            ]}
+          />
 
           <div style={estilos.duasColunas}>
             <GraficoDiario

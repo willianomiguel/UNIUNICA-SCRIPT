@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/financeiro/constants/pasta-menu.constant';
+
 import { FINANCEIRO_IDS } from 'src/modules/financeiro/constants/financeiro-ids';
 
 export default defineNavigationMenuItem({
@@ -11,6 +13,7 @@ export default defineNavigationMenuItem({
   icon: 'IconChartBar',
   color: 'green',
   position: 40,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,
   pageLayoutUniversalIdentifier: FINANCEIRO_IDS.PAGE_LAYOUT_PAINEL,
 });

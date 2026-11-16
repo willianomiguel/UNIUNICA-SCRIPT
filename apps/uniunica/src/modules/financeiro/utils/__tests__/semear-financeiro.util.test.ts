@@ -4,29 +4,31 @@ import { semearFinanceiro } from 'src/modules/financeiro/utils/semear-financeiro
 import { criarClienteRestFalso } from 'src/modules/financeiro/utils/__tests__/helpers/criar-cliente-rest-falso';
 
 describe('semearFinanceiro', () => {
-  it('cria categorias e exemplos e é idempotente', async () => {
+  it('cria só as categorias que faltam, com orçamento zero, e é idempotente', async () => {
     const { cliente, banco } = criarClienteRestFalso({
       categoriasFinanceiras: [{ id: 'existente', nome: 'Impostos' }],
     });
 
-    expect(await semearFinanceiro(cliente, '2026-11-15')).toEqual({
-      categoriasCriadas: 5,
-      lancamentosCriados: 8,
-    });
+    expect(await semearFinanceiro(cliente)).toEqual({ categoriasCriadas: 5 });
+
+    const criadas = banco.categoriasFinanceiras.filter((categoria) => categoria.id !== 'existente');
+
+    expect(criadas.map((categoria) => categoria.nome)).toContain('Receita de vendas');
+    for (const categoria of criadas) {
+      expect(categoria.orcamentoMensal).toEqual({ amountMicros: 0, currencyCode: 'BRL' });
+    }
 
     const copia = JSON.stringify(banco);
 
-    expect(await semearFinanceiro(cliente, '2026-11-15')).toEqual({
-      categoriasCriadas: 0,
-      lancamentosCriados: 0,
-    });
+    expect(await semearFinanceiro(cliente)).toEqual({ categoriasCriadas: 0 });
     expect(JSON.stringify(banco)).toBe(copia);
+  });
 
-    const das = banco.lancamentos.find((registro) => registro.chaveIdempotencia === 'seed:financeiro:7');
+  it('não cria nenhum lançamento de exemplo', async () => {
+    const { cliente, banco } = criarClienteRestFalso({});
 
-    expect(das).toMatchObject({ data: '2026-11-20', categoriaId: 'existente' });
-    expect(banco.lancamentos.find((registro) => registro.chaveIdempotencia === 'seed:financeiro:1')?.data).toBe(
-      '2026-09-28',
-    );
+    await semearFinanceiro(cliente);
+
+    expect(banco.lancamentos ?? []).toHaveLength(0);
   });
 });

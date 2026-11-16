@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/financeiro/constants/pasta-menu.constant';
+
 import { FINANCEIRO_IDS } from 'src/modules/financeiro/constants/financeiro-ids';
 import { OBJECTS } from 'src/modules/shared/constants/objects';
 
@@ -12,6 +14,7 @@ export default defineNavigationMenuItem({
   icon: 'IconCategory',
   color: 'green',
   position: 42,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,
   targetObjectUniversalIdentifier:
     OBJECTS.categoriaFinanceira.universalIdentifier,

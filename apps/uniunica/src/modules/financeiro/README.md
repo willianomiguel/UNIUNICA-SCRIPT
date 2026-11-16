@@ -27,8 +27,8 @@ Relações deste módulo: `lancamento.categoria ↔ categoriaFinanceira.lancamen
   entrada existir). Chaves `venda:<id>:entrada` / `venda:<id>:estorno` evitam duplicatas.
 
 ## Dados iniciais
-`seed/seed-financeiro.ts` (default export, idempotente): 6 categorias padrão (por nome) e 8 lançamentos de
-exemplo nos últimos 3 meses (por chave `seed:financeiro:<n>`).
+`seed/seed-financeiro.ts` (default export, idempotente): 6 categorias padrão (por nome), com orçamento
+mensal zero. Nenhum lançamento de exemplo. "Receita de vendas" é usada pelas vendas aprovadas.
 
 ## Variáveis e dependências
 Nenhuma variável de ambiente. Nenhuma dependência npm extra.

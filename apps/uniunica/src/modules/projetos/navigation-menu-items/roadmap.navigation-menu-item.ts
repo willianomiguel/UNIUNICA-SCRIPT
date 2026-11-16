@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/projetos/constants/pasta-menu.constant';
+
 import {
   ROADMAP_NAVIGATION_MENU_ITEM_ID,
   ROADMAP_PAGE_LAYOUT_ID,
@@ -14,6 +16,7 @@ export default defineNavigationMenuItem({
   icon: 'IconTimelineEvent',
   color: 'purple',
   position: 10,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,
   pageLayoutUniversalIdentifier: ROADMAP_PAGE_LAYOUT_ID,
 });

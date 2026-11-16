@@ -8,7 +8,7 @@ export default definePostInstallLogicFunction({
   universalIdentifier: DADOS_INICIAIS_POST_INSTALL_UNIVERSAL_IDENTIFIER,
   name: 'dados-iniciais',
   description:
-    'Cria os dados iniciais de todos os módulos (categorias, exemplos, modelos da Wiki, regras de alerta). Idempotente.',
+    'Cria os dados estruturais do app (categorias financeiras padrão). Não cria dados de exemplo. Idempotente.',
   timeoutSeconds: 300,
   shouldRunOnVersionUpgrade: false,
   shouldRunSynchronously: false,

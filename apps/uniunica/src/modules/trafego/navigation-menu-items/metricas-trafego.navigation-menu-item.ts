@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/trafego/constants/pasta-menu.constant';
+
 import { METRICA_TRAFEGO_OBJECT_ID } from 'src/modules/trafego/constants/trafego-universal-identifiers';
 
 export default defineNavigationMenuItem({
@@ -11,6 +13,7 @@ export default defineNavigationMenuItem({
   icon: 'IconChartLine',
   color: 'blue',
   position: 52,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,
   targetObjectUniversalIdentifier: METRICA_TRAFEGO_OBJECT_ID,
 });

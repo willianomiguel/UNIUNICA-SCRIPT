@@ -3,6 +3,8 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
+import { PASTA_MENU_ID } from 'src/modules/trafego/constants/pasta-menu.constant';
+
 import { PAINEL_TRAFEGO_PAGE_LAYOUT_ID } from 'src/modules/trafego/constants/trafego-universal-identifiers';
 
 export default defineNavigationMenuItem({
@@ -11,6 +13,7 @@ export default defineNavigationMenuItem({
   icon: 'IconChartBar',
   color: 'blue',
   position: 50,
+  folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,
   pageLayoutUniversalIdentifier: PAINEL_TRAFEGO_PAGE_LAYOUT_ID,
 });

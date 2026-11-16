@@ -30,6 +30,9 @@ import { mensagemDeErro } from 'src/modules/vendas/utils/mensagem-de-erro.util';
 import { obterIntervaloAnterior } from 'src/modules/vendas/utils/obter-intervalo-anterior.util';
 import { obterIntervaloPeriodo } from 'src/modules/vendas/utils/obter-intervalo-periodo.util';
 import { rotuloOpcao } from 'src/modules/vendas/utils/rotulo-opcao.util';
+import { CabecalhoPainel } from 'src/modules/shared/components/cabecalho-painel';
+import { IndicadoresPrincipais } from 'src/modules/shared/components/indicadores-principais';
+import { IndicadoresSecundarios } from 'src/modules/shared/components/indicadores-secundarios';
 import { carregarVendasPainel } from 'src/modules/vendas/vendas-client/carregar-vendas-painel';
 
 const PERIODOS: { valor: PeriodoPainel; rotulo: string }[] = [
@@ -48,60 +51,6 @@ type Estado =
 
 const formatarData = (data: Date) =>
   data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-
-const CartaoKpi = ({
-  titulo,
-  valor,
-  detalhe,
-  tom,
-}: {
-  titulo: string;
-  valor: string;
-  detalhe?: ReactNode;
-  tom?: 'positivo' | 'negativo' | 'neutro';
-}) => {
-  const theme = useTheme();
-  const corDetalhe =
-    tom === 'positivo'
-      ? theme.color.green
-      : tom === 'negativo'
-        ? theme.color.red
-        : theme.font.color.tertiary;
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: theme.spacing[1],
-        padding: theme.spacing[3],
-        border: `1px solid ${theme.border.color.medium}`,
-        borderRadius: theme.border.radius.md,
-        background: theme.background.primary,
-        minWidth: 0,
-      }}
-    >
-      <Text size="sm" color="tertiary">
-        {titulo}
-      </Text>
-      <span
-        style={{
-          fontSize: theme.font.size.xl,
-          fontWeight: theme.font.weight.semiBold,
-          color: theme.font.color.primary,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {valor}
-      </span>
-      {detalhe !== undefined && (
-        <span style={{ fontSize: theme.font.size.sm, color: corDetalhe }}>{detalhe}</span>
-      )}
-    </div>
-  );
-};
 
 const Painel = ({ titulo, children }: { titulo: string; children: ReactNode }) => {
   const theme = useTheme();
@@ -318,26 +267,15 @@ const PainelVendas = () => {
         color: theme.font.color.primary,
       }}
     >
-      <header
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: theme.spacing[3],
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[1] }}>
-          <Heading level={1} size="lg">
-            Painel de Vendas
-          </Heading>
-          <Text size="sm" color="tertiary">
-            {dados
-              ? `${formatarData(dados.intervalo.inicio)} a ${formatarData(dados.intervalo.fim)} · ${dados.metricas.totalRegistros} registro(s)`
-              : 'Faturamento, aprovações, recusas, reembolsos e chargebacks'}
-          </Text>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: theme.spacing[2] }}>
+      <CabecalhoPainel
+        titulo="Vendas"
+        descricao={
+          dados
+            ? `${formatarData(dados.intervalo.inicio)} a ${formatarData(dados.intervalo.fim)} · ${dados.metricas.totalRegistros} registro(s)`
+            : 'Faturamento, aprovações, recusas, reembolsos e chargebacks'
+        }
+        acoes={
+          <>
           <ButtonGroup attached size="sm" variant="outline" aria-label="Período">
             {PERIODOS.map((opcao) => (
               <Button
@@ -360,8 +298,9 @@ const PainelVendas = () => {
           >
             Atualizar
           </Button>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {estado.tipo === 'CARREGANDO' && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: theme.spacing[8] }}>
@@ -392,66 +331,69 @@ const PainelVendas = () => {
 
       {dados !== null && (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
-              gap: theme.spacing[3],
-            }}
-          >
-            <CartaoKpi
-              titulo="Faturamento bruto"
-              valor={formatarMoedaBrl(dados.metricas.faturamentoBruto)}
-              {...variacao(dados.metricas.faturamentoBruto, dados.metricasAnteriores.faturamentoBruto)}
-            />
-            <CartaoKpi
-              titulo="Faturamento líquido"
-              valor={formatarMoedaBrl(dados.metricas.faturamentoLiquido)}
-              {...variacao(dados.metricas.faturamentoLiquido, dados.metricasAnteriores.faturamentoLiquido)}
-            />
-            <CartaoKpi
-              titulo="Taxas dos gateways"
-              valor={formatarMoedaBrl(dados.metricas.totalTaxas)}
-              detalhe={`${formatarPercentual(dados.metricas.faturamentoBruto > 0 ? dados.metricas.totalTaxas / dados.metricas.faturamentoBruto : 0)} do bruto`}
-            />
-            <CartaoKpi
-              titulo="Vendas pagas"
-              valor={String(dados.metricas.quantidadePagas)}
-              {...variacao(dados.metricas.quantidadePagas, dados.metricasAnteriores.quantidadePagas)}
-            />
-            <CartaoKpi
-              titulo="Ticket médio"
-              valor={formatarMoedaBrl(dados.metricas.ticketMedio)}
-              {...variacao(dados.metricas.ticketMedio, dados.metricasAnteriores.ticketMedio)}
-            />
-            <CartaoKpi
-              titulo="Taxa de aprovação"
-              valor={formatarPercentual(dados.metricas.taxaAprovacao)}
-              detalhe={`${dados.metricas.quantidadePagas} de ${dados.metricas.quantidadePagas + dados.metricas.quantidadeRecusadas} tentativas`}
-            />
-            <CartaoKpi
-              titulo="Taxa de recusa"
-              valor={formatarPercentual(dados.metricas.taxaRecusa)}
-              detalhe={`${dados.metricas.quantidadeRecusadas} recusa(s) · ${formatarMoedaBrl(dados.metricas.valorRecusado)}`}
-              tom={dados.metricas.taxaRecusa > 0.3 ? 'negativo' : 'neutro'}
-            />
-            <CartaoKpi
-              titulo="Chargebacks"
-              valor={formatarPercentual(dados.metricas.percentualChargeback)}
-              detalhe={`${dados.metricas.quantidadeChargebacks} · ${formatarMoedaBrl(dados.metricas.valorChargeback)}`}
-              tom={dados.metricas.percentualChargeback > 0.01 ? 'negativo' : 'neutro'}
-            />
-            <CartaoKpi
-              titulo="Reembolsos"
-              valor={formatarPercentual(dados.metricas.percentualReembolso)}
-              detalhe={`${dados.metricas.quantidadeReembolsadas} · ${formatarMoedaBrl(dados.metricas.valorReembolsado)}`}
-            />
-            <CartaoKpi
-              titulo="Pendentes"
-              valor={formatarMoedaBrl(dados.metricas.valorPendente)}
-              detalhe={`${dados.metricas.quantidadePendentes} aguardando pagamento`}
-            />
-          </div>
+          <IndicadoresPrincipais
+            rotulo="Indicadores principais de vendas"
+            itens={[
+              {
+                titulo: 'Faturamento líquido',
+                valor: formatarMoedaBrl(dados.metricas.faturamentoLiquido),
+                ...variacao(dados.metricas.faturamentoLiquido, dados.metricasAnteriores.faturamentoLiquido),
+              },
+              {
+                titulo: 'Vendas pagas',
+                valor: String(dados.metricas.quantidadePagas),
+                ...variacao(dados.metricas.quantidadePagas, dados.metricasAnteriores.quantidadePagas),
+              },
+              {
+                titulo: 'Ticket médio',
+                valor: formatarMoedaBrl(dados.metricas.ticketMedio),
+                ...variacao(dados.metricas.ticketMedio, dados.metricasAnteriores.ticketMedio),
+              },
+              {
+                titulo: 'Taxa de aprovação',
+                valor: formatarPercentual(dados.metricas.taxaAprovacao),
+                detalhe: `${dados.metricas.quantidadePagas} de ${dados.metricas.quantidadePagas + dados.metricas.quantidadeRecusadas} tentativas`,
+              },
+            ]}
+          />
+
+          <IndicadoresSecundarios
+            rotulo="Outros indicadores de vendas"
+            itens={[
+              {
+                titulo: 'Faturamento bruto',
+                valor: formatarMoedaBrl(dados.metricas.faturamentoBruto),
+                ...variacao(dados.metricas.faturamentoBruto, dados.metricasAnteriores.faturamentoBruto),
+              },
+              {
+                titulo: 'Taxas dos gateways',
+                valor: formatarMoedaBrl(dados.metricas.totalTaxas),
+                detalhe: `${formatarPercentual(dados.metricas.faturamentoBruto > 0 ? dados.metricas.totalTaxas / dados.metricas.faturamentoBruto : 0)} do bruto`,
+              },
+              {
+                titulo: 'Recusas',
+                valor: formatarPercentual(dados.metricas.taxaRecusa),
+                detalhe: `${dados.metricas.quantidadeRecusadas} · ${formatarMoedaBrl(dados.metricas.valorRecusado)}${dados.metricas.taxaRecusa > 0.3 ? ' · acima de 30%' : ''}`,
+                tom: dados.metricas.taxaRecusa > 0.3 ? 'negativo' : 'neutro',
+              },
+              {
+                titulo: 'Chargebacks',
+                valor: formatarPercentual(dados.metricas.percentualChargeback),
+                detalhe: `${dados.metricas.quantidadeChargebacks} · ${formatarMoedaBrl(dados.metricas.valorChargeback)}${dados.metricas.percentualChargeback > 0.01 ? ' · acima de 1%' : ''}`,
+                tom: dados.metricas.percentualChargeback > 0.01 ? 'negativo' : 'neutro',
+              },
+              {
+                titulo: 'Reembolsos',
+                valor: formatarPercentual(dados.metricas.percentualReembolso),
+                detalhe: `${dados.metricas.quantidadeReembolsadas} · ${formatarMoedaBrl(dados.metricas.valorReembolsado)}`,
+              },
+              {
+                titulo: 'Pendentes',
+                valor: formatarMoedaBrl(dados.metricas.valorPendente),
+                detalhe: `${dados.metricas.quantidadePendentes} aguardando`,
+              },
+            ]}
+          />
 
           <Painel titulo="Faturamento pago por dia">
             <GraficoDiario dias={dados.porDia} />

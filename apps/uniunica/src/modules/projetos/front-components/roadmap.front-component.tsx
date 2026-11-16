@@ -4,7 +4,6 @@ import { defineFrontComponent } from 'twenty-sdk/define';
 import { AppPath, navigate } from 'twenty-sdk/front-component';
 import { Callout } from 'twenty-ui/components/feedback';
 import { LightButton } from 'twenty-ui/components/input';
-import { Section } from 'twenty-ui/components/layout';
 import { IconAlertTriangle, IconMap, IconRefresh } from 'twenty-ui/icon';
 import { Tag } from 'twenty-ui/primitives/data-display';
 import { Loader } from 'twenty-ui/primitives/feedback';
@@ -26,6 +25,7 @@ import { fetchAllRestRecords } from 'src/modules/projetos/utils/fetch-all-rest-r
 import { formatDatePt } from 'src/modules/projetos/utils/format-date-pt.util';
 import { groupProjetosByArea } from 'src/modules/projetos/utils/group-projetos-by-area.util';
 import { toUtcDay } from 'src/modules/projetos/utils/to-utc-day.util';
+import { Titulo } from 'src/modules/shared/components/titulo';
 
 const LABEL_COLUMN_WIDTH = 260;
 const MONTH_MIN_WIDTH = 120;
@@ -434,11 +434,11 @@ const Roadmap = () => {
         fontFamily: theme.font.family,
       }}
     >
-      <Section.Header
-        level={1}
-        title="Roadmap"
-        description={`Projetos por área ao longo dos trimestres · hoje é ${formatDatePt(todayMs)} · clique numa barra para abrir o projeto`}
-        actions={
+      <Titulo
+        nivel="pagina"
+        titulo="Roadmap"
+        descricao={`Projetos por área ao longo dos trimestres · hoje é ${formatDatePt(todayMs)} · clique numa barra para abrir o projeto`}
+        acoes={
           <LightButton
             size="sm"
             startIcon={<IconRefresh size={14} />}

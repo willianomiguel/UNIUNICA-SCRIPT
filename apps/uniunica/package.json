@@ -20,6 +20,8 @@
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },
   "devDependencies": {
+    "@noble/ciphers": "2.4.0",
+    "@noble/hashes": "2.4.0",
     "@types/node": "^24.7.2",
     "@types/react": "^19.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20260116.1",

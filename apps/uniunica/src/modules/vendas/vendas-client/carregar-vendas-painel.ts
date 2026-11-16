@@ -39,7 +39,7 @@ export const carregarVendasPainel = async (desde: Date): Promise<RegistroVendaAp
       },
     });
 
-    registros.push(...((vendas?.edges ?? []).map((edge) => edge.node) as RegistroVendaApi[]));
+    registros.push(...((vendas?.edges ?? []).map((edge: { node: unknown }) => edge.node) as RegistroVendaApi[]));
 
     if (!vendas?.pageInfo?.hasNextPage || !vendas.pageInfo.endCursor) {
       break;

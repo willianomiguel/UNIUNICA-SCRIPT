@@ -13,7 +13,6 @@ campanha **cruzado com as vendas reais** do módulo `vendas`.
 | Views: Todas as campanhas, **Campanhas ativas**, **Por plataforma** (Kanban), **Métricas diárias** | `views/` |
 | **Painel de Tráfego** (menu, posição 50): aba *Resumo* (front component com gasto, cliques, leads, vendas, receita, CPA, ROAS por campanha / por dia / por plataforma, filtro 7–90 dias) e aba *Gráficos* (widgets nativos) | `page-layouts/painel-trafego.page-layout.ts`, `front-components/painel-trafego.front-component.tsx` |
 | Menu: Painel de Tráfego (50), Campanhas (51), Métricas de tráfego (52) | `navigation-menu-items/` |
-| Seed: 2 campanhas de exemplo + 14 dias de métricas (idempotente, pula se já existem) | `seed/seed-trafego.ts` |
 
 ### Indicadores
 

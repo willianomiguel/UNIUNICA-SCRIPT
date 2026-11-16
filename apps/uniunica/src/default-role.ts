@@ -1,4 +1,4 @@
-import { defineApplicationRole } from 'twenty-sdk/define';
+import { defineApplicationRole, SystemPermissionFlag } from 'twenty-sdk/define';
 
 import {
   APP_DISPLAY_NAME,
@@ -15,4 +15,8 @@ export default defineApplicationRole({
   canDestroyAllObjectRecords: false,
   canBeAssignedToUsers: false,
   canBeAssignedToApiKeys: false,
+  // AI: a conversa do quadro (quadro-ia-conversar) roda o agente do app com runAgent.
+  permissionFlagUniversalIdentifiers: [SystemPermissionFlag.AI],
+  // Não negue o objeto cofre aqui: o Twenty copia esta função para a "UniÚnica Gestão role",
+  // que também limita os front components, e a tela do cofre deixaria de abrir para todos.
 });

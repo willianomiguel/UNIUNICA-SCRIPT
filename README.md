@@ -68,13 +68,13 @@ twenty auth login --url <SERVER_URL>       # ou: echo "$CHAVE" | twenty auth log
 twenty app apply --create
 ```
 
-5. Carregue os dados iniciais (categorias, modelos da Wiki, regras de alerta e exemplos):
+5. Carregue os dados iniciais (só as categorias financeiras padrão; o app não instala dados de exemplo):
 
 ```bash
 curl -X POST -H "Authorization: Bearer $CHAVE" <SERVER_URL>/s/uniunica/dados-iniciais
 ```
 
-Pode rodar de novo sem medo: não duplica nada. Os registros de exemplo podem ser apagados depois.
+Pode rodar de novo sem medo: não duplica nada.
 
 ## Configurar integrações
 
