@@ -9,6 +9,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: PASTA_MENU_ID,
   name: 'Financeiro',
   icon: 'IconCash',
+  color: 'amber',
   position: 40,
   type: NavigationMenuItemType.FOLDER,
 });

@@ -9,6 +9,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: PASTA_MENU_ID,
   name: 'Tráfego',
   icon: 'IconSpeakerphone',
+  color: 'sky',
   position: 50,
   type: NavigationMenuItemType.FOLDER,
 });

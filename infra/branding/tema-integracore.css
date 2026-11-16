@@ -106,3 +106,11 @@
   --t-color-transparent-blue11: rgba(var(--ic-a-rgb), 0.77);
   --t-color-transparent-blue12: rgba(var(--ic-a-rgb), 0.88);
 }
+
+/* Tamanho: o motor nasce com texto de 13px, pequeno demais. Amplia tudo (texto, ícones e espaços)
+   em 20% pelo zoom do próprio motor, que já compensa as alturas de tela (100vh / --t-zoom).
+   Continua respeitando a escala que cada usuário escolher nas configurações. */
+html:root { --t-zoom: calc(var(--t-scale-user, 1) * 1.2); }
+@media (width <= 768px) {
+  html:root { --t-zoom: calc(var(--t-scale-user, 1) * 1.07692 * 1.2); }
+}

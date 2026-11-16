@@ -9,6 +9,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: PASTA_MENU_ID,
   name: 'Metas',
   icon: 'IconTarget',
+  color: 'pink',
   position: 45,
   type: NavigationMenuItemType.FOLDER,
 });

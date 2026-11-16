@@ -1,4 +1,4 @@
-import { CoreApiClient } from 'integra-client-sdk/core';
+import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { type GatewayPagamento } from 'src/modules/vendas/types/gateway-pagamento';
 import { type ResultadoNormalizacao } from 'src/modules/vendas/types/resultado-normalizacao';

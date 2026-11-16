@@ -9,6 +9,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: PASTA_MENU_ID,
   name: 'Sprints',
   icon: 'IconRun',
+  color: 'cyan',
   position: 20,
   type: NavigationMenuItemType.FOLDER,
 });

@@ -10,6 +10,8 @@ import {
   IconFocusCentered,
   IconHandMove,
   IconHash,
+  IconMaximize,
+  IconMinimize,
   IconMinus,
   IconNotes,
   IconPencil,
@@ -170,9 +172,11 @@ type ControlesTopoQuadroProps = {
   aoRefazer: () => void;
   temSelecao: boolean;
   aoApagarSelecao: () => void;
+  emFoco: boolean;
+  aoAlternarFoco: () => void;
 };
 
-// Pílula do canto superior direito: desfazer/refazer, apagar e zoom com menu.
+// Pílula do canto superior direito: desfazer/refazer, apagar, zoom com menu e modo foco.
 export const ControlesTopoQuadro = ({
   theme,
   zoom,
@@ -185,6 +189,8 @@ export const ControlesTopoQuadro = ({
   aoRefazer,
   temSelecao,
   aoApagarSelecao,
+  emFoco,
+  aoAlternarFoco,
 }: ControlesTopoQuadroProps) => (
   <div style={estiloPilula(theme)}>
     <LightIconButton aria-label="Desfazer (Ctrl+Z)" tooltip="Desfazer (Ctrl+Z)" disabled={!podeDesfazer} onClick={aoDesfazer}>
@@ -217,7 +223,8 @@ export const ControlesTopoQuadro = ({
           </LightButton>
         }
       />
-      <Dropdown.Content aria-label="Zoom" width={200}>
+      {/* Alinhado pela direita: o botão fica no canto, alinhado pela esquerda o menu passava da borda da tela. */}
+      <Dropdown.Content aria-label="Zoom" width={200} align="end" sideOffset={6}>
         <Dropdown.Section>
           <Dropdown.ActionItem startIcon={<IconPlus size={16} />} closeOnClick={false} onClick={() => aoMudarZoom(1.2)}>
             Aumentar zoom
@@ -232,6 +239,18 @@ export const ControlesTopoQuadro = ({
         </Dropdown.Section>
       </Dropdown.Content>
     </Dropdown.Root>
+    <Separador theme={theme} />
+    {/* O data-testid avisa o index.html da imagem IntegraCore para pôr/tirar o navegador da tela cheia
+        (o worker não tem a Fullscreen API; ver infra/branding/aplicar-marca.js). */}
+    <div data-testid={emFoco ? 'quadro-sair-foco' : 'quadro-entrar-foco'} style={{ display: 'flex' }}>
+      <LightIconButton
+        aria-label={emFoco ? 'Sair do modo foco (Esc)' : 'Modo foco: quadro em tela cheia'}
+        tooltip={emFoco ? 'Sair do modo foco (Esc)' : 'Modo foco (tela cheia)'}
+        onClick={aoAlternarFoco}
+      >
+        {emFoco ? <IconMinimize size={16} /> : <IconMaximize size={16} />}
+      </LightIconButton>
+    </div>
   </div>
 );
 

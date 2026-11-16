@@ -113,6 +113,44 @@ trocar(path.join(front, 'index.html'), (s) =>
   ),
 );
 
+// Menus de front component com o zoom do tema (--t-zoom 1.2): o motor mede o botão em pixels de tela, mas
+// posiciona o menu numa camada (z-index 38, contain: layout) que o zoom da página amplia de novo, e o menu
+// abria 20% mais longe (fora da tela no canto direito). A camada passa a usar zoom 1 (coordenadas em pixels
+// de tela) e só o conteúdo do menu volta a ser ampliado. A build para se o motor mudar a camada.
+const camadaPortal = fs
+  .readdirSync(assets)
+  .filter((f) => f.endsWith('.js'))
+  .some((f) => {
+    const js = fs.readFileSync(path.join(assets, f), 'utf8');
+
+    return /zIndex:38,pointerEvents:"none",overflow:"clip"/.test(js) && js.includes('/ var(--t-zoom, 1))');
+  });
+if (!camadaPortal) {
+  throw new Error('Camada de menus dos front components mudou no motor: revise o CSS "menus-front-component".');
+}
+trocar(path.join(front, 'index.html'), (s) =>
+  s.replace(
+    '</head>',
+    `<style id="menus-front-component">:root{--ic-zoom-raiz:var(--t-zoom);}` +
+      `body>div[style*="z-index: 38"][style*="contain: layout"]{--t-zoom:1;zoom:calc(1 / var(--ic-zoom-raiz));}` +
+      `body>div[style*="z-index: 38"][style*="contain: layout"] [style*="--transform-origin"]>*{zoom:var(--ic-zoom-raiz);}</style></head>`,
+  ),
+);
+
+// Quadro, modo foco: o worker não tem a Fullscreen API. O botão do quadro fica num elemento marcado
+// "quadro-entrar-foco"/"quadro-sair-foco"; este ouvinte (no clique real, que vale como gesto do usuário)
+// põe ou tira o navegador da tela cheia. Se o usuário sair da tela cheia pelo Esc do navegador, clica no
+// botão "sair" para o quadro deixar o modo foco também.
+// O CSS solta a camada fixa do quadro: ancestrais com will-change/transform/contain/container-type
+// (o slot do widget e a rolagem da aba) prendem position:fixed dentro da aba. Só vale com o foco ligado.
+trocar(path.join(front, 'index.html'), (s) =>
+  s.replace(
+    '</head>',
+    `<style id="quadro-modo-foco">:has([data-testid="quadro-sair-foco"]){will-change:auto!important;transform:none!important;filter:none!important;contain:none!important;container-type:normal!important;}</style>` +
+    `<script>(function(){var saindo=false;function alvo(e,id){var t=e.target;return t&&t.closest&&t.closest('[data-testid="'+id+'"]');}document.addEventListener('click',function(e){if(alvo(e,'quadro-entrar-foco')){var r=document.documentElement;if(!document.fullscreenElement&&r.requestFullscreen)r.requestFullscreen().catch(function(){});}else if(alvo(e,'quadro-sair-foco')&&document.fullscreenElement){saindo=true;document.exitFullscreen().catch(function(){});}},true);document.addEventListener('fullscreenchange',function(){if(document.fullscreenElement)return;if(saindo){saindo=false;return;}var b=document.querySelector('[data-testid="quadro-sair-foco"] button');if(b)b.click();});})();</script></head>`,
+  ),
+);
+
 // Tema IntegraCore (cores e neutros). Antes de injetar, confere se cada variável que o tema
 // sobrescreve ainda existe no CSS compilado: se uma versão nova renomear alguma, a build para aqui.
 const tema = fs.readFileSync(path.join(__dirname, 'tema-integracore.css'), 'utf8');

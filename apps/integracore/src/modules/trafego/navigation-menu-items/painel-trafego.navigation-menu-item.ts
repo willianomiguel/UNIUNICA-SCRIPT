@@ -11,7 +11,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: 'c71c9ffd-c00f-499c-a14d-391b8ebdf68e',
   name: 'Painel de Tráfego',
   icon: 'IconChartBar',
-  color: 'blue',
+  color: 'sky',
   position: 50,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,

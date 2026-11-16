@@ -9,10 +9,23 @@ export const limitarZoom = (zoom: number): number =>
   Math.min(Math.max(zoom, LIMITES_QUADRO.zoomMinimo), LIMITES_QUADRO.zoomMaximo);
 
 // Coordenada do navegador (clientX/Y) → pixels a partir do canto da área de desenho.
-export const clienteParaTela = (cliente: PontoQuadro, origemArea: PontoQuadro): PontoQuadro => [
-  cliente[0] - origemArea[0],
-  cliente[1] - origemArea[1],
+// clientX e getBoundingClientRect vêm em pixels de tela; com o zoom da página (--t-zoom do tema, 1.2)
+// o CSS do quadro roda em pixels menores, então divide pela escala (largura na tela ÷ largura no CSS).
+export const clienteParaTela = (cliente: PontoQuadro, origemArea: PontoQuadro, escala = 1): PontoQuadro => [
+  (cliente[0] - origemArea[0]) / escala,
+  (cliente[1] - origemArea[1]) / escala,
 ];
+
+// Escala entre pixels de tela e pixels do CSS da área; 1 quando a medida não serve.
+export const escalaDaArea = (larguraNaTela: number, larguraNoCss: number): number => {
+  if (!(larguraNaTela > 0) || !(larguraNoCss > 0)) {
+    return 1;
+  }
+  const escala = larguraNaTela / larguraNoCss;
+
+  // Ignora diferença de arredondamento (meio pixel) para não deslocar o desenho à toa.
+  return Math.abs(escala - 1) < 0.01 ? 1 : escala;
+};
 
 // Ponto na tela (pixels a partir do canto do SVG) → ponto no quadro.
 export const telaParaQuadro = (ponto: PontoQuadro, camera: CameraQuadro): PontoQuadro => [

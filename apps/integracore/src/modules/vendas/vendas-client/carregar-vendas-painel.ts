@@ -1,4 +1,4 @@
-import { CoreApiClient } from 'integra-client-sdk/core';
+import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { type RegistroVendaApi } from 'src/modules/vendas/types/registro-venda-api';
 

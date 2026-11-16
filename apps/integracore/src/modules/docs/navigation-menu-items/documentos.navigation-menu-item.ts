@@ -8,7 +8,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: DOCS_UNIVERSAL_IDENTIFIERS.documentosNavigationMenuItem,
   name: 'Documentos',
   icon: 'IconFileText',
-  color: 'blue',
+  color: 'purple',
   position: 61,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,

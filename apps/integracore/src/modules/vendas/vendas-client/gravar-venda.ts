@@ -1,4 +1,4 @@
-import { CoreApiClient } from 'integra-client-sdk/core';
+import { CoreApiClient } from 'twenty-client-sdk/core';
 
 import { type VendaExistente } from 'src/modules/vendas/types/venda-existente';
 import { type VendaNormalizada } from 'src/modules/vendas/types/venda-normalizada';

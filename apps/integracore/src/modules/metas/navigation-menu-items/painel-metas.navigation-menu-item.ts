@@ -11,7 +11,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: METAS_IDS.NAV_PAINEL_METAS,
   name: 'Painel de metas',
   icon: 'IconChartArrowsVertical',
-  color: 'orange',
+  color: 'pink',
   position: 45,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,

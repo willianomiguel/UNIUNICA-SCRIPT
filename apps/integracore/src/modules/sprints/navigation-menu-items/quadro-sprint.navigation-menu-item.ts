@@ -8,7 +8,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: SPRINTS_IDS.navigation.quadro,
   name: 'Quadro da sprint',
   icon: 'IconLayoutKanban',
-  color: 'green',
+  color: 'cyan',
   position: 21,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,

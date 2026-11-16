@@ -9,6 +9,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: PASTA_MENU_ID,
   name: 'Wiki',
   icon: 'IconBook',
+  color: 'purple',
   position: 60,
   type: NavigationMenuItemType.FOLDER,
 });

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ajustarCameraACaixa,
   clienteParaTela,
+  escalaDaArea,
   moverCamera,
   quadroParaTela,
   telaParaQuadro,
@@ -13,6 +14,14 @@ describe('camera-quadro', () => {
   // Regressão: o sandbox manda offsetX = 0; a posição precisa vir de clientX menos o canto da área.
   it('converte clientX/Y em ponto da área usando o canto dela', () => {
     expect(clienteParaTela([960, 480], [237, 129])).toEqual([723, 351]);
+  });
+
+  it('desconta o zoom da página ao converter o clique (tema com --t-zoom 1.2)', () => {
+    expect(clienteParaTela([404, 249], [284, 129], 1.2)).toEqual([100, 100]);
+    expect(escalaDaArea(1200, 1000)).toBeCloseTo(1.2);
+    expect(escalaDaArea(1000.4, 1000)).toBe(1);
+    expect(escalaDaArea(0, 1000)).toBe(1);
+    expect(escalaDaArea(1200, 0)).toBe(1);
   });
 
   it('converte tela ↔ quadro com pan e zoom', () => {

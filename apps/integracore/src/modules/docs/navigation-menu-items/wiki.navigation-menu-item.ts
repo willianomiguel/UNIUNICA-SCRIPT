@@ -8,7 +8,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: DOCS_UNIVERSAL_IDENTIFIERS.wiki.navigationMenuItem,
   name: 'Wiki',
   icon: 'IconBook',
-  color: 'blue',
+  color: 'purple',
   position: 60,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,

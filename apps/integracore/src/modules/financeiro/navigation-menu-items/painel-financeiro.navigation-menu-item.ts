@@ -11,7 +11,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: FINANCEIRO_IDS.NAV_PAINEL,
   name: 'Painel Financeiro',
   icon: 'IconChartBar',
-  color: 'green',
+  color: 'amber',
   position: 40,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.PAGE_LAYOUT,

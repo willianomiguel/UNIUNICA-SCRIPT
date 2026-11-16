@@ -55,6 +55,7 @@ import {
   ajustarCameraACaixa,
   CAMERA_INICIAL,
   clienteParaTela,
+  escalaDaArea,
   moverCamera,
   quadroParaTela,
   telaParaQuadro,
@@ -169,6 +170,8 @@ const QuadroEditor = () => {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
 
   const [iaAberta, setIaAberta] = useState(false);
+  // Modo foco: o quadro cobre a tela inteira (camada fixa); o index.html da imagem também põe o navegador em tela cheia.
+  const [emFoco, setEmFoco] = useState(false);
   const [menu, setMenu] = useState<{ x: number; y: number; quadro: PontoQuadro } | null>(null);
   // Área de transferência interna (a do sistema não chega ao worker de forma confiável).
   const copiadosRef = useRef<ElementoQuadro[]>([]);
@@ -190,6 +193,8 @@ const QuadroEditor = () => {
   const cameraRef = useRef(camera);
   const interacaoRef = useRef<Interacao | null>(null);
   const origemRef = useRef<PontoQuadro | null>(null);
+  // Pixels de tela por pixel do CSS da área (o tema amplia a página com --t-zoom).
+  const escalaRef = useRef(1);
   const fundoRef = useRef<SVGRectElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const areaRef = useRef<HTMLDivElement | null>(null);
@@ -316,6 +321,7 @@ const QuadroEditor = () => {
 
     if (retangulo && retangulo.width > 0) {
       origemRef.current = [retangulo.left, retangulo.top];
+      escalaRef.current = escalaDaArea(retangulo.width, areaRef.current?.offsetWidth ?? 0);
     }
   };
 
@@ -326,7 +332,7 @@ const QuadroEditor = () => {
       atualizarOrigem();
     }
 
-    const tela = clienteParaTela([dados.clientX, dados.clientY], origemRef.current ?? [0, 0]);
+    const tela = clienteParaTela([dados.clientX, dados.clientY], origemRef.current ?? [0, 0], escalaRef.current);
 
     return { dados, tela, quadro: telaParaQuadro(tela, cameraRef.current) };
   };
@@ -921,6 +927,10 @@ const QuadroEditor = () => {
     } else if (comando && tecla === 'a') {
       setSelecao(new Set(historicoRef.current.presente.map((elemento) => elemento.id)));
     } else if (evento.key === 'Escape') {
+      // Esc primeiro limpa a seleção/ferramenta; com nada a limpar, sai do modo foco.
+      if (emFoco && selecao.size === 0 && ferramenta === 'selecionar') {
+        setEmFoco(false);
+      }
       setSelecao(new Set());
       setFerramenta('selecionar');
     } else if (!comando && !evento.altKey && ATALHOS_FERRAMENTAS[tecla] !== undefined) {
@@ -1046,6 +1056,7 @@ const QuadroEditor = () => {
         height: '100%',
         minHeight: 360,
         outline: 'none',
+        ...(emFoco ? { position: 'fixed' as const, inset: 0, zIndex: 30, height: 'auto' } : {}),
 
         color: theme.font.color.primary,
         background: theme.background.primary,
@@ -1237,6 +1248,11 @@ const QuadroEditor = () => {
             aoRefazer={() => mudarHistorico(refazer)}
             temSelecao={selecao.size > 0}
             aoApagarSelecao={apagarSelecao}
+            emFoco={emFoco}
+            aoAlternarFoco={() => {
+              setEmFoco((ativo) => !ativo);
+              focarArea();
+            }}
           />
         </div>
 

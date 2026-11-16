@@ -11,7 +11,7 @@ export default defineNavigationMenuItem({
   universalIdentifier: '772cc180-ba42-4f59-918b-be58fd772023',
   name: 'Projetos',
   icon: 'IconRocket',
-  color: 'blue',
+  color: 'iris',
   position: 11,
   folderUniversalIdentifier: PASTA_MENU_ID,
   type: NavigationMenuItemType.OBJECT,
