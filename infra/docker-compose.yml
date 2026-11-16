@@ -1,17 +1,18 @@
-# Baseado em twenty/packages/twenty-docker/docker-compose.yml (versão fixada).
+# Baseado no compose do motor (integra-core/packages/integracore-docker/docker-compose.yml, versão fixada).
 # Uso: cp .env.example .env && preencha os segredos && docker compose up -d
-name: twenty
+name: integracore
 
 services:
   server:
-    image: integracore/twenty:${TAG:-v2.58.2}
+    image: integracore/gestao:${TAG:-v2.58.2}
     build:
       context: ./branding
       args:
         TAG: ${TAG:-v2.58.2}
+    working_dir: /app/packages/integracore-server
     stop_grace_period: 120s
     volumes:
-      - server-local-data:/app/packages/twenty-server/.local-storage
+      - server-local-data:/app/packages/integracore-server/.local-storage
     ports:
       - "3000:3000"
     environment:
@@ -37,7 +38,7 @@ services:
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
       # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
       SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
-      # IA do Twenty (chat do quadro e agentes): chave no .env, nunca no git
+      # IA do IntegraCore (chat do quadro e agentes): chave no .env, nunca no git
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
@@ -77,13 +78,14 @@ services:
     restart: always
 
   worker:
-    image: integracore/twenty:${TAG:-v2.58.2}
+    image: integracore/gestao:${TAG:-v2.58.2}
     build:
       context: ./branding
       args:
         TAG: ${TAG:-v2.58.2}
+    working_dir: /app/packages/integracore-server
     volumes:
-      - server-local-data:/app/packages/twenty-server/.local-storage
+      - server-local-data:/app/packages/integracore-server/.local-storage
     command: ["yarn", "worker:prod"]
     environment:
       PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/${PG_DATABASE_NAME:-default}
@@ -107,7 +109,7 @@ services:
       LOGIC_FUNCTION_TYPE: ${LOGIC_FUNCTION_TYPE:-LOCAL}
       # Endereço interno do servidor (as funções dos apps chamam a API por aqui dentro do Docker)
       SERVER_INTERNAL_URL: ${SERVER_INTERNAL_URL:-http://server:3000}
-      # IA do Twenty (chat do quadro e agentes): chave no .env, nunca no git
+      # IA do IntegraCore (chat do quadro e agentes): chave no .env, nunca no git
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}

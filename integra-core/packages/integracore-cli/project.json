@@ -1,0 +1,39 @@
+{
+  "name": "integracore-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/integracore-cli/src",
+  "projectType": "application",
+  "tags": ["scope:cli"],
+  "implicitDependencies": ["integracore-sdk"],
+  "targets": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "packages/integracore-cli",
+        "command": "node dist/cli.cjs"
+      }
+    },
+    "typecheck": {},
+    "lint": {},
+    "test:package": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "command": "node --test packages/integracore-cli/scripts/test-npm-resolution.mjs packages/integracore-cli/scripts/test-check-publish.mjs packages/integracore-cli/scripts/test-template-lock.mjs packages/integracore-cli/scripts/test-package.mjs"
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "config": "{projectRoot}/vitest.config.ts"
+      }
+    }
+  }
+}

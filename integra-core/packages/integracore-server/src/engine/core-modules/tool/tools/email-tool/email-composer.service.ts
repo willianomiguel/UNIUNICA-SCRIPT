@@ -1,0 +1,467 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { msg } from '@lingui/core/macro';
+import { isNonEmptyString } from '@sniptt/guards';
+import {
+  ConnectedAccountProvider,
+  type EmailAttachment,
+  EmailOperation,
+} from 'integracore-shared/types';
+import {
+  canConnectedAccountPerformEmailOperation,
+  convertEmailBodyToEmailDocument,
+  getEmailProvidersForOperation,
+  isDefined,
+  isNonEmptyArray,
+  isValidUuid,
+} from 'integracore-shared/utils';
+import { In, IsNull, LessThanOrEqual, type Repository } from 'typeorm';
+
+import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
+import { FileService } from 'src/engine/core-modules/file/services/file.service';
+import { compileOutboundEmailContent } from 'src/engine/core-modules/email/utils/compile-outbound-email-content.util';
+import { sanitizeOutboundEmailSubject } from 'src/engine/core-modules/email/utils/sanitize-outbound-email-html.util';
+import { EMAIL_ATTACHMENT_FILE_FOLDERS } from 'src/engine/core-modules/tool/tools/email-tool/constants/email-attachment-file-folders.const';
+import { MAX_EMAIL_ATTACHMENTS_BYTES } from 'src/engine/core-modules/tool/tools/email-tool/constants/max-email-attachments-bytes.const';
+import {
+  EmailToolException,
+  EmailToolExceptionCode,
+} from 'src/engine/core-modules/tool/tools/email-tool/exceptions/email-tool.exception';
+import { type ComposeEmailParams } from 'src/engine/core-modules/tool/tools/email-tool/types/compose-email-params.type';
+import { EmailComposerResult } from 'src/engine/core-modules/tool/tools/email-tool/types/email-composer-result.type';
+import { getEmailRecipientsError } from 'src/engine/core-modules/email/utils/get-email-recipients-error.util';
+import { parseCommaSeparatedEmails } from 'src/engine/core-modules/email/utils/parse-comma-separated-emails.util';
+import { selectConnectedAccountIdForCaller } from 'src/engine/core-modules/tool/tools/email-tool/utils/select-connected-account-id-for-caller.util';
+import { type ToolExecutionContext } from 'src/engine/core-modules/tool/types/tool-execution-context.type';
+import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
+import { WorkspaceOrmManager } from 'src/engine/integracore-orm/workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/integracore-orm/utils/build-system-auth-context.util';
+import { InjectWorkspaceScopedRepository } from 'src/engine/integracore-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/integracore-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
+import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
+import { type MessageAttachment } from 'src/modules/messaging/message-import-manager/types/message.type';
+import { StreamSizeExceededError } from 'src/utils/stream-size-exceeded-error';
+import { streamToBuffer } from 'src/utils/stream-to-buffer';
+
+type ParentThreadContext = {
+  threadExternalId?: string;
+  references?: string[];
+};
+
+@Injectable()
+export class EmailComposerService {
+  private readonly logger = new Logger(EmailComposerService.name);
+
+  constructor(
+    private readonly workspaceOrmManager: WorkspaceOrmManager,
+    @InjectRepository(ConnectedAccountEntity)
+    private readonly connectedAccountRepository: Repository<ConnectedAccountEntity>,
+    @InjectWorkspaceScopedRepository(FileEntity)
+    private readonly fileRepository: WorkspaceScopedRepository<FileEntity>,
+    private readonly fileService: FileService,
+  ) {}
+
+  private async getConnectedAccountOrThrow({
+    connectedAccountId,
+    workspaceId,
+    operation,
+  }: {
+    connectedAccountId: string;
+    workspaceId: string;
+    operation: EmailOperation;
+  }): Promise<ConnectedAccountEntity> {
+    if (!isValidUuid(connectedAccountId)) {
+      throw new EmailToolException(
+        `Connected account id is not a valid UUID`,
+        EmailToolExceptionCode.INVALID_CONNECTED_ACCOUNT_ID,
+      );
+    }
+
+    const authContext = buildSystemAuthContext(workspaceId);
+
+    return this.workspaceOrmManager.executeInWorkspaceContext(async () => {
+      const connectedAccount = await this.connectedAccountRepository.findOne({
+        where: { id: connectedAccountId, workspaceId, archivedAt: IsNull() },
+        relations: {
+          messageChannels: {
+            messageFolders: true,
+          },
+        },
+      });
+
+      if (!isDefined(connectedAccount)) {
+        throw new EmailToolException(
+          `No connected account found for id '${connectedAccountId}'`,
+          EmailToolExceptionCode.CONNECTED_ACCOUNT_NOT_FOUND,
+        );
+      }
+
+      if (
+        !canConnectedAccountPerformEmailOperation({
+          connectedAccount,
+          operation,
+        })
+      ) {
+        throw new EmailToolException(
+          `Connected account '${connectedAccount.handle}' (${connectedAccount.provider}) cannot ${operation.toLowerCase()} email`,
+          EmailToolExceptionCode.CONNECTED_ACCOUNT_NOT_EMAIL_CAPABLE,
+        );
+      }
+
+      return connectedAccount;
+    }, authContext);
+  }
+
+  private async getDefaultConnectedAccountIdOrThrow({
+    workspaceId,
+    userWorkspaceId,
+    operation,
+  }: {
+    workspaceId: string;
+    userWorkspaceId?: string;
+    operation: EmailOperation;
+  }): Promise<string> {
+    const authContext = buildSystemAuthContext(workspaceId);
+
+    return this.workspaceOrmManager.executeInWorkspaceContext(async () => {
+      const mailboxes = await this.connectedAccountRepository.find({
+        where: {
+          workspaceId,
+          archivedAt: IsNull(),
+          provider: In(getEmailProvidersForOperation(operation)),
+        },
+        order: { createdAt: 'ASC', id: 'ASC' },
+      });
+
+      const usableMailboxes = mailboxes.filter((connectedAccount) =>
+        canConnectedAccountPerformEmailOperation({
+          connectedAccount,
+          operation,
+        }),
+      );
+
+      if (!isNonEmptyArray(usableMailboxes)) {
+        throw new EmailToolException(
+          `No connected account in this workspace can ${operation.toLowerCase()} email`,
+          EmailToolExceptionCode.NO_EMAIL_CAPABLE_CONNECTED_ACCOUNT,
+        );
+      }
+
+      if (!isDefined(userWorkspaceId)) {
+        return usableMailboxes[0].id;
+      }
+
+      const connectedAccountId = selectConnectedAccountIdForCaller({
+        connectedAccounts: usableMailboxes,
+        userWorkspaceId,
+      });
+
+      if (!isDefined(connectedAccountId)) {
+        throw new EmailToolException(
+          `No connected account available for user workspace '${userWorkspaceId}' that can ${operation.toLowerCase()} email`,
+          EmailToolExceptionCode.NO_EMAIL_CAPABLE_CONNECTED_ACCOUNT,
+        );
+      }
+
+      return connectedAccountId;
+    }, authContext);
+  }
+
+  private normalizeRecipients(parameters: ComposeEmailParams): {
+    to: string[];
+    cc: string[];
+    bcc: string[];
+  } {
+    if (
+      !parameters.recipients ||
+      !parameters.recipients.to ||
+      parameters.recipients.to.trim().length === 0
+    ) {
+      throw new EmailToolException(
+        'No recipients specified',
+        EmailToolExceptionCode.INVALID_EMAIL,
+        { userFriendlyMessage: msg`No recipients specified` },
+      );
+    }
+
+    const to = parseCommaSeparatedEmails(parameters.recipients.to);
+
+    if (to.length === 0) {
+      throw new EmailToolException(
+        'No valid recipients specified',
+        EmailToolExceptionCode.INVALID_EMAIL,
+        { userFriendlyMessage: msg`No valid recipients specified` },
+      );
+    }
+
+    return {
+      to,
+      cc: parseCommaSeparatedEmails(parameters.recipients.cc),
+      bcc: parseCommaSeparatedEmails(parameters.recipients.bcc),
+    };
+  }
+
+  private assertAttachmentsSizeWithinLimit(
+    fileEntities: Pick<FileEntity, 'size'>[],
+  ): void {
+    const totalBytes = fileEntities.reduce(
+      (sum, fileEntity) => sum + fileEntity.size,
+      0,
+    );
+
+    if (totalBytes > MAX_EMAIL_ATTACHMENTS_BYTES) {
+      throw new EmailToolException(
+        `Attachments are ${totalBytes} bytes. Maximum allowed is ${MAX_EMAIL_ATTACHMENTS_BYTES} bytes.`,
+        EmailToolExceptionCode.ATTACHMENTS_TOO_LARGE,
+      );
+    }
+  }
+
+  private async getAttachments(
+    files: Array<EmailAttachment>,
+    workspaceId: string,
+  ): Promise<MessageAttachment[]> {
+    if (files.length === 0) {
+      return [];
+    }
+
+    const fileIds = files.map((file) => file.id);
+
+    const fileEntities = await this.fileRepository.find(workspaceId, {
+      where: { id: In(fileIds) },
+    });
+
+    const fileEntityMap = new Map(
+      fileEntities.map((entity) => [entity.id, entity]),
+    );
+
+    const filesNotFound: string[] = [];
+
+    for (const fileMetadata of files) {
+      if (!fileEntityMap.has(fileMetadata.id)) {
+        filesNotFound.push(`${fileMetadata.name} (${fileMetadata.id})`);
+      }
+    }
+
+    if (filesNotFound.length > 0) {
+      throw new EmailToolException(
+        `Files not found: ${filesNotFound.join(', ')}`,
+        EmailToolExceptionCode.FILE_NOT_FOUND,
+      );
+    }
+
+    this.assertAttachmentsSizeWithinLimit(
+      files.flatMap(({ id }) => fileEntityMap.get(id) ?? []),
+    );
+
+    const attachments: MessageAttachment[] = [];
+
+    for (const fileMetadata of files) {
+      const fileStream = await this.fileService.getFileStreamById({
+        fileId: fileMetadata.id,
+        workspaceId,
+        allowedFileFolders: EMAIL_ATTACHMENT_FILE_FOLDERS,
+      });
+
+      if (fileStream === null) {
+        throw new EmailToolException(
+          `Files not found: ${fileMetadata.name} (${fileMetadata.id})`,
+          EmailToolExceptionCode.FILE_NOT_FOUND,
+        );
+      }
+
+      const buffer = await streamToBuffer(
+        fileStream.stream,
+        MAX_EMAIL_ATTACHMENTS_BYTES,
+      ).catch((error) => {
+        if (error instanceof StreamSizeExceededError) {
+          throw new EmailToolException(
+            error.message,
+            EmailToolExceptionCode.ATTACHMENTS_TOO_LARGE,
+          );
+        }
+
+        throw error;
+      });
+
+      attachments.push({
+        filename: fileMetadata.name,
+        content: buffer,
+        contentType: fileStream.mimeType,
+      });
+    }
+
+    return attachments;
+  }
+
+  // Parent's root thread id (provider-native or stored) and RFC 5322 §3.6.4 References chain, so replies thread
+  // on both IntegraCore and recipient mail clients.
+  private async getParentThreadContext(
+    workspaceId: string,
+    inReplyTo: string,
+    messageChannelId: string,
+  ): Promise<ParentThreadContext> {
+    const authContext = buildSystemAuthContext(workspaceId);
+
+    return this.workspaceOrmManager.executeInWorkspaceContext(async () => {
+      const messageRepository =
+        this.workspaceOrmManager.getRepositoryWithoutPermissionChecks<MessageWorkspaceEntity>(
+          'message',
+        );
+
+      const parentMessage = await messageRepository.findOne({
+        where: { headerMessageId: inReplyTo },
+      });
+
+      if (
+        !isDefined(parentMessage) ||
+        !isDefined(parentMessage.messageThreadId) ||
+        !isDefined(parentMessage.receivedAt)
+      ) {
+        return {};
+      }
+
+      const associationRepository =
+        this.workspaceOrmManager.getRepositoryWithoutPermissionChecks<MessageChannelMessageAssociationWorkspaceEntity>(
+          'messageChannelMessageAssociation',
+        );
+
+      const [association, ancestorMessages] = await Promise.all([
+        associationRepository.findOne({
+          where: { messageId: parentMessage.id, messageChannelId },
+          select: { messageThreadExternalId: true },
+        }),
+        messageRepository.find({
+          where: {
+            messageThreadId: parentMessage.messageThreadId,
+            receivedAt: LessThanOrEqual(parentMessage.receivedAt),
+          },
+          select: { headerMessageId: true },
+          order: { receivedAt: 'ASC' },
+        }),
+      ]);
+
+      const references = ancestorMessages
+        .map((message) => message.headerMessageId)
+        .filter(isNonEmptyString);
+
+      return {
+        threadExternalId: association?.messageThreadExternalId ?? undefined,
+        references: references.length > 0 ? references : undefined,
+      };
+    }, authContext);
+  }
+
+  async composeEmail({
+    parameters,
+    context,
+    operation,
+  }: {
+    parameters: ComposeEmailParams;
+    context: ToolExecutionContext;
+    operation: EmailOperation;
+  }): Promise<EmailComposerResult> {
+    const { workspaceId, userWorkspaceId } = context;
+    const { subject, body, files, inReplyTo, fromHandle } = parameters;
+    let { connectedAccountId } = parameters;
+
+    let recipients: { to: string[]; cc: string[]; bcc: string[] };
+
+    try {
+      recipients = this.normalizeRecipients(parameters);
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof EmailToolException
+            ? error.userFriendlyMessage
+            : msg`Invalid recipients`,
+      };
+    }
+
+    const recipientsError = getEmailRecipientsError(recipients);
+
+    if (isDefined(recipientsError)) {
+      return { success: false, error: recipientsError };
+    }
+
+    const toRecipientsDisplay = recipients.to.join(', ');
+
+    if (!connectedAccountId) {
+      connectedAccountId = await this.getDefaultConnectedAccountIdOrThrow({
+        workspaceId,
+        userWorkspaceId,
+        operation,
+      });
+    }
+
+    const connectedAccount = await this.getConnectedAccountOrThrow({
+      connectedAccountId,
+      workspaceId,
+      operation,
+    });
+
+    const messageChannel =
+      connectedAccount.provider === ConnectedAccountProvider.EMAIL_GROUP
+        ? connectedAccount.messageChannels[0]
+        : connectedAccount.messageChannels.find(
+            (channel) => channel.handle === connectedAccount.handle,
+          );
+
+    const isSmtpOnlyAccount =
+      connectedAccount.provider === ConnectedAccountProvider.IMAP_SMTP_CALDAV &&
+      !isDefined(connectedAccount.connectionParameters?.IMAP);
+
+    if (!isSmtpOnlyAccount && !isDefined(messageChannel)) {
+      throw new EmailToolException(
+        `No message channel found for connected account '${connectedAccountId}'`,
+        EmailToolExceptionCode.CONNECTED_ACCOUNT_NOT_FOUND,
+      );
+    }
+
+    const attachments = await this.getAttachments(files || [], workspaceId);
+
+    const bodyConversionResult = convertEmailBodyToEmailDocument(body ?? '');
+
+    if (!bodyConversionResult.success) {
+      throw new EmailToolException(
+        `Invalid outbound email document: ${bodyConversionResult.error}`,
+        EmailToolExceptionCode.INVALID_EMAIL_BODY,
+      );
+    }
+
+    const { html: sanitizedHtmlBody, plainText: plainTextBody } =
+      await compileOutboundEmailContent(bodyConversionResult.document);
+    const sanitizedSubject = await sanitizeOutboundEmailSubject(subject || '');
+
+    const { threadExternalId, references } =
+      isDefined(inReplyTo) && isDefined(messageChannel)
+        ? await this.getParentThreadContext(
+            workspaceId,
+            inReplyTo,
+            messageChannel.id,
+          )
+        : {};
+
+    return {
+      success: true,
+      data: {
+        recipients,
+        toRecipientsDisplay,
+        sanitizedSubject,
+        plainTextBody,
+        sanitizedHtmlBody,
+        attachments,
+        connectedAccount,
+        fromHandle,
+        messageChannelId: messageChannel?.id,
+        shouldPersistMessage: isDefined(messageChannel),
+        inReplyTo,
+        threadExternalId,
+        references,
+      },
+    };
+  }
+}

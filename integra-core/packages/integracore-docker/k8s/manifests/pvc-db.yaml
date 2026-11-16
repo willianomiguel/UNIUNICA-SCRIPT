@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: integracorecrm-db-pvc
+  namespace: integracorecrm
+spec:
+  storageClassName: default
+  volumeName: integracorecrm-db-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

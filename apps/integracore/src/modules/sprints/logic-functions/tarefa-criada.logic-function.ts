@@ -1,0 +1,36 @@
+import {
+  defineLogicFunction,
+  STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS,
+} from 'integra-sdk/define';
+import type { DatabaseEventPayload } from 'integra-sdk/logic-function';
+
+import { SPRINTS_IDS } from 'src/modules/sprints/constants/sprints-ids';
+import { processarEventoTarefa } from 'src/modules/sprints/services/processar-evento-tarefa.service';
+
+const TASK = STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.task;
+
+// Tarefa criada: gera o código UNI-<n>, grava a conclusão e recalcula a sprint
+const handler = async (evento: DatabaseEventPayload) => {
+  try {
+    return await processarEventoTarefa(
+      evento as unknown as Parameters<typeof processarEventoTarefa>[0],
+      'created',
+    );
+  } catch (erro) {
+    console.error('[sprints] falha ao processar evento de tarefa', erro);
+    throw erro;
+  }
+};
+
+export default defineLogicFunction({
+  universalIdentifier: SPRINTS_IDS.logicFunctions.tarefaCriada,
+  name: 'sprints-tarefa-criada',
+  description: 'Tarefa criada: gera o código UNI-<n>, grava a conclusão e recalcula a sprint',
+  timeoutSeconds: 30,
+  handler,
+  eventTriggerSettings: {
+    on: 'recordEvent',
+    objectUniversalIdentifier: TASK.universalIdentifier,
+    action: 'created',
+  },
+});

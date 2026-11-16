@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Sincroniza o app apps/uniunica com o Twenty ativo (remote padrão do CLI).
-# Usa uma trava para que só um `twenty app apply` rode por vez.
+# Sincroniza o app apps/integracore com o servidor ativo (remote padrão do CLI).
+# Usa uma trava para que só um `yarn integra app apply` rode por vez.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 source "$ROOT/scripts/dev-env.sh"
-cd "$ROOT/apps/uniunica"
-exec flock "${TMPDIR:-/tmp}/uniunica-apply.lock" twenty app apply --no-input "$@"
+cd "$ROOT/apps/integracore"
+exec flock "${TMPDIR:-/tmp}/integracore-apply.lock" yarn integra app apply --no-input "$@"

@@ -1,0 +1,62 @@
+---
+title: Scaffolding
+description: Generieren Sie Entitätsdateien interaktiv mit yarn integracore dev:add — Objekte, Felder, Ansichten, Logikfunktionen und mehr.
+---
+
+Anstatt Entitätsdateien manuell zu erstellen, können Sie den interaktiven Scaffolder verwenden:
+
+```bash filename="Terminal"
+yarn integracore dev:add
+```
+
+Er fordert Sie auf, einen Entitätstyp auszuwählen, führt Sie durch die erforderlichen Felder und schreibt anschließend eine einsatzbereite Datei mit einem stabilen `universalIdentifier` und dem korrekten `defineEntity()`-Aufruf.
+
+Sie können den Entitätstyp auch direkt übergeben, um die erste Eingabeaufforderung zu überspringen:
+
+```bash filename="Terminal"
+yarn integracore dev:add object
+yarn integracore dev:add logicFunction
+yarn integracore dev:add frontComponent
+```
+
+## Verfügbare Entitätstypen
+
+| Entitätstyp                | Befehl                                     | Generierte Datei                                          |
+| -------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| Objekt                     | `yarn integracore dev:add object`               | `src/objects/\<name>.ts`                 |
+| Feld                       | `yarn integracore dev:add field`                | `src/fields/\<name>.ts`                  |
+| Logikfunktion              | `yarn integracore dev:add logicFunction`        | `src/logic-functions/\<name>.ts`         |
+| Frontend-Komponente        | `yarn integracore dev:add frontComponent`       | `src/front-components/\<name>.tsx`       |
+| Rolle                      | `yarn integracore dev:add role`                 | `src/roles/\<name>.ts`                   |
+| Skill                      | `yarn integracore dev:add skill`                | `src/skills/\<name>.ts`                  |
+| Agent                      | `yarn integracore dev:add agent`                | `src/agents/\<name>.ts`                  |
+| Ansicht                    | `yarn integracore dev:add view`                 | `src/views/\<name>.ts`                   |
+| Navigationsmenüeintrag     | `yarn integracore dev:add navigationMenuItem`   | `src/navigation-menu-items/\<name>.ts`   |
+| Seitenlayout               | `yarn integracore dev:add pageLayout`           | `src/page-layouts/\<name>.ts`            |
+| Seitenlayout-Registerkarte | `yarn integracore dev:add pageLayoutTab`        | `src/page-layout-tabs/\<name>.ts`        |
+| Befehlsmenü-Eintrag        | `yarn integracore dev:add commandMenuItem`      | `src/command-menu-items/\<name>.ts`      |
+| Ansichtsfeld               | `yarn integracore dev:add viewField`            | `src/view-fields/\<name>.ts`             |
+| Verbindungsanbieter        | `yarn integracore dev:add connectionProvider`   | `src/connection-providers/\<name>.ts`    |
+| Zeitachsen-Aktivitätstyp   | `yarn integracore dev:add timelineActivityType` | `src/timeline-activity-types/\<name>.ts` |
+
+## Was der Scaffolder generiert
+
+Jeder Entitätstyp hat seine eigene Vorlage. Zum Beispiel fragt `yarn integracore dev:add object` nach:
+
+1. **Name (Singular)** — z. B. `invoice`
+2. **Name (Plural)** — z. B. `invoices`
+3. **Label (Singular)** — automatisch aus dem Namen befüllt (z. B. `Invoice`)
+4. **Label (Plural)** — automatisch befüllt (z. B. `Invoices`)
+5. **Ansicht und Navigationseintrag erstellen?** — wenn Sie mit Ja antworten, erzeugt der Scaffolder außerdem eine passende Ansicht und einen Sidebar-Link für das neue Objekt.
+
+Andere Entitätstypen haben einfachere Eingabeaufforderungen — die meisten fragen nur nach einem Namen.
+
+Der Entitätstyp `field` ist detaillierter: Er fragt nach Feldname, Label, Typ (aus einer Liste aller verfügbaren Feldtypen wie `TEXT`, `NUMBER`, `SELECT`, `RELATION` usw.) sowie dem `universalIdentifier` des Zielobjekts.
+
+## Benutzerdefinierter Ausgabepfad
+
+Verwenden Sie den Schalter `--path`, um die generierte Datei an einem benutzerdefinierten Ort abzulegen:
+
+```bash filename="Terminal"
+yarn integracore dev:add logicFunction --path src/custom-folder
+```

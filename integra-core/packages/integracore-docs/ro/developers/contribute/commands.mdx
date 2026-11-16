@@ -1,0 +1,82 @@
+---
+title: Comenzi
+description: Comenzi utile pentru dezvoltarea IntegraCore.
+---
+
+import { PageBanner } from "/snippets/page-banner.mdx"
+
+## Prezentare generală
+
+Comenzile pot fi rulate din rădăcina repozitoriului folosind `npx nx`. Folosiți `npx nx run {project}:{command}` pentru a specifica în mod explicit ținta.
+
+## Pornirea aplicației
+
+```bash
+npx nx start integracore-front          # Frontend dev server (http://localhost:3001)
+npx nx start integracore-server         # Backend server (http://localhost:3000)
+npx nx run integracore-server:worker    # Background worker
+```
+
+## Bază de date
+
+```bash
+npx nx database:reset integracore-server                          # Reset and seed database
+npx nx run integracore-server:database:migrate:prod               # Run migrations
+npx nx run integracore-server:database:migrate:generate --name <name> --type <fast|slow>  # Generate a migration
+```
+
+## Linting
+
+```bash
+npx nx lint:diff-with-main integracore-front    # Lint changed files (fastest)
+npx nx lint:diff-with-main integracore-server
+npx nx lint integracore-front --configuration=fix  # Auto-fix
+```
+
+## Verificarea tipurilor
+
+```bash
+npx nx typecheck integracore-front
+npx nx typecheck integracore-server
+```
+
+## Testare
+
+```bash
+# Frontend
+npx nx test integracore-front                          # Jest unit tests
+npx nx storybook:build integracore-front               # Build Storybook
+npx nx storybook:test integracore-front                # Storybook tests
+
+# Backend
+npx nx run integracore-server:test:unit                # Unit tests
+npx nx run integracore-server:test:integration         # Integration tests
+npx nx run integracore-server:test:integration:with-db-reset  # Integration with DB reset
+
+# Single file (fastest)
+npx jest path/to/test.test.ts --config=packages/{project}/jest.config.mjs
+```
+
+## GraphQL
+
+```bash
+npx nx run integracore-front:graphql:generate                        # Regenerate types
+npx nx run integracore-front:graphql:generate --configuration=metadata  # Metadata schema
+```
+
+## Traduceri
+
+```bash
+npx nx run integracore-front:lingui:extract   # Extract strings
+npx nx run integracore-front:lingui:compile   # Compile translations
+```
+
+## Build
+
+```bash
+npx nx build integracore-shared   # Must be built first
+npx nx build integracore-front
+npx nx build integracore-server
+```
+
+<PageBanner illustration="card-page-cli" />

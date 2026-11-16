@@ -1,0 +1,73 @@
+import { WorkflowDiagramConnector } from '@/workflow/workflow-diagram/components/WorkflowDiagramConnector';
+import { VERTICAL_DISTANCE_BETWEEN_TWO_NODES } from '@/workflow/workflow-diagram/constants/VerticalDistanceBetweenTwoNodes';
+import { useStartNodeCreation } from '@/workflow/workflow-diagram/hooks/useStartNodeCreation';
+import { type WorkflowDiagramStepNodeData } from '@/workflow/workflow-diagram/types/WorkflowDiagram';
+import { styled } from '@linaria/react';
+import { useReactFlow } from '@xyflow/react';
+import { isDefined } from 'integracore-shared/utils';
+import { IconPlus } from 'integracore-ui/icon';
+import { IconButton } from 'integracore-ui/components/input';
+import { useLingui } from '@lingui/react/macro';
+
+const StyledContainer = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledVerticalLineContainer = styled.div`
+  display: flex;
+  height: 56px;
+  justify-content: center;
+  width: 56px;
+`;
+
+const StyledLabelContainer = styled.div`
+  position: absolute;
+  top: 14px;
+`;
+
+type WorkflowDiagramCreateStepElementProps = {
+  data: WorkflowDiagramStepNodeData;
+  Label?: React.ReactNode;
+};
+
+export const WorkflowDiagramCreateStepElement = ({
+  data,
+  Label,
+}: WorkflowDiagramCreateStepElementProps) => {
+  const { t } = useLingui();
+  const { startNodeCreation } = useStartNodeCreation();
+  const { getNode } = useReactFlow();
+
+  const addNode = () => {
+    const parentNodePosition = getNode(data.stepId)?.position;
+
+    if (!isDefined(parentNodePosition)) {
+      return;
+    }
+
+    startNodeCreation({
+      parentStepId: data.stepId,
+      nextStepId: undefined,
+      position: {
+        x: parentNodePosition.x,
+        y: parentNodePosition.y + VERTICAL_DISTANCE_BETWEEN_TWO_NODES,
+      },
+    });
+  };
+
+  return (
+    <StyledContainer>
+      <StyledVerticalLineContainer>
+        <WorkflowDiagramConnector />
+      </StyledVerticalLineContainer>
+
+      {isDefined(Label) && <StyledLabelContainer>{Label}</StyledLabelContainer>}
+
+      <IconButton size="sm" aria-label={t`Add a step`} onClick={addNode}>
+        <IconPlus />
+      </IconButton>
+    </StyledContainer>
+  );
+};

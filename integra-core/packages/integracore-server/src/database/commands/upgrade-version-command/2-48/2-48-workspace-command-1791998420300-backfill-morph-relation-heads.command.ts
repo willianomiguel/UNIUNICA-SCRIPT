@@ -1,0 +1,181 @@
+import { Command } from 'nest-commander';
+import { isDefined, isMorphRelationHead } from 'integracore-shared/utils';
+
+import { ProvisionedWorkspaceCommandRunner } from 'src/database/commands/command-runners/provisioned-workspace.command-runner';
+import { WorkspaceIteratorService } from 'src/database/commands/command-runners/workspace-iterator.service';
+import { type RunOnWorkspaceArgs } from 'src/database/commands/command-runners/workspace.command-runner';
+import { buildMissingMorphRelationHeads } from 'src/database/commands/upgrade-version-command/2-48/utils/build-missing-morph-relation-heads.util';
+import { ApplicationService } from 'src/engine/core-modules/application/application.service';
+import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
+import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
+import { computeIntegraCoreStandardApplicationAllFlatEntityMaps } from 'src/engine/workspace-manager/integracore-standard-application/utils/integracore-standard-application-all-flat-entity-maps.constant';
+import { WorkspaceMigrationBuilderException } from 'src/engine/workspace-manager/workspace-migration/exceptions/workspace-migration-builder-exception';
+import { WorkspaceMigrationValidateBuildAndRunService } from 'src/engine/workspace-manager/workspace-migration/services/workspace-migration-validate-build-and-run-service';
+import { type UniversalFlatFieldMetadata } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-field-metadata.type';
+
+@RegisteredWorkspaceCommand('2.48.0', 1791998420300)
+@Command({
+  name: 'upgrade:2-48:backfill-morph-relation-heads',
+  description:
+    'Create the head row of every morph relation field created before heads existed',
+})
+export class BackfillMorphRelationHeadsCommand extends ProvisionedWorkspaceCommandRunner {
+  constructor(
+    protected readonly workspaceIteratorService: WorkspaceIteratorService,
+    private readonly applicationService: ApplicationService,
+    private readonly workspaceCacheService: WorkspaceCacheService,
+    private readonly workspaceMigrationValidateBuildAndRunService: WorkspaceMigrationValidateBuildAndRunService,
+  ) {
+    super(workspaceIteratorService);
+  }
+
+  override async runOnWorkspace(args: RunOnWorkspaceArgs): Promise<void> {
+    await this.up(args);
+  }
+
+  async up({ workspaceId, options }: RunOnWorkspaceArgs): Promise<void> {
+    const { flatFieldMetadataMaps, flatObjectMetadataMaps } =
+      await this.workspaceCacheService.getOrRecompute(workspaceId, [
+        'flatFieldMetadataMaps',
+        'flatObjectMetadataMaps',
+      ]);
+
+    const { integracoreStandardFlatApplication } =
+      await this.applicationService.findWorkspaceIntegraCoreStandardAndCustomApplicationOrThrow(
+        { workspaceId },
+      );
+
+    const { allFlatEntityMaps: standardAllFlatEntityMaps } =
+      computeIntegraCoreStandardApplicationAllFlatEntityMaps({
+        now: new Date().toISOString(),
+        workspaceId,
+        integracoreStandardApplicationId: integracoreStandardFlatApplication.id,
+      });
+
+    const { heads, skipped } = buildMissingMorphRelationHeads({
+      flatFieldMetadataMaps,
+      flatObjectMetadataMaps,
+      standardFlatFieldMetadataMaps:
+        standardAllFlatEntityMaps.flatFieldMetadataMaps,
+    });
+
+    for (const { morphId, reason } of skipped) {
+      this.logger.warn(
+        `Workspace ${workspaceId}: no head for morph relation ${morphId}, ${reason}`,
+      );
+    }
+
+    if (heads.length === 0) {
+      return;
+    }
+
+    if (options.dryRun) {
+      this.logger.log(
+        `[DRY RUN] Workspace ${workspaceId}: would create ${heads.length} morph relation head(s)`,
+      );
+
+      return;
+    }
+
+    await this.runPerApplication({
+      workspaceId,
+      integracoreStandardApplicationUniversalIdentifier:
+        integracoreStandardFlatApplication.universalIdentifier,
+      heads,
+      operation: 'create',
+    });
+  }
+
+  async down({ workspaceId, options }: RunOnWorkspaceArgs): Promise<void> {
+    const { flatFieldMetadataMaps } =
+      await this.workspaceCacheService.getOrRecompute(workspaceId, [
+        'flatFieldMetadataMaps',
+      ]);
+
+    const heads = Object.values(flatFieldMetadataMaps.byUniversalIdentifier)
+      .filter(isDefined)
+      .filter(isMorphRelationHead);
+
+    if (heads.length === 0) {
+      return;
+    }
+
+    if (options.dryRun) {
+      this.logger.log(
+        `[DRY RUN] Workspace ${workspaceId}: would delete ${heads.length} morph relation head(s)`,
+      );
+
+      return;
+    }
+
+    const { integracoreStandardFlatApplication } =
+      await this.applicationService.findWorkspaceIntegraCoreStandardAndCustomApplicationOrThrow(
+        { workspaceId },
+      );
+
+    await this.runPerApplication({
+      workspaceId,
+      integracoreStandardApplicationUniversalIdentifier:
+        integracoreStandardFlatApplication.universalIdentifier,
+      heads,
+      operation: 'delete',
+    });
+  }
+
+  private async runPerApplication({
+    workspaceId,
+    integracoreStandardApplicationUniversalIdentifier,
+    heads,
+    operation,
+  }: {
+    workspaceId: string;
+    integracoreStandardApplicationUniversalIdentifier: string;
+    heads: UniversalFlatFieldMetadata[];
+    operation: 'create' | 'delete';
+  }): Promise<void> {
+    const headsByApplication = new Map<string, UniversalFlatFieldMetadata[]>();
+
+    for (const head of heads) {
+      headsByApplication.set(head.applicationUniversalIdentifier, [
+        ...(headsByApplication.get(head.applicationUniversalIdentifier) ?? []),
+        head,
+      ]);
+    }
+
+    for (const [
+      applicationUniversalIdentifier,
+      applicationHeads,
+    ] of headsByApplication) {
+      const args = {
+        shouldDeferActions: false,
+        isSystemBuild: true,
+        workspaceId,
+        applicationUniversalIdentifier,
+        allFlatEntityOperationByMetadataName: {
+          fieldMetadata: {
+            flatEntityToCreate: operation === 'create' ? applicationHeads : [],
+            flatEntityToDelete: operation === 'delete' ? applicationHeads : [],
+            flatEntityToUpdate: [],
+          },
+        },
+      };
+
+      const result =
+        applicationUniversalIdentifier ===
+        integracoreStandardApplicationUniversalIdentifier
+          ? await this.workspaceMigrationValidateBuildAndRunService.validateBuildAndRunLegacyWorkspaceMigration(
+              args,
+            )
+          : await this.workspaceMigrationValidateBuildAndRunService.validateBuildAndRunWorkspaceMigration(
+              args,
+            );
+
+      if (result.status === 'fail') {
+        throw new WorkspaceMigrationBuilderException(
+          result,
+          `Failed to ${operation} morph relation heads of application ${applicationUniversalIdentifier} in workspace ${workspaceId}`,
+        );
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+export const INTEGRA_QUERY_MAX_RECORDS = 200;

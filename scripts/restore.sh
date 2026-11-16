@@ -15,7 +15,7 @@ docker compose exec -T db pg_restore -U "${PG_DATABASE_USER:-postgres}" -d "${PG
   --clean --if-exists --no-owner < "$DB_DUMP"
 if [ -n "$FILES" ]; then
   docker compose run --rm -T --entrypoint sh server -c \
-    'rm -rf /app/packages/twenty-server/.local-storage/* && tar -xzf - -C /app/packages/twenty-server/.local-storage' < "$FILES"
+    'rm -rf /app/packages/integracore-server/.local-storage/* && tar -xzf - -C /app/packages/integracore-server/.local-storage' < "$FILES"
 fi
 docker compose start server worker
 echo "✓ Restaurado."

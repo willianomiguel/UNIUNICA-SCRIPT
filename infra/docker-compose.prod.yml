@@ -1,4 +1,4 @@
-# Produção: adiciona o Caddy na frente do Twenty, com HTTPS automático (Let's Encrypt).
+# Produção: adiciona o Caddy na frente do IntegraCore, com HTTPS automático (Let's Encrypt).
 # Uso: defina DOMINIO e SERVER_URL=https://$DOMINIO no .env e rode:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 services:

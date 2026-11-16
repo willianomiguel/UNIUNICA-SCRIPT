@@ -1,0 +1,158 @@
+import { defineObject, FieldType } from 'integra-sdk/define';
+
+import { OBJECTS } from 'src/modules/shared/constants/objects';
+import { GATEWAY_OPCOES } from 'src/modules/vendas/constants/gateway-opcoes';
+import { METODO_PAGAMENTO_OPCOES } from 'src/modules/vendas/constants/metodo-pagamento-opcoes';
+import { VENDA_STATUS_OPCOES } from 'src/modules/vendas/constants/venda-status-opcoes';
+import { VENDAS_IDS } from 'src/modules/vendas/constants/vendas-universal-identifiers';
+
+const F = VENDAS_IDS.venda;
+
+export default defineObject({
+  universalIdentifier: OBJECTS.venda.universalIdentifier,
+  nameSingular: OBJECTS.venda.nameSingular,
+  namePlural: OBJECTS.venda.namePlural,
+  labelSingular: 'Venda',
+  labelPlural: 'Vendas',
+  description:
+    'Cada cobrança recebida dos gateways de pagamento: vendas aprovadas, recusas, falhas, reembolsos e chargebacks.',
+  icon: 'IconReceipt2',
+  labelIdentifierFieldMetadataUniversalIdentifier: F.descricao,
+  fields: [
+    {
+      universalIdentifier: F.descricao,
+      type: FieldType.TEXT,
+      name: 'descricao',
+      label: 'Descrição / produto',
+      description: 'Produto ou descrição da cobrança',
+      icon: 'IconShoppingCart',
+      isSearchable: true,
+    },
+    {
+      universalIdentifier: F.valor,
+      type: FieldType.CURRENCY,
+      name: 'valor',
+      label: 'Valor bruto',
+      description: 'Valor cobrado do cliente',
+      icon: 'IconCurrencyReal',
+      isNullable: true,
+    },
+    {
+      universalIdentifier: F.valorLiquido,
+      type: FieldType.CURRENCY,
+      name: 'valorLiquido',
+      label: 'Valor líquido',
+      description: 'Valor recebido após as taxas do gateway',
+      icon: 'IconCash',
+      isNullable: true,
+    },
+    {
+      universalIdentifier: F.taxaGateway,
+      type: FieldType.CURRENCY,
+      name: 'taxaGateway',
+      label: 'Taxa do gateway',
+      description: 'Taxas cobradas pelo gateway de pagamento',
+      icon: 'IconReceiptTax',
+      isNullable: true,
+    },
+    {
+      universalIdentifier: F.status,
+      type: FieldType.SELECT,
+      name: 'status',
+      label: 'Status',
+      icon: 'IconProgressCheck',
+      defaultValue: "'PENDENTE'",
+      options: VENDA_STATUS_OPCOES,
+    },
+    {
+      universalIdentifier: F.gateway,
+      type: FieldType.SELECT,
+      name: 'gateway',
+      label: 'Gateway',
+      icon: 'IconBuildingBank',
+      defaultValue: "'MANUAL'",
+      options: GATEWAY_OPCOES,
+    },
+    {
+      universalIdentifier: F.idExterno,
+      type: FieldType.TEXT,
+      name: 'idExterno',
+      label: 'ID no gateway',
+      description: 'Identificador da cobrança no gateway (usado para não duplicar vendas)',
+      icon: 'IconHash',
+      isSearchable: true,
+    },
+    {
+      universalIdentifier: F.metodoPagamento,
+      type: FieldType.SELECT,
+      name: 'metodoPagamento',
+      label: 'Método de pagamento',
+      icon: 'IconCreditCard',
+      isNullable: true,
+      options: METODO_PAGAMENTO_OPCOES,
+    },
+    {
+      universalIdentifier: F.parcelas,
+      type: FieldType.NUMBER,
+      name: 'parcelas',
+      label: 'Parcelas',
+      icon: 'IconCalendarRepeat',
+      isNullable: true,
+      universalSettings: { decimals: 0 },
+    },
+    {
+      universalIdentifier: F.clienteNome,
+      type: FieldType.TEXT,
+      name: 'clienteNome',
+      label: 'Cliente',
+      icon: 'IconUser',
+      isSearchable: true,
+    },
+    {
+      universalIdentifier: F.clienteEmail,
+      type: FieldType.EMAILS,
+      name: 'clienteEmail',
+      label: 'E-mail do cliente',
+      icon: 'IconMail',
+      isNullable: true,
+    },
+    {
+      universalIdentifier: F.dataEvento,
+      type: FieldType.DATE_TIME,
+      name: 'dataEvento',
+      label: 'Data',
+      description: 'Data da cobrança informada pelo gateway',
+      icon: 'IconCalendarEvent',
+      isNullable: true,
+    },
+    {
+      universalIdentifier: F.motivoRecusa,
+      type: FieldType.TEXT,
+      name: 'motivoRecusa',
+      label: 'Motivo da recusa',
+      description: 'Motivo informado pelo gateway para recusa, falha, reembolso ou chargeback',
+      icon: 'IconAlertTriangle',
+    },
+    {
+      universalIdentifier: F.utmSource,
+      type: FieldType.TEXT,
+      name: 'utmSource',
+      label: 'UTM source',
+      icon: 'IconWorld',
+    },
+    {
+      universalIdentifier: F.utmMedium,
+      type: FieldType.TEXT,
+      name: 'utmMedium',
+      label: 'UTM medium',
+      icon: 'IconSpeakerphone',
+    },
+    {
+      universalIdentifier: F.utmCampaign,
+      type: FieldType.TEXT,
+      name: 'utmCampaign',
+      label: 'UTM campaign',
+      icon: 'IconTargetArrow',
+    },
+  ],
+});

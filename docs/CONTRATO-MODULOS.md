@@ -1,12 +1,12 @@
 # Contrato entre os módulos
 
-Todos os módulos vivem em um único app do Twenty: `apps/uniunica`.
+Todos os módulos vivem em um único app da plataforma: `apps/integracore`.
 Cada módulo tem a sua própria pasta e não mexe na pasta dos outros.
 
 ## Pastas
 
 ```
-apps/uniunica/src/modules/<modulo>/
+apps/integracore/src/modules/<modulo>/
   objects/                 defineObject (um arquivo por objeto)
   fields/                  defineField: relações e campos em objetos de OUTROS módulos ou padrão (Task, Company…)
   views/                   defineView

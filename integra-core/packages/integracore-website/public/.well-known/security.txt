@@ -1,0 +1,5 @@
+Contact: https://github.com/integracorehq/integracore/issues/new
+Contact: security@integracore.com
+Preferred-Languages: en
+Canonical: https://integracore.com/.well-known/security.txt
+Policy: https://github.com/integracorehq/integracore/security/policy

@@ -1,0 +1,9 @@
+{
+  "name": "integracore-utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/integracore-utils",
+  "projectType": "application",
+  "targets": {
+    "test": {}
+  }
+}

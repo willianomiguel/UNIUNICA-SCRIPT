@@ -1,0 +1,91 @@
+import { Injectable } from '@nestjs/common';
+
+import {
+  type LogicFunctionDriver,
+  LogicFunctionDriverType,
+} from 'src/engine/core-modules/logic-function/logic-function-drivers/interfaces/logic-function-driver.interface';
+
+import { ApplicationDependencyFilesService } from 'src/engine/core-modules/application/application-package/application-dependency-files.service';
+import { CoreEntityCacheService } from 'src/engine/core-entity-cache/services/core-entity-cache.service';
+import { CacheLockService } from 'src/engine/core-modules/cache-lock/cache-lock.service';
+import { InjectCacheStorage } from 'src/engine/core-modules/cache-storage/decorators/cache-storage.decorator';
+import { CacheStorageService } from 'src/engine/core-modules/cache-storage/services/cache-storage.service';
+import { CacheStorageNamespace } from 'src/engine/core-modules/cache-storage/types/cache-storage-namespace.enum';
+import { DisabledDriver } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/disabled.driver';
+import { LambdaDriver } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/lambda.driver';
+import { LocalDriver } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local.driver';
+import { getLambdaConnectionOptions } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/lambda/utils/get-lambda-connection-options.util';
+import { LogicFunctionResourceService } from 'src/engine/core-modules/logic-function/logic-function-resource/logic-function-resource.service';
+import { SdkClientArchiveService } from 'src/engine/core-modules/sdk-client/sdk-client-archive.service';
+import { SecureHttpClientService } from 'src/engine/core-modules/secure-http-client/secure-http-client.service';
+import { DriverFactoryBase } from 'src/engine/core-modules/integracore-config/dynamic-factory.base';
+import { ConfigVariablesGroup } from 'src/engine/core-modules/integracore-config/enums/config-variables-group.enum';
+import { ConfigGroupHashService } from 'src/engine/core-modules/integracore-config/services/config-group-hash.service';
+import { IntegraCoreConfigService } from 'src/engine/core-modules/integracore-config/integracore-config.service';
+import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
+
+@Injectable()
+export class LogicFunctionDriverFactory extends DriverFactoryBase<LogicFunctionDriver> {
+  constructor(
+    integracoreConfigService: IntegraCoreConfigService,
+    configGroupHashService: ConfigGroupHashService,
+    private readonly logicFunctionResourceService: LogicFunctionResourceService,
+    private readonly applicationDependencyFilesService: ApplicationDependencyFilesService,
+    private readonly sdkClientArchiveService: SdkClientArchiveService,
+    private readonly cacheLockService: CacheLockService,
+    private readonly workspaceCacheService: WorkspaceCacheService,
+    private readonly coreEntityCacheService: CoreEntityCacheService,
+    @InjectCacheStorage(CacheStorageNamespace.ModuleApplications)
+    private readonly cacheStorageService: CacheStorageService,
+    private readonly secureHttpClientService: SecureHttpClientService,
+  ) {
+    super(integracoreConfigService, configGroupHashService);
+  }
+
+  protected buildConfigKey(): string {
+    const driverType = this.integracoreConfigService.get('LOGIC_FUNCTION_TYPE');
+
+    if (driverType === LogicFunctionDriverType.LAMBDA) {
+      return `lambda|${this.configGroupHashService.computeHash(ConfigVariablesGroup.LOGIC_FUNCTION_CONFIG)}`;
+    }
+
+    return driverType;
+  }
+
+  protected createDriver(): LogicFunctionDriver {
+    const driverType = this.integracoreConfigService.get('LOGIC_FUNCTION_TYPE');
+
+    switch (driverType) {
+      case LogicFunctionDriverType.DISABLED:
+        return new DisabledDriver(this.secureHttpClientService);
+
+      case LogicFunctionDriverType.LOCAL:
+        return new LocalDriver({
+          logicFunctionResourceService: this.logicFunctionResourceService,
+          sdkClientArchiveService: this.sdkClientArchiveService,
+          cacheLockService: this.cacheLockService,
+          workspaceCacheService: this.workspaceCacheService,
+          secureHttpClientService: this.secureHttpClientService,
+        });
+
+      case LogicFunctionDriverType.LAMBDA: {
+        return new LambdaDriver({
+          logicFunctionResourceService: this.logicFunctionResourceService,
+          applicationDependencyFilesService:
+            this.applicationDependencyFilesService,
+          cacheLockService: this.cacheLockService,
+          cacheStorageService: this.cacheStorageService,
+          workspaceCacheService: this.workspaceCacheService,
+          coreEntityCacheService: this.coreEntityCacheService,
+          ...getLambdaConnectionOptions(this.integracoreConfigService),
+          sdkClientArchiveService: this.sdkClientArchiveService,
+        });
+      }
+
+      default:
+        throw new Error(
+          `Invalid logic function driver type (${driverType}), check your .env file`,
+        );
+    }
+  }
+}

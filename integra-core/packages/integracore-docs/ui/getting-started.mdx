@@ -1,0 +1,146 @@
+---
+title: Getting started
+description: Install IntegraCore UI in a React application and use its components and themes.
+---
+
+import { PageBanner } from "/snippets/page-banner.mdx"
+
+## Overview
+
+IntegraCore UI is IntegraCore's open-source React UI library. It provides foundational primitives, shared components, icons, and theme tokens with prebuilt CSS, so your application does not need a CSS-in-JS compiler.
+
+## Install
+
+For an existing React application, install the library. React 19 is required.
+
+```bash
+yarn add integracore-ui
+```
+
+The [code editor](/ui/components/code-editor/code-editor) has a separate entry point, `integracore-ui/components/code-editor`. Other components do not require Monaco. To use the code editor, install its optional peer dependencies and configure Monaco workers for your bundler before mounting it:
+
+```bash
+yarn add @monaco-editor/react monaco-editor
+```
+
+If you are building a IntegraCore app, follow [Using IntegraCore UI components](/developers/extend/apps/layout/front-components#using-integracore-ui-components). The front component renderer supplies the workspace theme and has a different setup from a standalone browser application. Keep `integracore-ui`, `integracore-sdk`, and `integracore-client-sdk` on the same version.
+
+## Load styles and provide a theme
+
+Import the component stylesheet and a theme stylesheet once at your application entry point. `ThemeProvider` applies the active theme class and makes theme values available to components.
+
+```tsx
+import { Field, Input } from 'integracore-ui/primitives/input';
+import { ThemeProvider } from 'integracore-ui/theme';
+
+import 'integracore-ui/style.css';
+import 'integracore-ui/theme-light.css';
+
+export const App = () => (
+  <ThemeProvider colorScheme="light">
+    <Field.Root>
+      <Field.Label>Email</Field.Label>
+      <Input name="email" type="email" placeholder="you@example.com" />
+      <Field.Description>Use your work email address.</Field.Description>
+    </Field.Root>
+  </ThemeProvider>
+);
+```
+
+The component stylesheet includes a global reset. Review its effect when adding IntegraCore UI to an existing application.
+
+## Override styles
+
+IntegraCore UI puts component styles and the reset in the `integracore-ui` cascade layer. Styles you write outside a layer, such as a `className`, a CSS module, or a CSS-in-JS rule, override those layered rules regardless of selector specificity or import order. Theme stylesheets and the optional editor's global Monaco rules remain unlayered.
+
+Global element resets in your application are unlayered too, so they would override IntegraCore UI components. Declare a layer for them before IntegraCore UI's stylesheet loads:
+
+```css
+@layer reset, integracore-ui;
+
+@layer reset {
+  button {
+    font: inherit;
+  }
+}
+```
+
+With Tailwind CSS v4, place IntegraCore UI between Tailwind's base and utility layers:
+
+```css
+@layer theme, base, integracore-ui, components, utilities;
+```
+
+## Choose an entry point
+
+Import components from their public subpath to keep imports focused:
+
+Primitives are foundational controls, including compound controls such as Select,
+Popover, and AlertDialog. Shared components combine primitives into recurring
+design presets and reusable app building blocks. Both receive data and callbacks
+from the application.
+
+Use [MainButton](/ui/components/input/main-button) for prominent actions and
+[LightButton](/ui/components/input/light-button) for lightweight actions. Both
+come from `integracore-ui/components/input` and share the foundational
+[Button](/ui/primitives/input/button) interaction contract. Routing and page
+layout remain in the application.
+
+Each primitive and shared component family has a matching public entry point, such as
+`integracore-ui/primitives/input` and `integracore-ui/components/settings`. The aggregate
+`integracore-ui/primitives` and `integracore-ui/components` entries export their respective families.
+The root `integracore-ui` entry re-exports primitives, shared components, icons, theme tokens,
+and utilities. Assets, testing helpers, and the optional code editor have separate entry points.
+
+| Import                               | Contents                                                            |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| `integracore-ui/assets`                   | Logos and static assets                                             |
+| `integracore-ui/components`               | All shared component families except the optional editor            |
+| `integracore-ui/components/data-display`  | Avatar groups, command blocks, JSON trees, metrics, and icon tiles  |
+| `integracore-ui/components/feedback`      | Callouts, inline banners, and notifications                         |
+| `integracore-ui/components/input`         | Button presets, specialized inputs, pickers, and segmented controls |
+| `integracore-ui/components/layout`        | Sections, overflowing lists, and icon transitions                   |
+| `integracore-ui/components/navigation`    | Dropdowns, menu compositions, and tab actions                       |
+| `integracore-ui/components/settings`      | Settings rows with labeled controls                                 |
+| `integracore-ui/components/code-editor`   | Code editor, editor header, and editor theme helpers                |
+| `integracore-ui/primitives`               | All primitive families                                              |
+| `integracore-ui/primitives/accessibility` | Hidden elements and keyboard interaction helpers                    |
+| `integracore-ui/primitives/data-display`  | Avatars, badges, chips, tags, color samples, and status indicators  |
+| `integracore-ui/primitives/feedback`      | Banners, progress indicators, loaders, and skeletons                |
+| `integracore-ui/primitives/input`         | Buttons and form controls                                           |
+| `integracore-ui/primitives/layout`        | Expansion, separators, direction, and resizing                      |
+| `integracore-ui/primitives/navigation`    | Breadcrumbs, list items, and tabs                                   |
+| `integracore-ui/primitives/surfaces`      | Cards, dialogs, popovers, and tooltips                              |
+| `integracore-ui/primitives/typography`    | Text, headings, shortcuts, and overflowing text                     |
+| `integracore-ui/icon`                     | [Icons and dynamic lookup](/ui/icons)                               |
+| `integracore-ui/testing`                  | [Storybook decorators and layouts](/ui/testing)                     |
+| `integracore-ui/theme`                    | Theme provider, hooks, and CSS variable references                  |
+| `integracore-ui/utilities`                | Hooks and shared utilities                                          |
+
+Import individual icons, such as `IconCheck`, from `integracore-ui/icon`. The dynamic icon provider includes the full icon catalog, so reserve it for interfaces that need to look up icons at runtime.
+
+## Responsive hooks
+
+Import `useIsMobile`, `useIsTouchDevice`, and `useMediaQuery` from `integracore-ui/utilities`.
+
+| Hook                   | Query                                                             | Use                                                       |
+| ---------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
+| `useIsMobile()`        | `MOBILE_MEDIA_QUERY`, up to and including `MOBILE_VIEWPORT`       | Choose a compact layout.                                  |
+| `useIsTouchDevice()`   | `TOUCH_DEVICE_MEDIA_QUERY`, `(hover: none) and (pointer: coarse)` | Choose touch interaction behavior independently of width. |
+| `useMediaQuery(query)` | Any media query supported by `window.matchMedia`                  | Subscribe to a custom media query.                        |
+
+The query constants come from `integracore-ui/utilities`; `MOBILE_VIEWPORT` comes from `integracore-ui/theme`. Subscriptions share one `MediaQueryList` per query and update when its match changes. Hooks return `false` during server rendering, the first hydration render, and when `window.matchMedia` is unavailable.
+
+In a [IntegraCore front component](/developers/extend/apps/layout/front-components#current-limitations), width queries follow the widget's box. `useIsMobile` therefore follows the widget width, while `useIsTouchDevice` follows the device's primary input. Use [story overrides](/ui/testing#media-query-overrides) to exercise these states in Storybook.
+
+## Continue
+
+- [Theming](/ui/theming): use semantic tokens and scoped overrides.
+- [Dark mode](/ui/dark-mode): switch between light and dark palettes.
+
+## Browse the library
+
+- [Primitives](/ui/primitives/overview): foundational controls grouped by family, with usage examples and API references.
+- [Components](/ui/components/overview): shared design presets and reusable app building blocks composed from primitives.
+
+<PageBanner illustration="card-page-ui-library" />

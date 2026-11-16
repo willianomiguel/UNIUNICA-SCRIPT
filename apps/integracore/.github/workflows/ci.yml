@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+permissions:
+  contents: read
+
+env:
+  INTEGRA_VERSION: latest
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spawn test instance
+        id: instancia
+        uses: twentyhq/twenty/.github/actions/spawn-twenty-app-dev-test@main
+        with:
+          twenty-version: ${{ env.INTEGRA_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Login on the test instance
+        run: echo "${{ steps.instancia.outputs.api-key }}" | yarn integra auth login --with-token --url "${{ steps.instancia.outputs.server-url }}" --name test --use
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Unit tests
+        run: yarn test:unit
+
+      - name: Run integration tests
+        run: yarn test
+        env:
+          INTEGRA_API_URL: ${{ steps.instancia.outputs.server-url }}
+          INTEGRA_API_KEY: ${{ steps.instancia.outputs.api-key }}

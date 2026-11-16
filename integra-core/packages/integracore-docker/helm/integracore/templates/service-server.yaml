@@ -1,0 +1,21 @@
+{{- if .Values.server.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "integracore.fullname" . }}-server
+  namespace: {{ include "integracore.namespace" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "integracore.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: server
+spec:
+  type: {{ .Values.server.service.type | default "ClusterIP" }}
+  selector:
+    app.kubernetes.io/name: {{ include "integracore.name" . }}
+    app.kubernetes.io/component: server
+  ports:
+    - name: http-tcp
+      port: {{ .Values.server.service.port }}
+      targetPort: {{ include "integracore.server.containerPort" . }}
+      protocol: TCP
+{{- end }}

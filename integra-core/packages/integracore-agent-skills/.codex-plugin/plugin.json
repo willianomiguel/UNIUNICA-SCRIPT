@@ -1,0 +1,45 @@
+{
+  "name": "integracore",
+  "version": "0.1.0",
+  "description": "Create, operate, develop, publish, and query IntegraCore apps through Codex.",
+  "author": {
+    "name": "IntegraCore PBC",
+    "url": "https://integracore.com/"
+  },
+  "homepage": "https://docs.integracore.com/",
+  "repository": "https://github.com/integracorehq/integracore",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "integracore",
+    "mcp",
+    "oauth",
+    "crm",
+    "apps",
+    "scaffolding",
+    "cli",
+    "integracore-sdk",
+    "publishing"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "IntegraCore",
+    "shortDescription": "Create, develop, publish, and query apps",
+    "longDescription": "Scaffold, develop, deploy, and publish IntegraCore apps end-to-end. Five focused skills cover app creation, entity development (objects, fields, logic, layouts, front components), remote/sync/deploy operations, marketplace publishing assets, and workspace data retrieval via MCP. The bundled IntegraCore docs MCP server keeps guidance current, and the setup helper wires per-user workspace MCP with OAuth in one command.",
+    "developerName": "IntegraCore PBC",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://integracore.com/",
+    "privacyPolicyURL": "https://integracore.com/privacy-policy",
+    "termsOfServiceURL": "https://integracore.com/terms",
+    "defaultPrompt": [
+      "Create and run a new IntegraCore app",
+      "Push a IntegraCore app to production",
+      "Develop a IntegraCore app feature"
+    ],
+    "brandColor": "#000000",
+    "composerIcon": "./assets/integracore-logo.svg",
+    "logo": "./assets/integracore-logo.png",
+    "screenshots": []
+  }
+}

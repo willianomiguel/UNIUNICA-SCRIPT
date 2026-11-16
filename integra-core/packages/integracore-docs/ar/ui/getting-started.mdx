@@ -1,0 +1,146 @@
+---
+title: البدء
+description: ثبّت IntegraCore UI في تطبيق React واستخدم مكوناته وسماته.
+---
+
+import { PageBanner } from "/snippets/page-banner.mdx"
+
+## نظرة عامة
+
+IntegraCore UI هي مكتبة واجهة مستخدم React مفتوحة المصدر الخاصة بـ IntegraCore. توفر عناصر أساسية ومكونات مشتركة وأيقونات ورموز مميزة للسمة مع CSS مُعد مسبقًا، لذلك لا يحتاج تطبيقك إلى مترجم CSS-in-JS.
+
+## تثبيت
+
+بالنسبة إلى تطبيق React موجود، ثبّت المكتبة. React 19 مطلوب.
+
+```bash
+yarn add integracore-ui
+```
+
+يحتوي [محرر التعليمات البرمجية](/ar/ui/components/code-editor/code-editor) على نقطة إدخال منفصلة، `integracore-ui/components/code-editor`. لا تتطلب المكونات الأخرى Monaco. لاستخدام محرر التعليمات البرمجية، ثبّت تبعيات النظير الاختيارية الخاصة به واضبط عمال Monaco لحزمتك قبل تركيبه:
+
+```bash
+yarn add @monaco-editor/react monaco-editor
+```
+
+إذا كنت تبني تطبيق IntegraCore، فاتبع [استخدام مكونات IntegraCore UI](/ar/developers/extend/apps/layout/front-components#using-integracore-ui-components). يوفر عارض المكونات الأمامية سمة مساحة العمل، ويختلف إعداده عن تطبيق متصفح مستقل. أبقِ `integracore-ui` و`integracore-sdk` و`integracore-client-sdk` على الإصدار نفسه.
+
+## حمّل الأنماط ووفّر سمة
+
+استورد ورقة أنماط المكونات وورقة أنماط سمة مرة واحدة عند نقطة دخول تطبيقك. يطبّق `ThemeProvider` فئة السمة النشطة ويجعل قيم السمة متاحة للمكونات.
+
+```tsx
+import { Field, Input } from 'integracore-ui/primitives/input';
+import { ThemeProvider } from 'integracore-ui/theme';
+
+import 'integracore-ui/style.css';
+import 'integracore-ui/theme-light.css';
+
+export const App = () => (
+  <ThemeProvider colorScheme="light">
+    <Field.Root>
+      <Field.Label>Email</Field.Label>
+      <Input name="email" type="email" placeholder="you@example.com" />
+      <Field.Description>Use your work email address.</Field.Description>
+    </Field.Root>
+  </ThemeProvider>
+);
+```
+
+تتضمن ورقة أنماط المكونات إعادة تعيين عامة. راجع تأثيرها عند إضافة IntegraCore UI إلى تطبيق موجود.
+
+## تجاوز الأنماط
+
+تضع IntegraCore UI أنماط المكونات وإعادة الضبط في طبقة التسلسل `integracore-ui`. تتجاوز الأنماط التي تكتبها خارج طبقة، مثل `className` أو وحدة CSS أو قاعدة CSS-in-JS، تلك القواعد ذات الطبقات بغض النظر عن خصوصية المحدد أو ترتيب الاستيراد. تظل أوراق أنماط السمة وقواعد Monaco العامة للمحرر الاختيارية دون طبقات.
+
+إعادات ضبط العناصر العامة في تطبيقك دون طبقات أيضًا، لذا ستتجاوز مكونات IntegraCore UI. أعلن طبقة لها قبل تحميل ورقة أنماط IntegraCore UI:
+
+```css
+@layer reset, integracore-ui;
+
+@layer reset {
+  button {
+    font: inherit;
+  }
+}
+```
+
+مع Tailwind CSS v4، ضع IntegraCore UI بين طبقتي الأساس والأدوات المساعدة في Tailwind:
+
+```css
+@layer theme, base, integracore-ui, components, utilities;
+```
+
+## اختر نقطة إدخال
+
+استورد المكونات من مسارها الفرعي العام للحفاظ على تركيز الاستيرادات:
+
+العناصر الأساسية هي عناصر تحكم تأسيسية، بما في ذلك عناصر التحكم المركبة مثل Select،
+Popover، وAlertDialog. تجمع المكونات المشتركة العناصر الأساسية في إعدادات
+تصميم متكررة ولبنات بناء تطبيقات قابلة لإعادة الاستخدام. يتلقى كلاهما البيانات واستدعاءات الرجوع
+من التطبيق.
+
+استخدم [MainButton](/ar/ui/components/input/main-button) للإجراءات البارزة و
+[LightButton](/ar/ui/components/input/light-button) للإجراءات البسيطة. كلاهما
+يأتي من `integracore-ui/components/input` ويتشاركان عقد تفاعل
+[Button](/ar/ui/primitives/input/button) الأساسي. يبقى التوجيه وتخطيط
+الصفحة في التطبيق.
+
+لكل عائلة من العناصر الأساسية والمكونات المشتركة نقطة إدخال عامة مطابقة، مثل
+`integracore-ui/primitives/input` و`integracore-ui/components/settings`. تصدّر إدخالات
+`integracore-ui/primitives` و`integracore-ui/components` المجمّعة عائلاتها المعنية.
+تعيد نقطة الإدخال الجذرية `integracore-ui` تصدير العناصر الأساسية والمكونات المشتركة والأيقونات ورموز السمة المميزة
+والأدوات المساعدة. للأصول ومساعدات الاختبار ومحرر التعليمات البرمجية الاختياري نقاط إدخال منفصلة.
+
+| استيراد                              | المحتويات                                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `integracore-ui/assets`                   | الشعارات والأصول الثابتة                                                           |
+| `integracore-ui/components`               | جميع مجموعات المكونات المشتركة باستثناء المحرر الاختياري                           |
+| `integracore-ui/components/data-display`  | مجموعات الصور الرمزية، وكتل الأوامر، وأشجار JSON، والمقاييس، ومربعات الأيقونات     |
+| `integracore-ui/components/feedback`      | وسائل الشرح، واللافتات المضمنة، والإشعارات                                         |
+| `integracore-ui/components/input`         | إعدادات الأزرار المسبقة، وحقول الإدخال المتخصصة، والمنتقيات، وعناصر التحكم المجزأة |
+| `integracore-ui/components/layout`        | الأقسام، والقوائم المتجاوزة، وانتقالات الأيقونات                                   |
+| `integracore-ui/components/navigation`    | القوائم المنسدلة، وتركيبات القوائم، وإجراءات علامات التبويب                        |
+| `integracore-ui/components/settings`      | صفوف الإعدادات مع عناصر تحكم مُسمّاة                                               |
+| `integracore-ui/components/code-editor`   | محرر التعليمات البرمجية، ورأس المحرر، ومساعدات سمة المحرر                          |
+| `integracore-ui/primitives`               | جميع عائلات العناصر الأساسية                                                       |
+| `integracore-ui/primitives/accessibility` | العناصر المخفية ومساعدات التفاعل بلوحة المفاتيح                                    |
+| `integracore-ui/primitives/data-display`  | الصور الرمزية والشارات والرقائق والوسوم وعينات الألوان ومؤشرات الحالة              |
+| `integracore-ui/primitives/feedback`      | اللافتات ومؤشرات التقدم وأدوات التحميل والعناصر النائبة                            |
+| `integracore-ui/primitives/input`         | الأزرار وعناصر التحكم في النماذج                                                   |
+| `integracore-ui/primitives/layout`        | التوسيع، والفواصل، والاتجاه، وتغيير الحجم                                          |
+| `integracore-ui/primitives/navigation`    | مسارات التنقل وعناصر القوائم وعلامات التبويب                                       |
+| `integracore-ui/primitives/surfaces`      | البطاقات ومربعات الحوار والنوافذ المنبثقة وتلميحات الأدوات                         |
+| `integracore-ui/primitives/typography`    | النصوص والعناوين والاختصارات والنصوص المتجاوزة                                     |
+| `integracore-ui/icon`                     | [الأيقونات والبحث الديناميكي](/ar/ui/icons)                                           |
+| `integracore-ui/testing`                  | [مُزيّنات وتخطيطات Storybook](/ar/ui/testing)                                         |
+| `integracore-ui/theme`                    | موفر السمة والخطافات ومراجع متغيرات CSS                                            |
+| `integracore-ui/utilities`                | الخطافات والأدوات المساعدة المشتركة                                                |
+
+استورد الأيقونات الفردية، مثل `IconCheck`، من `integracore-ui/icon`. يتضمن موفر الأيقونات الديناميكي كتالوج الأيقونات الكامل، لذا خصصه للواجهات التي تحتاج إلى البحث عن الأيقونات في وقت التشغيل.
+
+## خطافات الاستجابة
+
+استورد `useIsMobile` و`useIsTouchDevice` و`useMediaQuery` من `integracore-ui/utilities`.
+
+| الخطّاف                | الاستعلام                                                         | استخدام                                       |
+| ---------------------- | ----------------------------------------------------------------- | --------------------------------------------- |
+| `useIsMobile()`        | `MOBILE_MEDIA_QUERY`، حتى `MOBILE_VIEWPORT` وبما في ذلك           | اختر تخطيطًا مضغوطًا.                         |
+| `useIsTouchDevice()`   | `TOUCH_DEVICE_MEDIA_QUERY`، `(hover: none) and (pointer: coarse)` | اختر سلوك التفاعل باللمس بشكل مستقل عن العرض. |
+| `useMediaQuery(query)` | أي استعلام وسائط يدعمه `window.matchMedia`                        | اشترك في استعلام وسائط مخصص.                  |
+
+تأتي ثوابت الاستعلام من `integracore-ui/utilities`؛ ويأتي `MOBILE_VIEWPORT` من `integracore-ui/theme`. تتشارك الاشتراكات قائمة `MediaQueryList` واحدة لكل استعلام، وتُحدَّث عند تغير تطابقها. تعيد الخطافات `false` أثناء العرض على الخادم، وأول عرض للترطيب، وعندما يكون `window.matchMedia` غير متاح.
+
+في [مكون واجهة أمامية لـ IntegraCore](/ar/developers/extend/apps/layout/front-components#current-limitations)، تتبع استعلامات العرض مربع الأداة. لذلك يتبع `useIsMobile` عرض الأداة، بينما يتبع `useIsTouchDevice` الإدخال الأساسي للجهاز. استخدم [تجاوزات القصص](/ar/ui/testing#media-query-overrides) لاختبار هذه الحالات في Storybook.
+
+## استمر
+
+* [السمات](/ar/ui/theming): استخدم الرموز الدلالية والتجاوزات المحصورة.
+* [الوضع الداكن](/ar/ui/dark-mode): بدّل بين لوحات الألوان الفاتحة والداكنة.
+
+## استعرض المكتبة
+
+* [الأوليات](/ar/ui/primitives/overview): عناصر تحكم أساسية مجمّعة حسب الفئة، مع أمثلة للاستخدام ومراجع API.
+* [المكونات](/ar/ui/components/overview): إعدادات تصميم مشتركة ووحدات بناء قابلة لإعادة الاستخدام للتطبيقات مكوّنة من عناصر أولية.
+
+<PageBanner illustration="card-page-ui-library" />

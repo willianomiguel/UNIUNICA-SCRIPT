@@ -1,0 +1,1 @@
+export { WhyIntegraCoreHero } from './WhyIntegraCoreHero';

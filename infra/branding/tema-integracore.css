@@ -1,7 +1,7 @@
 /* Tema IntegraCore: neutros quentes + destaque terracota (visual "Notion + Claude Code").
    Injetado no index.html pela build da imagem (aplicar-marca.js). Fica fora da camada
    `@layer twenty-ui`, então vence as variáveis originais sem precisar de !important.
-   As escalas --ic-* são nossas; o bloco final liga cada variável do Twenty a elas.
+   As escalas --ic-* são nossas; o bloco final liga cada variável do motor a elas.
    Etiquetas coloridas (--t-tag-*) não são tocadas. */
 
 .light {
@@ -22,7 +22,7 @@
   --ic-g1: #1C1B19; --ic-g2: #201F1D; --ic-g3: #1E1D1B; --ic-g4: #252422;
   --ic-g5: #2C2B28; --ic-g6: #45423D; --ic-g7: #4D4A44; --ic-g8: #6F6B63;
   --ic-g9: #8C877D; --ic-g10: #9A958A; --ic-g11: #B8B3A8; --ic-g12: #ECEAE4;
-  /* a9 com texto branco = 5,0:1 (o botão do Twenty usa branco fixo também no escuro) */
+  /* a9 com texto branco = 5,0:1 (o botão do IntegraCore usa branco fixo também no escuro) */
   --ic-a1: #1A1311; --ic-a2: #211814; --ic-a3: #33201A; --ic-a4: #42261D;
   --ic-a5: #4F2D22; --ic-a6: #5E3729; --ic-a7: #744434; --ic-a8: #985640;
   --ic-a9: #B05438; --ic-a10: #BD5E3F; --ic-a11: #F0A68A; --ic-a12: #FBDDD0;

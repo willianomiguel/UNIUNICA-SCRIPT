@@ -1,0 +1,1 @@
+export { WhyIntegraCoreSignoff } from './WhyIntegraCoreSignoff';

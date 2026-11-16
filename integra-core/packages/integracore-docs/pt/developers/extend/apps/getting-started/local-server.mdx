@@ -1,0 +1,86 @@
+---
+title: Servidor Local
+description: Gerencie o servidor Docker local do IntegraCore — iniciar, parar, atualizar, executar uma instância de teste paralela e configurar manualmente o SDK.
+---
+
+## Gerenciando o servidor local
+
+Use `yarn integracore docker:*` para controlar o contêiner IntegraCore local:
+
+| Comando                                | O que faz                                        |
+| -------------------------------------- | ------------------------------------------------ |
+| `yarn integracore docker:start`             | Inicia o servidor (baixa a imagem se necessário) |
+| `yarn integracore docker:start 2.2.0`       | Iniciar uma versão específica do servidor        |
+| `yarn integracore docker:start --port 3030` | Inicia em uma porta personalizada                |
+| `yarn integracore docker:stop`              | Interrompe o servidor (preserva os dados)        |
+| `yarn integracore docker:status`            | Mostra a URL, a versão e as credenciais de login |
+| `yarn integracore docker:logs`              | Transmite os logs do servidor                    |
+| `yarn integracore docker:reset`             | Apaga os dados e começa do zero                  |
+| `yarn integracore docker:upgrade`           | Baixa a imagem mais recente `integracore-app-dev`     |
+| `yarn integracore docker:upgrade 2.2.0`     | Atualiza para uma versão específica              |
+
+Os dados são persistidos entre reinicializações em dois volumes do Docker (`integracore-app-dev-data` para PostgreSQL, `integracore-app-dev-storage` para arquivos). Use `reset` para apagar tudo.
+
+## Fixando a versão do servidor
+
+Quando nenhuma versão é passada, `docker:start` resolve a versão a partir do intervalo `engines.integracore` do seu app em `package.json` — o mesmo intervalo que o servidor valida quando o seu app é instalado. Ele inicia a imagem mais recente publicada de `integracore-app-dev` que satisfaz o intervalo, recorrendo a `latest` quando o campo está ausente ou nenhuma versão publicada corresponde:
+
+```json filename="package.json"
+{
+  "engines": {
+    "integracore": ">=2.2.0"
+  }
+}
+```
+
+Passe uma versão explicitamente para substituir o intervalo em uma única execução: `yarn integracore docker:start 2.3.0`. Se já existir um contêiner em uma versão diferente, `docker:start` faz o upgrade dele no lugar (recriando o contêiner enquanto preserva seus volumes de dados).
+
+## Atualizando a imagem do servidor
+
+`yarn integracore docker:upgrade` baixa a imagem mais recente, compara os digests e só recria o contêiner se algo realmente tiver mudado. Os volumes são preservados — apenas o contêiner é substituído. Se uma nova imagem foi baixada e o contêiner estava em execução, a atualização inicia automaticamente um novo contêiner; execute `yarn integracore docker:start` depois para aguardar até que ele fique saudável.
+
+```bash filename="Terminal"
+yarn integracore docker:upgrade            # Latest
+yarn integracore docker:upgrade 2.2.0      # Specific version
+```
+
+Verifique a versão em execução com `yarn integracore docker:status` (ele mostra o `APP_VERSION` incorporado ao contêiner).
+
+## Executando uma instância de teste paralela
+
+Passe `--test` para qualquer comando `docker:*` para gerenciar uma segunda instância totalmente isolada — útil para testes de integração ou para experimentar sem tocar nos seus dados principais de desenvolvimento:
+
+| Comando                             | O que faz                                        |
+| ----------------------------------- | ------------------------------------------------ |
+| `yarn integracore docker:start --test`   | Inicia a instância de teste (padrão: porta 2021) |
+| `yarn integracore docker:stop --test`    | Para                                             |
+| `yarn integracore docker:status --test`  | Mostra seu status                                |
+| `yarn integracore docker:logs --test`    | Transmite seus logs                              |
+| `yarn integracore docker:reset --test`   | Apaga seus dados                                 |
+| `yarn integracore docker:upgrade --test` | Atualiza sua imagem                              |
+
+A instância de teste tem seu próprio contêiner (`integracore-app-dev-test`), volumes (`integracore-app-dev-test-data`, `integracore-app-dev-test-storage`) e configuração — ela é executada junto com sua instância principal sem conflitos. Combine `--test` com `--port` para substituir 2021.
+
+## Configuração manual (sem o gerador)
+
+Ignore o gerador se você estiver adicionando o SDK a um projeto existente:
+
+```bash filename="Terminal"
+yarn add integracore-sdk integracore-client-sdk
+```
+
+Adicione o script ao `package.json`:
+
+```json filename="package.json"
+{
+  "scripts": {
+    "integracore": "integracore"
+  }
+}
+```
+
+Agora você pode executar `yarn integracore dev`, `yarn integracore docker:start` e o restante.
+
+<Note>
+Não instale `integracore-sdk` globalmente — fixe-o por projeto, para que cada aplicativo use sua própria versão.
+</Note>

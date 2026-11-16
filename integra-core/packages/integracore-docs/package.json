@@ -1,0 +1,32 @@
+{
+  "name": "integracore-docs",
+  "description": "IntegraCore documentation site powered by Mintlify",
+  "author": "",
+  "private": true,
+  "scripts": {
+    "mintlify": "npx --yes mintlify@4.2.1125",
+    "dev": "nx run integracore-docs:dev",
+    "validate": "nx run integracore-docs:validate",
+    "fix-links": "tsx scripts/fix-translated-links.ts",
+    "lint": "npx oxlint -c .oxlintrc.json ."
+  },
+  "devDependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@sniptt/guards": "^0.2.0",
+    "mdast-util-mdx-jsx": "^3.0.0",
+    "micromark-extension-mdx-jsx": "^3.0.0",
+    "micromark-extension-mdx-md": "^2.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-parse": "^11.0.0",
+    "tsx": "^4.19.3",
+    "integracore-shared": "workspace:*",
+    "unified": "^11.0.0",
+    "unist-util-visit": "^5.0.0",
+    "vitest": "^4.1.12"
+  },
+  "engines": {
+    "node": "^24.5.0",
+    "npm": "please-use-yarn",
+    "yarn": "^4.0.2"
+  }
+}

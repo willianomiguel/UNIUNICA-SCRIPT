@@ -1,0 +1,34 @@
+---
+title: إنشاء القوالب
+description: أنشئ كيانات التطبيق باستخدام integracore app add.
+---
+
+import { PageBanner } from "/snippets/page-banner.mdx"
+
+## نظرة عامة
+
+استخدم واجهة سطر الأوامر المستقلة لإنشاء كائن أو حقل أو قاعدة تحقق أو دالة منطق أو مكوّن أمامي:
+
+```bash
+integracore app add
+integracore app add object --name invoice --name-plural invoices --no-input
+integracore app add field --name amount --type NUMBER --object <object-uuid> --no-input
+integracore app add validation-rule --name invoice-has-amount --object <object-uuid> --no-input
+integracore app add logic-function --name send-invoice --no-input
+integracore app add front-component --name invoice-panel --no-input
+```
+
+بدون خيارات، تطلب الطرفيات التفاعلية القيم المفقودة. بالنسبة إلى البرامج النصية والوكلاء، وفّر الحقول المطلوبة واستخدم `--no-input` أو `--json`.
+
+يمكن أن يؤدي إنشاء الكائنات أيضًا إلى إنشاء عرض وعنصر تنقل وتخطيط صفحة سجل:
+
+```bash
+integracore app add object --name invoice --name-plural invoices \
+  --create-view --create-navigation-menu-item --create-page-layout --no-input
+```
+
+بالنسبة إلى أنواع الكيانات الأخرى، اكتب ملف `define*` المقابل باستخدام `integracore-sdk/define` ومعرّف UUID v4 صالح. شغّل `integracore app typecheck` و`integracore app plan` قبل المزامنة.
+
+يحدد `--path` دليل التطبيق، وليس مجلد إخراج مخصصًا. شغّل `integracore app add --help` للاطلاع على الخيارات المدعومة.
+
+<PageBanner illustration="dev-contribute" />

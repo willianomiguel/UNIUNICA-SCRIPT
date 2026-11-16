@@ -1,0 +1,568 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { once } from 'events';
+import { type WriteStream, createWriteStream, mkdirSync } from 'fs';
+import { finished } from 'stream/promises';
+
+import { DataSource, type EntityMetadata, type QueryRunner } from 'typeorm';
+
+import { buildInsertPrefix } from 'src/database/commands/workspace-export/utils/build-insert-prefix.util';
+import { buildWorkspaceTableColumnSets } from 'src/database/commands/workspace-export/utils/build-workspace-table-column-sets.util';
+import { formatSqlValue } from 'src/database/commands/workspace-export/utils/format-sql-value.util';
+import { generateWorkspaceSchemaDdl } from 'src/database/commands/workspace-export/utils/generate-workspace-schema-ddl.util';
+import { getCoreEntityMetadatasWithWorkspaceId } from 'src/database/commands/workspace-export/utils/get-core-entity-metadatas-with-workspace-id.util';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
+import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
+import { PERMISSION_STORAGE_OBJECT_UNIVERSAL_IDENTIFIERS } from 'src/engine/permissions/constants/permission-storage-object-universal-identifiers.constant';
+import { PERMISSION_TABLES } from 'src/engine/permissions/permission-table/constants/permission-tables.constant';
+import { buildCreatePermissionTablesStatements } from 'src/engine/permissions/permission-table/utils/build-create-permission-tables-statements.util';
+import { temporaryExcludePermissionStorageObject } from 'src/engine/permissions/utils/temporary-exclude-permission-storage-object.util';
+import { SearchFieldMetadataEntity } from 'src/engine/metadata-modules/search-field-metadata/search-field-metadata.entity';
+import { computeTableName } from 'src/engine/utils/compute-table-name.util';
+import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
+import { INTEGRA_STANDARD_APPLICATION } from 'src/engine/workspace-manager/integracore-standard-application/constants/integracore-standard-applications';
+import {
+  escapeIdentifier,
+  escapeLiteral,
+} from 'src/engine/workspace-manager/workspace-migration/utils/remove-sql-injection.util';
+import { InjectWorkspaceScopedRepository } from 'src/engine/integracore-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
+import { WorkspaceScopedRepository } from 'src/engine/integracore-orm/workspace-scoped-repository/workspace-scoped-repository';
+import { isDefined, isNonEmptyArray } from 'integracore-shared/utils';
+import { formatPgCopyField } from './utils/format-pg-copy-value.util';
+
+const BATCH_SIZE = 10_000;
+
+type WorkspaceExportParams = {
+  workspaceId: string;
+  outputPath: string;
+  tableFilter?: string[];
+};
+
+type WriteRowsOptions = {
+  schemaName: string;
+  tableName: string;
+  displayName: string;
+  queryRunner: QueryRunner;
+  stream: WriteStream;
+  whereClause?: string;
+  queryParameters?: unknown[];
+  jsonColumns?: Set<string>;
+  excludedColumns?: Set<string>;
+  includedColumns?: Set<string>;
+};
+
+@Injectable()
+export class WorkspaceExportService {
+  private readonly logger = new Logger(WorkspaceExportService.name);
+
+  constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+    @InjectWorkspaceScopedRepository(ObjectMetadataEntity)
+    private readonly objectMetadataRepository: WorkspaceScopedRepository<ObjectMetadataEntity>,
+    @InjectWorkspaceScopedRepository(FieldMetadataEntity)
+    private readonly fieldMetadataRepository: WorkspaceScopedRepository<FieldMetadataEntity>,
+    @InjectWorkspaceScopedRepository(SearchFieldMetadataEntity)
+    private readonly searchFieldMetadataRepository: WorkspaceScopedRepository<SearchFieldMetadataEntity>,
+  ) {}
+
+  async exportWorkspace({
+    workspaceId,
+    outputPath,
+    tableFilter,
+  }: WorkspaceExportParams): Promise<string> {
+    const workspace = await this.dataSource
+      .getRepository(WorkspaceEntity)
+      .findOne({ where: { id: workspaceId } });
+
+    if (!workspace) {
+      throw new Error(`Workspace ${workspaceId} not found`);
+    }
+
+    const schemaName = getWorkspaceSchemaName(workspaceId);
+
+    this.logger.log(`Exporting workspace ${workspaceId} (${schemaName})`);
+
+    const objectMetadatas = (
+      await this.objectMetadataRepository.find(workspaceId, {
+        relations: { application: true },
+      })
+    ).filter(
+      (objectMetadata) =>
+        !temporaryExcludePermissionStorageObject(objectMetadata),
+    );
+
+    const fieldMetadatas = await this.fieldMetadataRepository.find(workspaceId);
+
+    const fieldsByObjectId = new Map<string, FieldMetadataEntity[]>();
+
+    for (const fieldMetadata of fieldMetadatas) {
+      const objectFields =
+        fieldsByObjectId.get(fieldMetadata.objectMetadataId) ?? [];
+
+      objectFields.push(fieldMetadata);
+      fieldsByObjectId.set(fieldMetadata.objectMetadataId, objectFields);
+    }
+
+    const searchFieldMetadatas =
+      await this.searchFieldMetadataRepository.find(workspaceId);
+
+    const searchFieldMetadatasByObjectId = new Map<
+      string,
+      SearchFieldMetadataEntity[]
+    >();
+
+    for (const searchFieldMetadata of searchFieldMetadatas) {
+      const objectSearchFieldMetadatas =
+        searchFieldMetadatasByObjectId.get(
+          searchFieldMetadata.objectMetadataId,
+        ) ?? [];
+
+      objectSearchFieldMetadatas.push(searchFieldMetadata);
+      searchFieldMetadatasByObjectId.set(
+        searchFieldMetadata.objectMetadataId,
+        objectSearchFieldMetadatas,
+      );
+    }
+
+    mkdirSync(outputPath, { recursive: true });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filePath = `${outputPath}/${workspaceId}-${timestamp}.sql`;
+    const stream = createWriteStream(filePath);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    try {
+      stream.write("SET session_replication_role = 'replica';\n\n");
+
+      await this.writeCoreEntityRows(workspaceId, queryRunner, stream);
+
+      stream.write(
+        `\nCREATE SCHEMA IF NOT EXISTS ${escapeIdentifier(schemaName)};\n\n`,
+      );
+
+      this.writeWorkspaceSchemaDdl(
+        workspaceId,
+        schemaName,
+        objectMetadatas,
+        fieldsByObjectId,
+        searchFieldMetadatasByObjectId,
+        stream,
+      );
+
+      await this.writeWorkspaceDataRows(
+        workspaceId,
+        schemaName,
+        objectMetadatas,
+        fieldsByObjectId,
+        tableFilter,
+        queryRunner,
+        stream,
+      );
+
+      await this.writePermissionTables({
+        schemaName,
+        tableFilter,
+        queryRunner,
+        stream,
+      });
+
+      stream.write("\nSET session_replication_role = 'origin';\n");
+    } finally {
+      await queryRunner.release();
+      stream.end();
+      await finished(stream);
+    }
+
+    return filePath;
+  }
+
+  private async writeCoreEntityRows(
+    workspaceId: string,
+    queryRunner: QueryRunner,
+    stream: WriteStream,
+  ): Promise<void> {
+    const workspaceEntityMetadata = this.dataSource.entityMetadatas.find(
+      (entityMetadata) => entityMetadata.tableName === 'workspace',
+    );
+
+    if (workspaceEntityMetadata) {
+      await this.writeRows({
+        schemaName: workspaceEntityMetadata.schema || 'core',
+        tableName: workspaceEntityMetadata.tableName,
+        displayName: workspaceEntityMetadata.tableName,
+        queryRunner,
+        stream,
+        whereClause: '"id" = $1',
+        queryParameters: [workspaceId],
+        jsonColumns: this.buildJsonColumnSet(workspaceEntityMetadata),
+      });
+    }
+
+    const coreEntityMetadatas = getCoreEntityMetadatasWithWorkspaceId(
+      this.dataSource,
+    );
+    const permissionStorageObjectRowIdsByTableName =
+      await this.findPermissionStorageObjectRowIdsByTableName({
+        workspaceId,
+        coreEntityMetadatas,
+        queryRunner,
+      });
+
+    for (const entityMetadata of coreEntityMetadatas) {
+      try {
+        await this.writeRows({
+          schemaName: entityMetadata.schema || 'core',
+          tableName: entityMetadata.tableName,
+          displayName: entityMetadata.tableName,
+          queryRunner,
+          stream,
+          whereClause: '"workspaceId" = $1 AND "id" <> ALL($2::uuid[])',
+          queryParameters: [
+            workspaceId,
+            permissionStorageObjectRowIdsByTableName.get(
+              entityMetadata.tableName,
+            ) ?? [],
+          ],
+          jsonColumns: this.buildJsonColumnSet(entityMetadata),
+        });
+      } catch (error) {
+        this.logger.warn(`${entityMetadata.tableName}: skipped`, error);
+      }
+    }
+
+    const userEntityMetadata = this.dataSource.entityMetadatas.find(
+      (entityMetadata) => entityMetadata.tableName === 'user',
+    );
+
+    if (userEntityMetadata) {
+      await this.writeRows({
+        schemaName: userEntityMetadata.schema || 'core',
+        tableName: userEntityMetadata.tableName,
+        displayName: userEntityMetadata.tableName,
+        queryRunner,
+        stream,
+        whereClause:
+          '"id" IN (SELECT "userId" FROM "core"."userWorkspace" WHERE "workspaceId" = $1)',
+        queryParameters: [workspaceId],
+        jsonColumns: this.buildJsonColumnSet(userEntityMetadata),
+      });
+    }
+  }
+
+  private buildJsonColumnSet(entityMetadata: EntityMetadata): Set<string> {
+    return new Set(
+      entityMetadata.columns
+        .filter((column) => column.type === 'jsonb' || column.type === 'json')
+        .map((column) => column.databaseName),
+    );
+  }
+
+  private async writeRows({
+    schemaName,
+    tableName,
+    displayName,
+    queryRunner,
+    stream,
+    whereClause,
+    queryParameters = [],
+    jsonColumns,
+    excludedColumns,
+  }: WriteRowsOptions): Promise<void> {
+    const whereFragment = whereClause ? ` WHERE ${whereClause}` : '';
+    let columnNames: string[] | undefined;
+    let insertPrefix: string | undefined;
+    let totalRows = 0;
+
+    for (let offset = 0; ; offset += BATCH_SIZE) {
+      const rows: Record<string, unknown>[] = await queryRunner.query(
+        `SELECT * FROM "${schemaName}"."${tableName}"${whereFragment} ORDER BY "id" LIMIT ${BATCH_SIZE} OFFSET ${offset}`,
+        queryParameters,
+      );
+
+      if (!isNonEmptyArray(rows)) {
+        break;
+      }
+
+      if (!columnNames) {
+        columnNames = Object.keys(rows[0]).filter(
+          (columnName) => !excludedColumns?.has(columnName),
+        );
+        insertPrefix = buildInsertPrefix(schemaName, tableName, columnNames);
+      }
+
+      totalRows += rows.length;
+
+      const valueTuples: string[] = [];
+
+      for (const row of rows) {
+        const formattedValues = columnNames.map((columnName) =>
+          formatSqlValue(row[columnName], jsonColumns?.has(columnName)),
+        );
+
+        valueTuples.push(`(${formattedValues.join(', ')})`);
+      }
+
+      const statement = `${insertPrefix}${valueTuples.join(', ')};\n`;
+
+      if (!stream.write(statement)) {
+        await once(stream, 'drain');
+      }
+
+      if (rows.length < BATCH_SIZE) {
+        break;
+      }
+    }
+
+    if (totalRows > 0) {
+      this.logger.log(`  ${displayName}: ${totalRows} rows`);
+    }
+  }
+
+  private async writeCopyRows({
+    schemaName,
+    tableName,
+    displayName,
+    queryRunner,
+    stream,
+    jsonColumns,
+    excludedColumns,
+    includedColumns,
+  }: Omit<WriteRowsOptions, 'whereClause' | 'queryParameters'>): Promise<void> {
+    let columnNames: string[] | undefined;
+    let totalRows = 0;
+
+    for (let offset = 0; ; offset += BATCH_SIZE) {
+      const rows: Record<string, unknown>[] = await queryRunner.query(
+        `SELECT * FROM "${schemaName}"."${tableName}" ORDER BY "id" LIMIT ${BATCH_SIZE} OFFSET ${offset}`,
+      );
+
+      if (!isNonEmptyArray(rows)) {
+        break;
+      }
+
+      if (!columnNames) {
+        columnNames = Object.keys(rows[0]).filter(
+          (columnName) =>
+            !excludedColumns?.has(columnName) &&
+            (includedColumns?.has(columnName) ?? true),
+        );
+
+        const escapedColumns = columnNames.map(escapeIdentifier).join(', ');
+
+        stream.write(
+          `COPY ${escapeIdentifier(schemaName)}.${escapeIdentifier(tableName)} (${escapedColumns}) FROM stdin;\n`,
+        );
+      }
+
+      totalRows += rows.length;
+
+      for (const row of rows) {
+        const values = columnNames.map((columnName) =>
+          formatPgCopyField(row[columnName], jsonColumns?.has(columnName)),
+        );
+
+        if (!stream.write(values.join('\t') + '\n')) {
+          await once(stream, 'drain');
+        }
+      }
+
+      if (rows.length < BATCH_SIZE) {
+        break;
+      }
+    }
+
+    if (isNonEmptyArray(columnNames)) {
+      stream.write('\\.\n\n');
+    }
+
+    if (totalRows > 0) {
+      this.logger.log(`  ${displayName}: ${totalRows} rows`);
+    }
+  }
+
+  // The two objects are exported as permission tables, so their metadata and
+  // every core row that cascades from it stay out of the export
+  private async findPermissionStorageObjectRowIdsByTableName({
+    workspaceId,
+    coreEntityMetadatas,
+    queryRunner,
+  }: {
+    workspaceId: string;
+    coreEntityMetadatas: EntityMetadata[];
+    queryRunner: QueryRunner;
+  }): Promise<Map<string, string[]>> {
+    const permissionStorageObjects: { id: string }[] = await queryRunner.query(
+      `SELECT "id" FROM "core"."objectMetadata"
+       WHERE "workspaceId" = $1 AND "universalIdentifier" = ANY($2)`,
+      [workspaceId, PERMISSION_STORAGE_OBJECT_UNIVERSAL_IDENTIFIERS],
+    );
+    const rowIdsByTableName = new Map<string, string[]>([
+      ['objectMetadata', permissionStorageObjects.map(({ id }) => id)],
+    ]);
+    let hasFoundRows = isNonEmptyArray(permissionStorageObjects);
+
+    while (hasFoundRows) {
+      hasFoundRows = false;
+
+      for (const entityMetadata of coreEntityMetadatas) {
+        for (const foreignKey of entityMetadata.foreignKeys) {
+          const parentRowIds = rowIdsByTableName.get(
+            foreignKey.referencedEntityMetadata.tableName,
+          );
+          const [columnName] = foreignKey.columnNames;
+
+          if (
+            foreignKey.onDelete !== 'CASCADE' ||
+            !isNonEmptyArray(parentRowIds)
+          ) {
+            continue;
+          }
+
+          const knownRowIds =
+            rowIdsByTableName.get(entityMetadata.tableName) ?? [];
+          const rows: { id: string }[] = await queryRunner.query(
+            `SELECT "id" FROM "core".${escapeIdentifier(entityMetadata.tableName)}
+             WHERE "workspaceId" = $1 AND ${escapeIdentifier(columnName)} = ANY($2::uuid[]) AND "id" <> ALL($3::uuid[])`,
+            [workspaceId, parentRowIds, knownRowIds],
+          );
+
+          if (isNonEmptyArray(rows)) {
+            rowIdsByTableName.set(entityMetadata.tableName, [
+              ...knownRowIds,
+              ...rows.map(({ id }) => id),
+            ]);
+            hasFoundRows = true;
+          }
+        }
+      }
+    }
+
+    return rowIdsByTableName;
+  }
+
+  private async writePermissionTables({
+    schemaName,
+    tableFilter,
+    queryRunner,
+    stream,
+  }: Pick<WriteRowsOptions, 'schemaName' | 'queryRunner' | 'stream'> &
+    Pick<WorkspaceExportParams, 'tableFilter'>): Promise<void> {
+    for (const statement of buildCreatePermissionTablesStatements({
+      schemaName,
+    })) {
+      stream.write(`${statement};\n`);
+    }
+
+    stream.write('\n');
+
+    for (const {
+      tableName,
+      columnNames,
+      jsonColumnNames,
+      identityColumnName,
+    } of PERMISSION_TABLES) {
+      if (isDefined(tableFilter) && !tableFilter.includes(tableName)) {
+        continue;
+      }
+
+      await this.writeCopyRows({
+        schemaName,
+        tableName,
+        displayName: tableName,
+        queryRunner,
+        stream,
+        jsonColumns: new Set(jsonColumnNames),
+        includedColumns: new Set(columnNames),
+      });
+
+      if (isDefined(identityColumnName)) {
+        const table = `${escapeIdentifier(schemaName)}.${escapeIdentifier(tableName)}`;
+        const column = escapeIdentifier(identityColumnName);
+
+        // COPY keeps the exported ids but leaves the identity sequence at its start
+        stream.write(
+          `SELECT setval(pg_get_serial_sequence(${escapeLiteral(table)}, ${escapeLiteral(identityColumnName)}), COALESCE(MAX(${column}), 1), MAX(${column}) IS NOT NULL) FROM ${table};\n\n`,
+        );
+      }
+    }
+  }
+
+  private writeWorkspaceSchemaDdl(
+    workspaceId: string,
+    schemaName: string,
+    objectMetadatas: ObjectMetadataEntity[],
+    fieldsByObjectId: Map<string, FieldMetadataEntity[]>,
+    searchFieldMetadatasByObjectId: Map<string, SearchFieldMetadataEntity[]>,
+    stream: WriteStream,
+  ): void {
+    this.logger.log('Generating workspace schema DDL from metadata...');
+
+    const ddlStatements = generateWorkspaceSchemaDdl(
+      workspaceId,
+      schemaName,
+      objectMetadatas,
+      fieldsByObjectId,
+      searchFieldMetadatasByObjectId,
+    );
+
+    this.logger.log(`  ${ddlStatements.length} DDL statements`);
+
+    for (const statement of ddlStatements) {
+      stream.write(statement + '\n');
+    }
+
+    stream.write('\n');
+  }
+
+  private async writeWorkspaceDataRows(
+    workspaceId: string,
+    schemaName: string,
+    objectMetadatas: ObjectMetadataEntity[],
+    fieldsByObjectId: Map<string, FieldMetadataEntity[]>,
+    tableFilter: string[] | undefined,
+    queryRunner: QueryRunner,
+    stream: WriteStream,
+  ): Promise<void> {
+    for (const objectMetadata of objectMetadatas) {
+      if (!objectMetadata.isActive) {
+        continue;
+      }
+
+      const tableName = computeTableName(
+        objectMetadata.nameSingular,
+        objectMetadata.application?.universalIdentifier !==
+          INTEGRA_STANDARD_APPLICATION.universalIdentifier,
+      );
+
+      if (tableFilter && !tableFilter.includes(objectMetadata.nameSingular)) {
+        continue;
+      }
+
+      const objectFieldMetadatas =
+        fieldsByObjectId.get(objectMetadata.id) ?? [];
+
+      const { jsonColumns, generatedColumns } = buildWorkspaceTableColumnSets(
+        workspaceId,
+        objectMetadata,
+        objectFieldMetadatas,
+      );
+
+      try {
+        await this.writeCopyRows({
+          schemaName,
+          tableName,
+          displayName: objectMetadata.nameSingular,
+          queryRunner,
+          stream,
+          jsonColumns,
+          excludedColumns: generatedColumns,
+        });
+      } catch (error) {
+        this.logger.warn(`${objectMetadata.nameSingular}: skipped`, error);
+      }
+    }
+  }
+}

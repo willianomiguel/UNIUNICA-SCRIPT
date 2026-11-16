@@ -1,0 +1,130 @@
+---
+title: CLI
+description: Fonksiyonları çalıştırmak, günlükleri akış olarak izlemek, uygulama kurulumlarını yönetmek ve uzaklar arasında geçiş yapmak için yarn integracore komutları.
+---
+
+`yarn integracore` CLI, uygulama ile ilgili her şey için arayüzünüzdür. Tam komut listesi:
+
+| Komut                                           | Ne yapar                                                                              | Şurada belgelenmiştir                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `dev`                                           | Kaynak dosyaları izleyin ve değişiklikleri gerçek zamanlı olarak eşitleyin            | [Hızlı Başlangıç](/tr/developers/extend/apps/getting-started/quick-start)                                     |
+| `plan`                                          | Meta veri değişikliklerini uygulamadan önizleyin                                      | [Senkronizasyon ve kurtarma](/tr/developers/extend/apps/operations/sync-and-recovery#previewing-changes-plan) |
+| `apply`                                         | Planı gösterdikten sonra meta veri değişikliklerini uygulayın                         | [Senkronizasyon ve kurtarma](/tr/developers/extend/apps/operations/sync-and-recovery)                         |
+| `dev:build`                                     | Uygulamayı derleyin ve API istemcisini oluşturun (`.tgz` paketlemek için `--tarball`) | [Yayınlama](/tr/developers/extend/apps/operations/publishing)                                                 |
+| `dev:typecheck`                                 | TypeScript tür kontrolünü çalıştırın                                                  | [Testing](/tr/developers/extend/apps/operations/testing)                                                      |
+| `dev:add`                                       | Yeni bir varlık iskeleti oluşturun                                                    | [İskele oluşturma](/tr/developers/extend/apps/getting-started/scaffolding)                                    |
+| `dev:generate-client`                           | Türlendirilmiş API istemcisini yeniden oluşturun                                      | bu sayfa                                                                                                   |
+| `dev:function:exec` / `dev:function:logs`       | Fonksiyonları çalıştırın ve günlüklerini akış halinde alın                            | bu sayfa                                                                                                   |
+| `dev:translations-extract`                      | Çevrilebilir dizeleri `locales/` kataloglarına çıkarın                                | [Çeviriler](/tr/developers/extend/apps/operations/translations)                                                 |
+| `dev:catalog-sync`                              | Pazar yeri katalog eşitlemesini tetikleyin                                            | [Yayınlama](/tr/developers/extend/apps/operations/publishing#how-marketplace-discovery-works)                 |
+| `app:publish` / `app:install` / `app:uninstall` | Sürüm yaşam döngüsü                                                                   | [Yayınlama](/tr/developers/extend/apps/operations/publishing) ve bu sayfa                                     |
+| `docker:*`                                      | Yerel IntegraCore sunucu konteynerini yönetin                                              | [Yerel Sunucu](/tr/developers/extend/apps/getting-started/local-server)                                       |
+| `remote:*`                                      | Sunucu bağlantılarını yönetin                                                         | bu sayfa                                                                                                   |
+
+Her komut, varsayılan yerine belirli bir uzak sunucuyu hedeflemek için `-r, --remote \<name>` parametresini kabul eder.
+
+## Fonksiyonları çalıştırma (`yarn integracore dev:function:exec`)
+
+Bir mantık fonksiyonunu HTTP, cron veya veritabanı olayıyla tetiklemeden manuel olarak çalıştırın:
+
+```bash filename="Terminal"
+# Execute by function name
+yarn integracore dev:function:exec -n create-new-post-card
+
+# Execute by universalIdentifier
+yarn integracore dev:function:exec -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+
+# Pass a JSON payload
+yarn integracore dev:function:exec -n create-new-post-card -p '{"name": "Hello"}'
+
+# Execute the install and uninstall hooks
+yarn integracore dev:function:exec --postInstall
+yarn integracore dev:function:exec --preInstall
+yarn integracore dev:function:exec --uninstall
+```
+
+## Fonksiyon günlüklerini görüntüleme (`yarn integracore dev:function:logs`)
+
+Uygulamanızın mantık fonksiyonlarının yürütme günlüklerini akış olarak alın:
+
+```bash filename="Terminal"
+# Stream all function logs
+yarn integracore dev:function:logs
+
+# Filter by function name
+yarn integracore dev:function:logs -n create-new-post-card
+
+# Filter by universalIdentifier
+yarn integracore dev:function:logs -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+```
+
+<Note>
+Bu, Docker konteyner günlüklerini gösteren `yarn integracore docker:logs` komutundan farklıdır. `yarn integracore dev:function:logs`, uygulamanızın fonksiyon yürütme günlüklerini IntegraCore sunucusundan gösterir.
+</Note>
+
+## Tiplendirilmiş istemciyi oluşturma (`yarn integracore dev:generate-client`)
+
+Bir uygulamayı oluşturup eşitlemeden, etkin uzak sunucunun şemasından tiplendirilmiş API istemcisini (`integracore-client-sdk`) yeniden oluşturun. Bunu, IntegraCore örneğinizle iletişim kuran — örneğin ayrı bir depoda bulunan bir arka uç hizmeti — herhangi bir projede tiplendirilmiş bir istemci edinmek için kullanın:
+
+```bash filename="Terminal"
+# In your project (no IntegraCore app definition required)
+yarn add integracore-sdk integracore-client-sdk
+
+# Connect to the IntegraCore instance to generate the client from
+yarn integracore remote:add
+
+# Generate the typed client into node_modules/integracore-client-sdk
+yarn integracore dev:generate-client
+```
+
+Ardından istemciyi kodunuza içe aktarın:
+
+```typescript
+import { CoreApiClient } from 'integracore-client-sdk/core';
+```
+
+Oluşturulan türleri yenilemek için veri modeliniz her değiştiğinde komutu yeniden çalıştırın.
+
+<Note>
+İstemci `node_modules` içinde oluşturulur, bu nedenle kodunuzla birlikte commit edilmez. Her kurulumdan sonra (örneğin bir `postinstall` betiğinde veya CI içinde) `yarn integracore dev:generate-client` komutunu çalıştırın.
+</Note>
+
+## Bir uygulamayı kaldırma (`yarn integracore app:uninstall`)
+
+Uygulamanızı etkin çalışma alanından kaldırın:
+
+```bash filename="Terminal"
+yarn integracore app:uninstall
+
+# Skip the confirmation prompt
+yarn integracore app:uninstall --yes
+```
+
+## Uzakları yönetme
+
+Bir **uzak**, uygulamanızın bağlandığı IntegraCore sunucusudur. Kurulum sırasında iskelet oluşturucu sizin için otomatik olarak bir tane oluşturur. Dilediğiniz zaman daha fazla uzak ekleyebilir veya aralarında geçiş yapabilirsiniz.
+
+```bash filename="Terminal"
+# Add a new remote (opens a browser for OAuth login)
+yarn integracore remote:add
+
+# Connect to a local IntegraCore server (auto-detects port 2020 or 3000)
+yarn integracore remote:add --local
+
+# Add a remote non-interactively (useful for CI)
+yarn integracore remote:add --url https://your-integracore-server.com --api-key $INTEGRA_API_KEY --as my-remote
+
+# List all configured remotes
+yarn integracore remote:list
+
+# Set the active remote
+yarn integracore remote:use <name>
+
+# Check that the active remote's authentication is still valid
+yarn integracore remote:status
+
+# Remove a remote
+yarn integracore remote:remove <name>
+```
+
+Kimlik bilgileriniz `~/.integracore/config.json` içinde saklanır.

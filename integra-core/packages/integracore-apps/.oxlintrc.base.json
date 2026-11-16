@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["integracore-shared", "integracore-shared/*"],
+            "message": "integracore-apps applications must not import from integracore-shared directly. Import the runtime types and helpers you need from integracore-sdk instead so the app bundle stays minimal."
+          }
+        ]
+      }
+    ]
+  }
+}

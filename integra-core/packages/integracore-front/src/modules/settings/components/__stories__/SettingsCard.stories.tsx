@@ -1,0 +1,87 @@
+import { SettingsCard } from '@/settings/components/SettingsCard';
+import { type Meta, type StoryObj } from '@storybook/react-vite';
+import React from 'react';
+import { expect, fn, userEvent, within } from 'storybook/test';
+import { IconMailCog } from 'integracore-ui/icon';
+import { ComponentDecorator } from 'integracore-ui/testing';
+
+const meta: Meta<typeof SettingsCard> = {
+  title: 'Modules/Settings/SettingsCard',
+  component: SettingsCard,
+  decorators: [ComponentDecorator],
+};
+export default meta;
+type Story = StoryObj<typeof SettingsCard>;
+
+export const Default: Story = {
+  args: {
+    onClick: fn(),
+    Icon: React.createElement(IconMailCog),
+    title: 'Settings Card',
+  },
+  argTypes: {
+    className: { control: false },
+    Icon: { control: false },
+  },
+  play: async ({ canvasElement, args }) => {
+    const action = within(canvasElement).getByRole('button', {
+      name: 'Settings Card',
+    });
+
+    action.focus();
+    await userEvent.keyboard('{Enter} ');
+    await expect(args.onClick).toHaveBeenCalledTimes(2);
+    await expect(action).toHaveStyle({
+      outlineWidth: '2px',
+      outlineStyle: 'solid',
+      outlineOffset: '-2px',
+    });
+  },
+};
+
+export const Disabled: Story = {
+  args: { ...Default.args, disabled: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByRole('button', { name: 'Settings Card' }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(canvas.getByText('Settings Card'));
+    await expect(args.onClick).not.toHaveBeenCalled();
+  },
+};
+
+export const Illustrated: Story = {
+  args: {
+    Icon: React.createElement(IconMailCog, { size: 12 }),
+    title: 'Settings Card',
+    description: 'Illustrated card description',
+    illustrationColor: 'blue',
+    href: 'https://integracore.com',
+  },
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole('link', {
+      name: 'Settings Card Illustrated card description',
+    });
+
+    await expect(link).toHaveAttribute('href', 'https://integracore.com');
+  },
+};
+
+export const ExternalLink: Story = {
+  args: {
+    Icon: React.createElement(IconMailCog),
+    title: 'Settings Card',
+    href: 'https://integracore.com',
+  },
+  play: async ({ canvasElement }) => {
+    const link = within(canvasElement).getByRole('link', {
+      name: 'Settings Card',
+    });
+
+    await expect(link).toHaveAttribute('href', 'https://integracore.com');
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  },
+};

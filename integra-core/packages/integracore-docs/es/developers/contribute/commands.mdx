@@ -1,0 +1,82 @@
+---
+title: Comandos
+description: Comandos útiles para desarrollar IntegraCore.
+---
+
+import { PageBanner } from "/snippets/page-banner.mdx"
+
+## Resumen
+
+Los comandos se pueden ejecutar desde la raíz del repositorio usando `npx nx`. Usa `npx nx run {project}:{command}` para especificar explícitamente el destino.
+
+## Iniciando la aplicación
+
+```bash
+npx nx start integracore-front          # Frontend dev server (http://localhost:3001)
+npx nx start integracore-server         # Backend server (http://localhost:3000)
+npx nx run integracore-server:worker    # Background worker
+```
+
+## Base de datos
+
+```bash
+npx nx database:reset integracore-server                          # Reset and seed database
+npx nx run integracore-server:database:migrate:prod               # Run migrations
+npx nx run integracore-server:database:migrate:generate --name <name> --type <fast|slow>  # Generate a migration
+```
+
+## Análisis de código
+
+```bash
+npx nx lint:diff-with-main integracore-front    # Lint changed files (fastest)
+npx nx lint:diff-with-main integracore-server
+npx nx lint integracore-front --configuration=fix  # Auto-fix
+```
+
+## Comprobación de tipos
+
+```bash
+npx nx typecheck integracore-front
+npx nx typecheck integracore-server
+```
+
+## Pruebas
+
+```bash
+# Frontend
+npx nx test integracore-front                          # Jest unit tests
+npx nx storybook:build integracore-front               # Build Storybook
+npx nx storybook:test integracore-front                # Storybook tests
+
+# Backend
+npx nx run integracore-server:test:unit                # Unit tests
+npx nx run integracore-server:test:integration         # Integration tests
+npx nx run integracore-server:test:integration:with-db-reset  # Integration with DB reset
+
+# Single file (fastest)
+npx jest path/to/test.test.ts --config=packages/{project}/jest.config.mjs
+```
+
+## GraphQL
+
+```bash
+npx nx run integracore-front:graphql:generate                        # Regenerate types
+npx nx run integracore-front:graphql:generate --configuration=metadata  # Metadata schema
+```
+
+## Traducciones
+
+```bash
+npx nx run integracore-front:lingui:extract   # Extract strings
+npx nx run integracore-front:lingui:compile   # Compile translations
+```
+
+## Compilar
+
+```bash
+npx nx build integracore-shared   # Must be built first
+npx nx build integracore-front
+npx nx build integracore-server
+```
+
+<PageBanner illustration="card-page-cli" />

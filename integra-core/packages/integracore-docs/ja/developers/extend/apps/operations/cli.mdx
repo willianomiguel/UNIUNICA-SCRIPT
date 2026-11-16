@@ -1,0 +1,130 @@
+---
+title: CLI
+description: 関数の実行、ログのストリーミング、アプリのインストール管理、リモートの切り替えを行う yarn integracore のコマンド。
+---
+
+`yarn integracore` CLI は、アプリ関連のすべてを操作するためのインターフェースです。 コマンド一覧:
+
+| コマンド                                            | 機能                                                             | 参照ドキュメント                                                                                           |
+| ----------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `dev`                                           | ソースファイルを監視し、変更をライブ同期します                                        | [クイックスタート](/ja/developers/extend/apps/getting-started/quick-start)                                    |
+| `plan`                                          | メタデータの変更を適用せずにプレビュー                                            | [Syncing & recovery](/ja/developers/extend/apps/operations/sync-and-recovery#previewing-changes-plan) |
+| `apply`                                         | プランを表示した後にメタデータの変更を適用                                          | [Syncing & recovery](/ja/developers/extend/apps/operations/sync-and-recovery)                         |
+| `dev:build`                                     | アプリをコンパイルし、API クライアントを生成します（`.tgz` にパッケージするには `--tarball` を使用） | [公開](/ja/developers/extend/apps/operations/publishing)                                                |
+| `dev:typecheck`                                 | TypeScript の型チェックを実行                                           | [テスト](/ja/developers/extend/apps/operations/testing)                                                  |
+| `dev:add`                                       | 新しいエンティティのスキャフォールドを作成                                          | [スキャフォールディング](/ja/developers/extend/apps/getting-started/scaffolding)                                 |
+| `dev:generate-client`                           | 型付き API クライアントを再生成                                             | このページ                                                                                              |
+| `dev:function:exec` / `dev:function:logs`       | 関数を実行し、そのログをストリーミング                                            | このページ                                                                                              |
+| `dev:translations-extract`                      | 翻訳可能な文字列を `locales/` カタログに抽出                                   | [翻訳](/ja/developers/extend/apps/operations/translations)                                                |
+| `dev:catalog-sync`                              | マーケットプレイスのカタログ同期をトリガー                                          | [公開](/ja/developers/extend/apps/operations/publishing#how-marketplace-discovery-works)                |
+| `app:publish` / `app:install` / `app:uninstall` | リリースライフサイクル                                                    | [公開](/ja/developers/extend/apps/operations/publishing) とこのページ                                         |
+| `docker:*`                                      | ローカルの IntegraCore サーバーコンテナを管理                                       | [ローカルサーバー](/ja/developers/extend/apps/getting-started/local-server)                                   |
+| `remote:*`                                      | サーバー接続を管理                                                      | このページ                                                                                              |
+
+すべてのコマンドは、デフォルトではない特定のリモートを対象にするために `-r, --remote \<name>` を受け付けます。
+
+## 関数の実行（`yarn integracore dev:function:exec`）
+
+HTTP、cron、データベースイベントを介さずに、ロジック関数を手動で実行します：
+
+```bash filename="Terminal"
+# Execute by function name
+yarn integracore dev:function:exec -n create-new-post-card
+
+# Execute by universalIdentifier
+yarn integracore dev:function:exec -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+
+# Pass a JSON payload
+yarn integracore dev:function:exec -n create-new-post-card -p '{"name": "Hello"}'
+
+# Execute the install and uninstall hooks
+yarn integracore dev:function:exec --postInstall
+yarn integracore dev:function:exec --preInstall
+yarn integracore dev:function:exec --uninstall
+```
+
+## 関数ログの表示（`yarn integracore dev:function:logs`）
+
+アプリのロジック関数の実行ログをストリーミング表示します：
+
+```bash filename="Terminal"
+# Stream all function logs
+yarn integracore dev:function:logs
+
+# Filter by function name
+yarn integracore dev:function:logs -n create-new-post-card
+
+# Filter by universalIdentifier
+yarn integracore dev:function:logs -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+```
+
+<Note>
+これは Docker コンテナのログを表示する `yarn integracore docker:logs` とは異なります。 `yarn integracore dev:function:logs` は、IntegraCore サーバーからアプリの関数実行ログを表示します。
+</Note>
+
+## 型付きクライアントを生成する（`yarn integracore dev:generate-client`）
+
+アプリをビルドしたり同期したりすることなく、アクティブなリモートのスキーマから型付き API クライアント（`integracore-client-sdk`）を再生成します。 これを使用すると、別リポジトリにあるバックエンドサービスのような、IntegraCore インスタンスと通信する任意のプロジェクトで型付きクライアントを取得できます：
+
+```bash filename="Terminal"
+# In your project (no IntegraCore app definition required)
+yarn add integracore-sdk integracore-client-sdk
+
+# Connect to the IntegraCore instance to generate the client from
+yarn integracore remote:add
+
+# Generate the typed client into node_modules/integracore-client-sdk
+yarn integracore dev:generate-client
+```
+
+次に、クライアントをコードでインポートします：
+
+```typescript
+import { CoreApiClient } from 'integracore-client-sdk/core';
+```
+
+データモデルが変更されるたびにコマンドを再実行して、生成された型を更新してください。
+
+<Note>
+クライアントは `node_modules` 内に生成されるため、コードと一緒にはコミットされません。 インストールのたびに（たとえば `postinstall` スクリプトや CI で）`yarn integracore dev:generate-client` を実行してください。
+</Note>
+
+## アプリのアンインストール（`yarn integracore app:uninstall`）
+
+アクティブなワークスペースからアプリを削除します：
+
+```bash filename="Terminal"
+yarn integracore app:uninstall
+
+# Skip the confirmation prompt
+yarn integracore app:uninstall --yes
+```
+
+## リモートの管理
+
+**remote** とは、アプリが接続する IntegraCore サーバーのことです。 セットアップ中に、スキャフォルダーが自動的にリモートを作成します。 リモートはいつでも追加や切り替えができます。
+
+```bash filename="Terminal"
+# Add a new remote (opens a browser for OAuth login)
+yarn integracore remote:add
+
+# Connect to a local IntegraCore server (auto-detects port 2020 or 3000)
+yarn integracore remote:add --local
+
+# Add a remote non-interactively (useful for CI)
+yarn integracore remote:add --url https://your-integracore-server.com --api-key $INTEGRA_API_KEY --as my-remote
+
+# List all configured remotes
+yarn integracore remote:list
+
+# Set the active remote
+yarn integracore remote:use <name>
+
+# Check that the active remote's authentication is still valid
+yarn integracore remote:status
+
+# Remove a remote
+yarn integracore remote:remove <name>
+```
+
+認証情報は `~/.integracore/config.json` に保存されます。

@@ -1,0 +1,176 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "import"],
+  "jsPlugins": ["../integracore-oxlint-rules/dist/oxlint-plugin.mjs"],
+  "categories": {
+    "correctness": "off"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "src/generated",
+    "src/generated-metadata",
+    "src/generated-admin",
+    "src/locales/generated",
+    "src/testing/mock-data",
+    "**/__mocks__/**",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "build",
+    "coverage",
+    "storybook-static"
+  ],
+  "rules": {
+    "curly": "error",
+    "prefer-const": ["error", { "ignoreReadBeforeAssign": true }],
+    "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
+    "no-console": [
+      "warn",
+      { "allow": ["group", "groupCollapsed", "groupEnd"] }
+    ],
+    "no-script-url": "error",
+    "no-control-regex": "off",
+    "no-debugger": "error",
+    "no-else-return": "error",
+    "no-duplicate-imports": "error",
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "no-redeclare": "off",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["../*"],
+            "message": "Relative parent imports are not allowed. Use @/ alias instead."
+          },
+          {
+            "group": ["@tabler/icons-react"],
+            "message": "Please import icons from `integracore-ui`"
+          },
+          {
+            "group": ["react-hotkeys-web-hook"],
+            "importNames": ["useHotkeys"],
+            "message": "Please use the custom wrapper: `useScopedHotkeys` from `integracore-ui`"
+          },
+          {
+            "group": ["lodash"],
+            "message": "Please use the standalone lodash package (for instance: `import groupBy from 'lodash.groupby'` instead of `import { groupBy } from 'lodash'`)"
+          }
+        ]
+      }
+    ],
+
+    "import/no-duplicates": "error",
+
+    "react/no-unescaped-entities": "off",
+    "react/prop-types": "off",
+    "react/jsx-key": "off",
+    "react/display-name": "off",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "react/jsx-no-script-url": "error",
+    "react/jsx-props-no-spreading": ["error", { "explicitSpread": "ignore" }],
+
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+
+    "typescript/no-redeclare": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-module-boundary-types": "off",
+    "typescript/no-empty-object-type": [
+      "error",
+      {
+        "allowInterfaces": "with-single-extends"
+      }
+    ],
+    "typescript/no-empty-function": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ],
+
+    "typescript/strict-boolean-expressions": [
+      "error",
+      {
+        "allowNullableBoolean": true,
+        "allowNullableObject": true,
+        "allowString": true,
+        "allowNumber": true,
+        "allowNullableString": true,
+        "allowNullableNumber": true,
+        "allowNullableEnum": true,
+        "allowAny": true
+      }
+    ],
+
+    "integracore/effect-components": "error",
+    "integracore/no-hardcoded-colors": "error",
+    "integracore/matching-state-variable": "error",
+    "integracore/sort-css-properties-alphabetically": "error",
+    "integracore/styled-components-prefixed-with-styled": "error",
+    "integracore/no-state-useref": "error",
+    "integracore/component-props-naming": "error",
+    "integracore/no-navigate-prefer-link": "error",
+    "integracore/no-window-open": "error",
+    "integracore/no-integracore-ui-override": "warn",
+    "integracore/no-jotai-store-in-selector": "error",
+    "integracore/no-direct-atom-family-in-selector": "error",
+    "integracore/folder-structure": "error",
+    "integracore/no-icu-escaping-apostrophe": "error",
+    "integracore/no-miscased-acronym-in-identifier": "error",
+    "integracore/no-miscased-acronym-in-message": "error",
+    "integracore/types-folder-filename": ["error", { "convention": "PascalCase" }],
+    "integracore/enforce-module-boundaries": [
+      "error",
+      {
+        "depConstraints": [
+          {
+            "sourceTag": "scope:frontend",
+            "onlyDependOnLibsWithTags": ["scope:shared", "scope:frontend"]
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/modules/ui/input/components/NavigationButton.tsx",
+        "src/modules/ui/navigation/link/components/LinkChip/LinkChip.tsx"
+      ],
+      "rules": {
+        "react/jsx-props-no-spreading": "off"
+      }
+    },
+    {
+      "files": [
+        "src/utils/openUrlInNewTab.ts",
+        "src/modules/domain-manager/hooks/useRedirect.ts"
+      ],
+      "rules": {
+        "integracore/no-window-open": "off"
+      }
+    },
+    {
+      "files": ["**/constants/*.ts", "**/*.constants.ts"],
+      "rules": {
+        "integracore/max-consts-per-file": ["error", { "max": 1 }]
+      }
+    }
+  ]
+}

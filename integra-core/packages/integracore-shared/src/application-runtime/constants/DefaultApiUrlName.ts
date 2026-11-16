@@ -1,0 +1,1 @@
+export const DEFAULT_API_URL_NAME = 'INTEGRA_API_URL';

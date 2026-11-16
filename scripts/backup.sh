@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Backup do banco (Postgres) e dos arquivos enviados ao Twenty.
+# Backup do banco (Postgres) e dos arquivos enviados ao IntegraCore.
 # Uso: scripts/backup.sh [pasta-destino]   (padrão: ./backups)
 # Sugestão: agendar no cron do servidor, ex.: 0 3 * * * /caminho/scripts/backup.sh /srv/backups
 set -euo pipefail
@@ -16,7 +16,7 @@ docker compose exec -T db pg_dump -U "${PG_DATABASE_USER:-postgres}" -d "${PG_DA
   > "$DEST/db-$STAMP.dump"
 
 echo "→ Arquivos enviados (anexos, imagens)…"
-docker compose exec -T server tar -czf - -C /app/packages/twenty-server/.local-storage . \
+docker compose exec -T server tar -czf - -C /app/packages/integracore-server/.local-storage . \
   > "$DEST/arquivos-$STAMP.tar.gz"
 
 echo "→ Removendo backups com mais de $KEEP_DAYS dias…"

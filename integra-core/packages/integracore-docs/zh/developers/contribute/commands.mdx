@@ -1,0 +1,76 @@
+---
+title: 命令
+description: 用于开发 IntegraCore 的实用命令。
+---
+
+可以在存储库根目录使用 `npx nx` 运行命令。 使用 `npx nx run {project}:{command}` 显式指定目标。
+
+## 启动应用
+
+```bash
+npx nx start integracore-front          # Frontend dev server (http://localhost:3001)
+npx nx start integracore-server         # Backend server (http://localhost:3000)
+npx nx run integracore-server:worker    # Background worker
+```
+
+## 数据库
+
+```bash
+npx nx database:reset integracore-server                          # Reset and seed database
+npx nx run integracore-server:database:migrate:prod               # Run migrations
+npx nx run integracore-server:database:migrate:generate --name <name> --type <fast|slow>  # Generate a migration
+```
+
+## 代码检查
+
+```bash
+npx nx lint:diff-with-main integracore-front    # Lint changed files (fastest)
+npx nx lint:diff-with-main integracore-server
+npx nx lint integracore-front --configuration=fix  # Auto-fix
+```
+
+## 类型检查
+
+```bash
+npx nx typecheck integracore-front
+npx nx typecheck integracore-server
+```
+
+## 测试
+
+```bash
+# Frontend
+npx nx test integracore-front                          # Jest unit tests
+npx nx storybook:build integracore-front               # Build Storybook
+npx nx storybook:test integracore-front                # Storybook tests
+
+# Backend
+npx nx run integracore-server:test:unit                # Unit tests
+npx nx run integracore-server:test:integration         # Integration tests
+npx nx run integracore-server:test:integration:with-db-reset  # Integration with DB reset
+
+# Single file (fastest)
+npx jest path/to/test.test.ts --config=packages/{project}/jest.config.mjs
+```
+
+## GraphQL
+
+```bash
+npx nx run integracore-front:graphql:generate                        # Regenerate types
+npx nx run integracore-front:graphql:generate --configuration=metadata  # Metadata schema
+```
+
+## 翻译
+
+```bash
+npx nx run integracore-front:lingui:extract   # Extract strings
+npx nx run integracore-front:lingui:compile   # Compile translations
+```
+
+## 构建
+
+```bash
+npx nx build integracore-shared   # Must be built first
+npx nx build integracore-front
+npx nx build integracore-server
+```

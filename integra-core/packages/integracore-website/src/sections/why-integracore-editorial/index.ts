@@ -1,0 +1,1 @@
+export { WhyIntegraCoreEditorials } from './WhyIntegraCoreEditorials';

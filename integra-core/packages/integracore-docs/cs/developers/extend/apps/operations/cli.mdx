@@ -1,0 +1,130 @@
+---
+title: CLI
+description: příkazy `yarn integracore` pro spouštění funkcí, streamování logů, správu instalací aplikací a přepínání vzdálených serverů.
+---
+
+CLI `yarn integracore` je vaše rozhraní ke všemu, co souvisí s aplikací. Úplný seznam příkazů:
+
+| Příkaz                                          | K čemu slouží                                                                       | Zdokumentováno v                                                                                         |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `dev`                                           | Sleduje zdrojové soubory a živě synchronizuje změny                                 | [Rychlý start](/cs/developers/extend/apps/getting-started/quick-start)                                      |
+| `plán`                                          | Náhled změn metadat bez jejich aplikování                                           | [Synchronizace a obnovení](/cs/developers/extend/apps/operations/sync-and-recovery#previewing-changes-plan) |
+| `použít`                                        | Aplikovat změny metadat po zobrazení plánu                                          | [Synchronizace a obnovení](/cs/developers/extend/apps/operations/sync-and-recovery)                         |
+| `dev:build`                                     | Zkompilovat aplikaci a vygenerovat API klienta (`--tarball` pro zabalení do `.tgz`) | [Publikování](/cs/developers/extend/apps/operations/publishing)                                             |
+| `dev:typecheck`                                 | Spustit kontrolu typů TypeScriptu                                                   | [Testování](/cs/developers/extend/apps/operations/testing)                                                  |
+| `dev:add`                                       | Vytvořit kostru nové entity                                                         | [Scaffolding](/cs/developers/extend/apps/getting-started/scaffolding)                                       |
+| `dev:generate-client`                           | Znovu vygenerovat typovaného API klienta                                            | tato stránka                                                                                             |
+| `dev:function:exec` / `dev:function:logs`       | Spustit funkce a streamovat jejich logy                                             | tato stránka                                                                                             |
+| `dev:translations-extract`                      | Extrahovat přeložitelné řetězce do katalogů v `locales/`                            | [Překlady](/cs/developers/extend/apps/operations/translations)                                                |
+| `dev:catalog-sync`                              | Spustit synchronizaci katalogu tržiště                                              | [Publikování](/cs/developers/extend/apps/operations/publishing#how-marketplace-discovery-works)             |
+| `app:publish` / `app:install` / `app:uninstall` | Životní cyklus vydání                                                               | [Publikování](/cs/developers/extend/apps/operations/publishing) a tato stránka                              |
+| `docker:*`                                      | Spravovat kontejner lokálního serveru IntegraCore                                        | [Lokální server](/cs/developers/extend/apps/getting-started/local-server)                                   |
+| `remote:*`                                      | Spravovat připojení k serveru                                                       | tato stránka                                                                                             |
+
+Každý příkaz přijímá `-r, --remote \<name>` pro zacílení na konkrétní vzdálené připojení místo výchozího.
+
+## Spouštění funkcí (`yarn integracore dev:function:exec`)
+
+Spusťte logickou funkci ručně bez vyvolání přes HTTP, cron nebo databázovou událost:
+
+```bash filename="Terminal"
+# Execute by function name
+yarn integracore dev:function:exec -n create-new-post-card
+
+# Execute by universalIdentifier
+yarn integracore dev:function:exec -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+
+# Pass a JSON payload
+yarn integracore dev:function:exec -n create-new-post-card -p '{"name": "Hello"}'
+
+# Execute the install and uninstall hooks
+yarn integracore dev:function:exec --postInstall
+yarn integracore dev:function:exec --preInstall
+yarn integracore dev:function:exec --uninstall
+```
+
+## Zobrazení logů funkcí (`yarn integracore dev:function:logs`)
+
+Streamujte výstupní logy běhu logických funkcí vaší aplikace:
+
+```bash filename="Terminal"
+# Stream all function logs
+yarn integracore dev:function:logs
+
+# Filter by function name
+yarn integracore dev:function:logs -n create-new-post-card
+
+# Filter by universalIdentifier
+yarn integracore dev:function:logs -u e56d363b-0bdc-4d8a-a393-6f0d1c75bdcf
+```
+
+<Note>
+To se liší od `yarn integracore docker:logs`, který zobrazuje logy kontejneru Docker. `yarn integracore dev:function:logs` zobrazuje logy běhu funkcí vaší aplikace ze serveru IntegraCore.
+</Note>
+
+## Generování typovaného klienta (`yarn integracore dev:generate-client`)
+
+Znovu vygenerujte typovaného klienta API (`integracore-client-sdk`) ze schématu aktivního vzdáleného serveru, bez sestavování nebo synchronizace aplikace. Použijte jej k získání typovaného klienta v libovolném projektu – například backendové služby v samostatném repozitáři – který komunikuje s vaší instancí IntegraCore:
+
+```bash filename="Terminal"
+# In your project (no IntegraCore app definition required)
+yarn add integracore-sdk integracore-client-sdk
+
+# Connect to the IntegraCore instance to generate the client from
+yarn integracore remote:add
+
+# Generate the typed client into node_modules/integracore-client-sdk
+yarn integracore dev:generate-client
+```
+
+Poté klienta importujte ve svém kódu:
+
+```typescript
+import { CoreApiClient } from 'integracore-client-sdk/core';
+```
+
+Spusťte příkaz znovu pokaždé, když se změní váš datový model, abyste aktualizovali vygenerované typy.
+
+<Note>
+Klient je vygenerován uvnitř `node_modules`, takže není verzován spolu s vaším kódem. Spusťte `yarn integracore dev:generate-client` po každé instalaci (například ve skriptu `postinstall` nebo v CI).
+</Note>
+
+## Odinstalace aplikace (`yarn integracore app:uninstall`)
+
+Odeberte svou aplikaci z aktivního pracovního prostoru:
+
+```bash filename="Terminal"
+yarn integracore app:uninstall
+
+# Skip the confirmation prompt
+yarn integracore app:uninstall --yes
+```
+
+## Správa vzdálených serverů
+
+**Remote** je server IntegraCore, ke kterému se vaše aplikace připojuje. Během nastavení jej generátor kostry automaticky vytvoří. Můžete kdykoli přidat další vzdálené servery nebo mezi nimi přepínat.
+
+```bash filename="Terminal"
+# Add a new remote (opens a browser for OAuth login)
+yarn integracore remote:add
+
+# Connect to a local IntegraCore server (auto-detects port 2020 or 3000)
+yarn integracore remote:add --local
+
+# Add a remote non-interactively (useful for CI)
+yarn integracore remote:add --url https://your-integracore-server.com --api-key $INTEGRA_API_KEY --as my-remote
+
+# List all configured remotes
+yarn integracore remote:list
+
+# Set the active remote
+yarn integracore remote:use <name>
+
+# Check that the active remote's authentication is still valid
+yarn integracore remote:status
+
+# Remove a remote
+yarn integracore remote:remove <name>
+```
+
+Vaše přihlašovací údaje jsou uloženy v `~/.integracore/config.json`.

@@ -1,0 +1,64 @@
+name: 'Push docs to Crowdin'
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    branches: ['main']
+    paths:
+      - 'packages/integracore-docs/**/*.mdx'
+      - '!packages/integracore-docs/ar/**'
+      - '!packages/integracore-docs/cs/**'
+      - '!packages/integracore-docs/de/**'
+      - '!packages/integracore-docs/es/**'
+      - '!packages/integracore-docs/fr/**'
+      - '!packages/integracore-docs/it/**'
+      - '!packages/integracore-docs/ja/**'
+      - '!packages/integracore-docs/ko/**'
+      - '!packages/integracore-docs/pt/**'
+      - '!packages/integracore-docs/ro/**'
+      - '!packages/integracore-docs/ru/**'
+      - '!packages/integracore-docs/tr/**'
+      - '!packages/integracore-docs/zh/**'
+      - 'packages/integracore-docs/navigation/navigation.template.json'
+      - '.github/crowdin-docs.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  push_docs:
+    name: Push documentation to Crowdin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          token: ${{ github.token }}
+          ref: ${{ github.ref }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/yarn-install
+
+      - name: Generate navigation template for Crowdin
+        run: yarn docs:generate-navigation-template
+
+      - name: Upload docs to Crowdin
+        uses: crowdin/github-action@8868a33591d21088edfc398968173a3b98d51706 # v2
+        with:
+          upload_sources: true
+          upload_sources_args: '--delete-obsolete'
+          upload_translations: false
+          download_translations: false
+          localization_branch_name: i18n-docs
+          base_url: 'https://integracore.api.crowdin.com'
+          config: '.github/crowdin-docs.yml'
+        env:
+          # Docs translations project
+          CROWDIN_PROJECT_ID: '2'
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+

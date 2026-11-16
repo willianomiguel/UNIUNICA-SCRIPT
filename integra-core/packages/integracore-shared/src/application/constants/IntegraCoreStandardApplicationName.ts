@@ -1,0 +1,1 @@
+export const INTEGRA_STANDARD_APPLICATION_NAME = 'Standard';

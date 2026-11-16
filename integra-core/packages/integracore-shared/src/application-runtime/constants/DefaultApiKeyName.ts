@@ -1,0 +1,1 @@
+export const DEFAULT_API_KEY_NAME = 'INTEGRA_API_KEY';

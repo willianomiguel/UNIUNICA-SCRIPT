@@ -2,13 +2,13 @@
 // Tira o Cofre de acessos de TODAS as funções editáveis do workspace, menos "Membro com cofre".
 // (Admin e os papéis do app não são editáveis; o papel do app precisa ler o bloco cifrado para a tela funcionar.)
 // Idempotente: rode depois de cada instalação/atualização e sempre que criar uma função nova.
-// Uso: SERVER_URL=https://gestao.dominio.com.br node scripts/travar-cofre.mjs < ~/.uniunica-api-key
+// Uso: SERVER_URL=https://gestao.dominio.com.br node scripts/travar-cofre.mjs < ~/.integracore-api-key
 // A chave (papel Admin) vem pelo stdin para não ficar no histórico do shell.
 import { readFileSync } from 'node:fs';
 
 const SERVER_URL = (process.env.SERVER_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const CHAVE = readFileSync(0, 'utf8').trim();
-// Mesmo ID de apps/uniunica/src/modules/shared/constants/objects.ts (OBJECTS.cofre).
+// Mesmo ID de apps/integracore/src/modules/shared/constants/objects.ts (OBJECTS.cofre).
 const COFRE_UNIVERSAL_IDENTIFIER = '8d61259b-fd4d-43e0-91c2-7855b2537d41';
 const FUNCAO_COM_COFRE = 'a4a55f63-b1b4-4487-a640-68ccbd8a72f0';
 

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+permissions:
+  contents: read
+
+env:
+  INTEGRA_VERSION: latest
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spawn IntegraCore test instance
+        id: integracore
+        uses: integracorehq/integracore/.github/actions/spawn-integracore-app-dev-test@main
+        with:
+          integracore-version: ${{ env.INTEGRA_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run integration tests
+        run: yarn test
+        env:
+          INTEGRA_API_URL: ${{ steps.integracore.outputs.server-url }}
+          INTEGRA_API_KEY: ${{ steps.integracore.outputs.api-key }}

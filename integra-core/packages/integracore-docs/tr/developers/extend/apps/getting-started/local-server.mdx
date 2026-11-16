@@ -1,0 +1,86 @@
+---
+title: Yerel Sunucu
+description: Yerel IntegraCore Docker sunucusunu yönetin — başlatın, durdurun, yükseltin, paralel test örneği çalıştırın ve manuel SDK kurulumu yapın.
+---
+
+## Yerel sunucuyu yönetme
+
+Yerel IntegraCore konteynerini kontrol etmek için `yarn integracore docker:*` kullanın:
+
+| Komut                                  | Ne yapar                                                  |
+| -------------------------------------- | --------------------------------------------------------- |
+| `yarn integracore docker:start`             | Sunucuyu başlatır (gerekirse imajı çeker)                 |
+| `yarn integracore docker:start 2.2.0`       | Belirli bir sunucu sürümünü başlatın                      |
+| `yarn integracore docker:start --port 3030` | Özel bir portta başlatır                                  |
+| `yarn integracore docker:stop`              | Sunucuyu durdurur (verileri korur)                        |
+| `yarn integracore docker:status`            | URL'yi, sürümü ve oturum açma kimlik bilgilerini gösterir |
+| `yarn integracore docker:logs`              | Sunucu günlüklerini akış olarak gösterir                  |
+| `yarn integracore docker:reset`             | Verileri siler ve sıfırdan başlatır                       |
+| `yarn integracore docker:upgrade`           | En güncel `integracore-app-dev` imajını çeker                  |
+| `yarn integracore docker:upgrade 2.2.0`     | Belirli bir sürüme yükseltir                              |
+
+Veriler, yeniden başlatmalar arasında iki Docker biriminde kalıcıdır (PostgreSQL için `integracore-app-dev-data`, dosyalar için `integracore-app-dev-storage`). Her şeyi silmek için `reset` kullanın.
+
+## Sunucu sürümünü sabitleme
+
+Herhangi bir sürüm iletilmediğinde, `docker:start` sürümü uygulamanızın `package.json` içindeki `engines.integracore` aralığından çözümler — bu, uygulamanız yüklendiğinde sunucunun doğruladığı aralıkla aynıdır. Bu komut, aralığı karşılayan en yeni yayımlanmış `integracore-app-dev` imajını başlatır; alan yoksa veya hiçbir yayımlanmış sürüm eşleşmiyorsa `latest` değerine geri döner:
+
+```json filename="package.json"
+{
+  "engines": {
+    "integracore": ">=2.2.0"
+  }
+}
+```
+
+Aralığı tek bir çalıştırma için geçersiz kılmak amacıyla sürümü açıkça iletin: `yarn integracore docker:start 2.3.0`. Bir kapsayıcı zaten farklı bir sürümde mevcutsa, `docker:start` onu yerinde yükseltir (veri birimlerinizi korurken kapsayıcıyı yeniden oluşturarak).
+
+## Sunucu imajını yükseltme
+
+`yarn integracore docker:upgrade`, en güncel imajı çeker, özetleri karşılaştırır ve yalnızca gerçekten bir şey değiştiyse konteyneri yeniden oluşturur. Birimler korunur — yalnızca konteyner değiştirilir. Yeni bir imaj çekildiyse ve konteyner çalışıyorsa, yükseltme otomatik olarak yeni bir konteyner başlatır; sağlıklı hale gelmesini beklemek için ardından `yarn integracore docker:start` çalıştırın.
+
+```bash filename="Terminal"
+yarn integracore docker:upgrade            # Latest
+yarn integracore docker:upgrade 2.2.0      # Specific version
+```
+
+Çalışan sürümü `yarn integracore docker:status` ile doğrulayabilirsiniz (konteynere gömülü `APP_VERSION` değerini gösterir).
+
+## Paralel bir test örneği çalıştırma
+
+Ana geliştirme verilerinize dokunmadan entegrasyon testlerini veya denemeleri yürütmek için, herhangi bir `docker:*` komutuna `--test` parametresini vererek ikinci, tamamen yalıtılmış bir örneği yönetebilirsiniz:
+
+| Komut                               | Ne yapar                                                      |
+| ----------------------------------- | ------------------------------------------------------------- |
+| `yarn integracore docker:start --test`   | Test örneğini başlatır (varsayılan bağlantı noktası 2021'dir) |
+| `yarn integracore docker:stop --test`    | Durdurur                                                      |
+| `yarn integracore docker:status --test`  | Durumunu gösterir                                             |
+| `yarn integracore docker:logs --test`    | Günlüklerini akış olarak gösterir                             |
+| `yarn integracore docker:reset --test`   | Verilerini siler                                              |
+| `yarn integracore docker:upgrade --test` | İmajını yükseltir                                             |
+
+Test örneği, kendine ait bir Docker konteynerinde (`integracore-app-dev-test`), ayrılmış birimlerle (`integracore-app-dev-test-data`, `integracore-app-dev-test-storage`) ve yapılandırmayla çalışır; böylece ana örneğinizle çakışma olmadan paralel olarak çalışabilir. Varsayılan 2021'i geçersiz kılmak için `--test` ile `--port`'u birlikte kullanın.
+
+## Manuel kurulum (iskelet oluşturucu olmadan)
+
+SDK'yı mevcut bir projeye ekliyorsanız iskelet oluşturma adımını atlayın:
+
+```bash filename="Terminal"
+yarn add integracore-sdk integracore-client-sdk
+```
+
+`package.json` dosyasına betiği ekleyin:
+
+```json filename="package.json"
+{
+  "scripts": {
+    "integracore": "integracore"
+  }
+}
+```
+
+Artık `yarn integracore dev`, `yarn integracore docker:start` ve diğerlerini çalıştırabilirsiniz.
+
+<Note>
+`integracore-sdk`'yi global olarak kurmayın — her uygulama kendi sürümünü kullansın diye proje bazında sabitleyin.
+</Note>

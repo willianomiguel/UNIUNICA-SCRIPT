@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: integracore-db
+    image: postgres:16
+    environment:
+      POSTGRES_DB: integracore
+      POSTGRES_USER: integracore
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD}
+    volumes:
+      - integracore-db-data:/var/lib/postgresql/data:Z
+
+  redis:
+    container_name: integracore-redis
+    image: redis:latest
+    command: ["--maxmemory-policy", "noeviction"]
+    volumes:
+      - integracore-redis-data:/data:Z
+
+  server:
+    container_name: integracore-server
+    image: integracorecrm/integracore:latest
+    stop_grace_period: 120s
+    environment:
+      NODE_PORT: "3000"
+      SERVER_URL: ${SERVER_URL}
+      PG_DATABASE_URL: "postgresql://integracore:${PG_DATABASE_PASSWORD}@integracore-db:5432/integracore"
+      REDIS_URL: "redis://integracore-redis:6379"
+      APP_SECRET: ${APP_SECRET}
+      NODE_ENV: production
+      LOG_LEVEL: info
+    volumes:
+      - integracore-server-data:/app/docker-data:Z
+    ports:
+      - 127.0.0.1:8080:3000
+
+  worker:
+    container_name: integracore-worker
+    image: integracorecrm/integracore:latest
+    command: yarn worker:prod
+    environment:
+      SERVER_URL: ${SERVER_URL}
+      PG_DATABASE_URL: "postgresql://integracore:${PG_DATABASE_PASSWORD}@integracore-db:5432/integracore"
+      REDIS_URL: "redis://integracore-redis:6379"
+      APP_SECRET: ${APP_SECRET}
+      DISABLE_DB_MIGRATIONS: "true"
+      NODE_ENV: production
+      LOG_LEVEL: info
+    volumes:
+      - integracore-server-data:/app/docker-data:Z
+    init: true
+
+volumes:
+  integracore-db-data:
+  integracore-server-data:
+  integracore-redis-data:
