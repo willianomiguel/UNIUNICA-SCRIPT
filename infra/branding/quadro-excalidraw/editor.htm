@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quadro</title>
+    <script>
+      // CSP com a origem real da página (em origem isolada, 'self' não serve): o editor só conversa com
+      // este servidor, mesmo que alguma falha dele tente mandar o token para fora.
+      (function () {
+        var origem = new URL(location.href).origin;
+        var meta = document.createElement('meta');
+        meta.httpEquiv = 'Content-Security-Policy';
+        meta.content =
+          "connect-src " + origem + " data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'";
+        document.head.appendChild(meta);
+      })();
+    </script>
+    <link rel="stylesheet" href="editor.css" />
+    <style>
+      html, body, #raiz { margin: 0; height: 100%; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="raiz"></div>
+    <script src="editor.js"></script>
+  </body>
+</html>

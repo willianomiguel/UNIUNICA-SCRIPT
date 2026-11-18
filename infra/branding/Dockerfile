@@ -2,6 +2,15 @@
 # Não altera o código do motor: só renomeia os pacotes internos, troca arquivos estáticos já
 # compilados e reaplica a marca na interface e nos e-mails.
 ARG TAG=v2.58.2
+
+# Editor do Quadro (Excalidraw), servido em /quadro-excalidraw/ e aberto em iframe pelo front component.
+FROM node:24-slim AS quadro
+WORKDIR /quadro
+COPY quadro-excalidraw/package.json quadro-excalidraw/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY quadro-excalidraw/ ./
+RUN npm run build
+
 FROM twentycrm/twenty:${TAG}
 
 ARG FRONT=/app/packages/twenty-server/dist/front
@@ -22,6 +31,7 @@ RUN sed -i 's#packages/twenty-#packages/integracore-#g' /app/package.json \
 USER 1000
 
 COPY icons/ ${FRONT}/images/icons/
+COPY --from=quadro /quadro/dist/ ${FRONT}/quadro-excalidraw/
 COPY logo-integracore.svg ${FRONT}/images/integrations/twenty-logo.svg
 COPY aplicar-marca.js tema-integracore.css /tmp/
 RUN node /tmp/aplicar-marca.js ${FRONT}

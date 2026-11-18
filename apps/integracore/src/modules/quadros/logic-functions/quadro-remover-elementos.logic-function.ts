@@ -32,7 +32,7 @@ const handler = async (input: unknown) => {
     };
   }
 
-  await gravarConteudoQuadro(client, quadro.id, resultado.conteudo);
+  await gravarConteudoQuadro(client, quadro, resultado.conteudo);
 
   return {
     ok: true,

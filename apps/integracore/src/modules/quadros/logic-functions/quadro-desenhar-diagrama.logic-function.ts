@@ -28,7 +28,7 @@ const handler = async (input: unknown) => {
     return { ok: false, erro: resultado.erro };
   }
 
-  await gravarConteudoQuadro(client, quadro.id, resultado.conteudo);
+  await gravarConteudoQuadro(client, quadro, resultado.conteudo);
 
   return {
     ok: true,

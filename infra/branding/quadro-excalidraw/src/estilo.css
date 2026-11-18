@@ -1,0 +1,66 @@
+/* Destaque terracota do IntegraCore no lugar do roxo do Excalidraw (mesmos seletores do index.css dele). */
+.excalidraw {
+  --color-primary: #b05438;
+  --color-primary-darker: #96452d;
+  --color-primary-darkest: #7c3824;
+  --color-primary-hover: #a04a30;
+  --color-primary-light: #f6e3dc;
+  --color-primary-light-darker: #edcbbe;
+  --color-surface-primary-container: #f6e3dc;
+  --color-on-primary-container: #5a2617;
+  --color-brand-hover: #a04a30;
+  --color-brand-active: #96452d;
+  --color-selection: #b05438;
+}
+.excalidraw.theme--dark {
+  --color-primary: #e08a6c;
+  --color-primary-darker: #e9a088;
+  --color-primary-darkest: #f0b6a3;
+  --color-primary-hover: #e9a088;
+  --color-primary-light: #4a2c22;
+  --color-primary-light-darker: #5c372a;
+  --color-surface-primary-container: #4a2c22;
+  --color-on-primary-container: #f6e3dc;
+  --color-brand-hover: #e9a088;
+  --color-brand-active: #f0b6a3;
+  --color-selection: #e08a6c;
+}
+
+/* Mesma altura dos botões da barra de cima do Excalidraw. */
+.quadro-status {
+  box-sizing: border-box;
+  height: var(--lg-button-size, 2.25rem);
+  display: flex;
+  align-items: center;
+  font: 500 12px/1 system-ui, sans-serif;
+  padding: 0 10px;
+  border-radius: var(--border-radius-lg, 8px);
+  color: #5c5c5c;
+  white-space: nowrap;
+}
+.excalidraw.theme--dark .quadro-status {
+  color: #b8b8b8;
+}
+.quadro-status-erro,
+.quadro-status-sessao {
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.1);
+}
+.excalidraw.theme--dark .quadro-status-erro,
+.excalidraw.theme--dark .quadro-status-sessao {
+  color: #ff8a80;
+  background: rgba(240, 68, 56, 0.18);
+}
+
+.quadro-mensagem {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font: 14px system-ui, sans-serif;
+  color: #736d63;
+  background: #fff;
+}
+.quadro-mensagem.dark {
+  color: #b5ada1;
+  background: #121212;
+}

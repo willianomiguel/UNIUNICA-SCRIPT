@@ -7,6 +7,7 @@ export const QUADROS_UNIVERSAL_IDENTIFIERS = {
     nome: '707393cf-a0cc-4505-912c-2a58a012f24e',
     descricao: '42a5eb06-07cf-40a2-8d9e-21b4f7dcd102',
     conteudo: '1b56fb98-8bcb-4caf-8acb-47abd72b44a3',
+    cena: '6dc86ad9-5e50-4665-b8e3-a4e1da529c6b',
     projetoOnQuadro: 'f54b1b38-07be-4b8c-af6e-7047cba844ce',
     quadrosOnProjeto: '20fbce03-891a-487d-9dd0-3d0a2b03ee7d',
   },

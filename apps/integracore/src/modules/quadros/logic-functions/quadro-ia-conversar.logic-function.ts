@@ -62,7 +62,7 @@ const handler = async (evento: { body?: unknown }) => {
       return falha(mescla.erro);
     }
 
-    await gravarConteudoQuadro(cliente, quadro.id, mescla.conteudo);
+    await gravarConteudoQuadro(cliente, quadro, mescla.conteudo);
 
     return { ok: true, resposta: plano.resposta, desenhou: true, criados: mescla.criados };
   } catch (erro) {
